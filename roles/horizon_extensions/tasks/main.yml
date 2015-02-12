@@ -24,7 +24,7 @@
   args:
     chdir: '{{ horizon_extensions_dest_dir }}'
   sudo: yes
-  notify: Restart apache
+  notify: Restart apache2
 
 - name: Install python dependencies
   pip:
@@ -34,7 +34,7 @@
   file:
     path: /etc/rackspace
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: root
     group: root
 
@@ -42,18 +42,18 @@
   template:
     src: solutions.yaml
     dest: "/etc/rackspace/solutions.yaml"
-    mode: 0644
+    mode: "0644"
     owner: root
     group: root
 
 - name: Generate Horizon plugin config
   template:
     src: _50_rackspace.py
-    dest: "{{ install_lib_dir }}/openstack_dashboard/local/enabled/_50_rackspace.py"
-    mode: 0644
+    dest: "{{ horizon_lib_dir }}/openstack_dashboard/local/enabled/_50_rackspace.py"
+    mode: "0644"
     owner: root
     group: root
-  notify: Restart apache
+  notify: Restart apache2
 
 - name: Collect and compress static files
   command: "{{ item }}"
@@ -61,4 +61,4 @@
   with_items:
     - horizon-manage.py collectstatic --noinput
     - horizon-manage.py compress --force
-  notify: Restart apache
+  notify: Restart apache2

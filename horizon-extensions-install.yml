@@ -18,9 +18,4 @@
   roles:
     - horizon_extensions
   vars_files:
-    - vars/common.yml
-    - "{{ rpc_repo_path }}/rpc_deployment/vars/repo_packages/horizon.yml"
-    - "{{ rpc_repo_path }}/rpc_deployment/inventory/group_vars/horizon.yml"
-    - vars/repo_packages/horizon_extensions.yml
-  handlers:
-    - include: handlers/services.yml
+    - "{{ rpc_repo_path }}/playbooks/roles/os_horizon/defaults/main.yml"

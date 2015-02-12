@@ -13,8 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-horizon_extensions_git_repo: https://github.com/rcbops/horizon-extensions.git
-horizon_extensions_git_install_branch: master
-horizon_extensions_dest_dir: /opt/rackspace/horizon-extensions
-
-horizon_extensions_pip_requirements_file: "/opt/rackspace/horizon-extensions/requirements.txt"
+- name: Restart apache2
+  service: name=apache2 state=restarted pattern=apache2

@@ -13,5 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Restart apache
-  service: name=apache2 state=restarted pattern=apache2
+galaxy_info:
+  author: rcbops
+  description: Installation and setup of horizon extensions
+  company: Rackspace
+  license: Apache2
+  min_ansible_version: 1.6.6
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+  categories:
+    - cloud
+    - python
+    - horizon
+    - heat
+    - development
+    - openstack
+dependencies:
+  - os_horizon
