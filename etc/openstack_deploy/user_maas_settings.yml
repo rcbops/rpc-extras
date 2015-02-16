@@ -1,0 +1,94 @@
+---
+# Copyright 2014, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## MaaS Options
+# Set maas_auth_method to 'token' to use maas_auth_token/maas_api_url
+# instead of maas_username/maas_api_key
+maas_auth_method: password
+maas_auth_url: "{{ rackspace_cloud_auth_url }}"
+maas_username: "{{ rackspace_cloud_username }}"
+maas_api_key: "{{ rackspace_cloud_api_key }}"
+maas_auth_token: some_token
+maas_api_url: https://monitoring.api.rackspacecloud.com/v1.0/{{ rackspace_cloud_tenant_id }}
+maas_notification_plan: npManaged
+
+# By default we will create an agent token for each entity, however if you'd
+# prefer to use the same agent token for all entities then specify it here
+#maas_agent_token: some_token
+maas_target_alias: public0_v4
+
+# Set whether checks should be enabled or disabled
+ssl_check: false
+dell_check: false
+remote_check: true
+
+# Set the LB device name in CORE
+lb_name: 'unspecified'
+
+# Set the maas_scheme
+maas_scheme: http
+# Specify per service if required, sample only
+# maas_nova_scheme
+
+maas_keystone_user: maas
+
+# Set the cehck time settings/count
+# Check this number of times before registering state change
+maas_alarm_local_consecutive_count: 3
+maas_alarm_remote_consecutive_count: 1
+# Period and timeout times (seconds) for a check
+# Timeout must be less than period
+maas_check_period: 60
+maas_check_timeout: 30
+maas_monitoring_zones:
+  - mzdfw
+  - mziad
+  - mzord
+  - mzlon
+  - mzhkg
+
+# Set the fqdn extension if required, sample only
+# maas_fqdn_extension: .example.com
+
+# Set the following to skip creating alarms for this device for disk utilisation monitoring
+# maas_excluded_devices: ['xvde']
+
+# Set the threshold for filesystem monitoring when you are not specifying specific filesystems.
+maas_filesystem_threshold: 90.0
+# Explicitly set the filesystems to set up monitors/alerts for.
+# NB You can override these in rpc_user_config per device using "maas_filesystem_overrides"
+# maas_filesystem_monitors:
+#  - filesystem: /
+#    threshold: 90.0
+#  - filesystem: /boot
+#    threshold: 90.0
+
+raxmon_repo_url: "http://stable.packages.cloudmonitoring.rackspace.com/ubuntu-14.04-x86_64"
+maas_apt_keys:
+  - { url: "https://monitoring.api.rackspacecloud.com/pki/agent/linux.asc", state: "present" }
+
+maas_apt_repos:
+  - { repo: "deb {{ raxmon_repo_url }} cloudmonitoring main", state: "present" }
+
+maas_apt_packages:
+  - rackspace-monitoring-agent
+
+maas_pip_requirements_file: "/usr/lib/rackspace-monitoring-agent/plugins/requirements.txt"
+
+maas_pip_dependencies:
+  - rackspace-monitoring-cli
+
+maas_git_repo: https://github.com/rcbops/rpc-maas.git
+maas_git_install_branch: master

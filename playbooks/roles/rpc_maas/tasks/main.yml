@@ -1,0 +1,60 @@
+---
+# Copyright 2014, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- include: repo_setup.yml
+  when: >
+    inventory_hostname in groups['hosts']
+
+- include: package_install.yml
+  when: >
+    inventory_hostname in groups['hosts']
+
+- include: raxmon_cli_config.yml
+  when: >
+    inventory_hostname in groups['hosts']
+
+- include: raxmon_agent_install.yml
+  vars:
+    entity_name: "{{ inventory_hostname }}{{ maas_fqdn_extension }}"
+  when: >
+    inventory_hostname in groups['hosts']
+
+- include: local.yml
+  vars:
+    internal_vip_address: "{{ internal_lb_vip_address }}"
+
+- include: remote.yml
+  vars:
+    external_vip_address: "{{ external_lb_vip_address }}"
+  when: >
+    remote_check == true
+
+- include: cdm.yml
+  when: >
+    inventory_hostname in groups['hosts']
+
+- include: dell.yml
+  when: >
+    inventory_hostname in groups['hosts'] and dell_check == true
+
+- include: swift.yml
+  vars:
+    external_vip_address: "{{ external_lb_vip_address }}"
+
+- include: ssl_check.yml
+  vars:
+    external_vip_address: "{{ external_lb_vip_address }}"
+  when: >
+    inventory_hostname == groups['utility'][0] and ssl_check == true
