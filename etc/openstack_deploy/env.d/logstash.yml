@@ -1,0 +1,15 @@
+---
+component_skel:
+  logstash:
+    belongs_to:
+      - logstash_all
+
+container_skel:
+  logstash_container:
+    belongs_to:
+      - log_containers
+    contains:
+      - logstash
+    properties:
+      service_name: logstash
+      container_release: trusty
