@@ -252,7 +252,7 @@ POOL_PARTS = {
         'make_public': True,
         'hosts': []
     },
-    'nova_console': {
+    'nova_spice_console': {
         'port': 6082,
         'backend_port': 6082,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE',
