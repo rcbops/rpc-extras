@@ -18,6 +18,7 @@ Plays:
 * `horizon_extensions.yml` - rebrands the horizon dashboard for Rackspace,
 as well as adding a Rackspace tab and a Solutions tab, which provides
 Heat templates for commonly deployed applications.
+* `logstash.yml` - deploys a logstash host
 * `rpc-support.yml` - provides holland backup service, support SSH key
 distribution, custom security group rules, bashrc settings, and other
 miscellaneous tasks helpful to support personnel.
@@ -55,5 +56,7 @@ openstack-ansible setup-everything.yml
 # Ansible Roles
 
 * `horizon_extensions`
+* `logstash`
+* `module_import`
 * `rpc_maas`
 * `rpc_support`
