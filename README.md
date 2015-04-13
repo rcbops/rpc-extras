@@ -27,6 +27,9 @@ miscellaneous tasks helpful to support personnel.
 * `setup-maas.yml` - deploys, sets up, and installs Rackspace
 [MaaS](http://www.rackspace.com/cloud/monitoring) checks
 for Rackspace Private Clouds.
+* `setup-logging.yml` - deploys and configures Logstash, Elasticsearch, and 
+Kibana to tag, index, and expose aggregated logs from all hosts and containers
+in the deployment using the related plays mentioned above..
 * `site.yml` - deploys all the above playbooks.
 
 Basic Setup:
