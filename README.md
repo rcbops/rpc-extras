@@ -20,7 +20,11 @@ Plays:
 as well as adding a Rackspace tab and a Solutions tab, which provides
 Heat templates for commonly deployed applications.
 * `kibana.yml` - Setup Kibana on the Kibana hosts for the logging dashboard.
-* `logstash.yml` - deploys a logstash host
+* `logstash.yml` - deploys a logstash host. If this play is used, be sure to 
+uncomment the related block in user_extra_variables.yml before this play is 
+run and then rerun the appropriate plays in os-ansible-deployment after this 
+play to ensure that rsyslog ships logs to logstash. See the setup-logging.yml
+play for more.
 * `rpc-support.yml` - provides holland backup service, support SSH key
 distribution, custom security group rules, bashrc settings, and other
 miscellaneous tasks helpful to support personnel.
@@ -29,7 +33,7 @@ miscellaneous tasks helpful to support personnel.
 for Rackspace Private Clouds.
 * `setup-logging.yml` - deploys and configures Logstash, Elasticsearch, and 
 Kibana to tag, index, and expose aggregated logs from all hosts and containers
-in the deployment using the related plays mentioned above..
+in the deployment using the related plays mentioned above.
 * `site.yml` - deploys all the above playbooks.
 
 Basic Setup:

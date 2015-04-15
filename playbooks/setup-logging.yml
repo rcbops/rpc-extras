@@ -17,3 +17,14 @@
 - include: elasticsearch.yml
 - include: kibana.yml
 
+# Tags wont work until following review is resolved
+#   https://review.openstack.org/#/c/174040/
+# Need to rerun rsyslog_client role
+#  i.e. openstack-ansible setup-everything.yml --tags rsyslog-client
+#- include: setup-everything.yml tags=rsyslog-client
+#  or in detail
+#- include: repo-server.yml tags=rsyslog-client
+#- include: lxc-hosts-setup.yml tags=rsyslog-client
+#- include: rabbitmq-install.yml tags=rsyslog-client
+#- include: galera-install.yml tags=rsyslog-client
+#- include: setup-openstack.yml tags=rsyslog-client
