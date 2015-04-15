@@ -79,3 +79,22 @@ maas_filesystem_threshold: 90.0
 # For an AIO it's recommended to set the following to limit the expected RAM
 # usage of elasticsearch.
 # elasticsearch_heap_size_mb: 1024
+
+# Ship all logs to the logstash container as well as the rsyslog_server.
+# Uncomment the following if the setup-logging play is going to be used.
+# logstash_port: 5544
+# rsyslog_client_user_defined_targets:
+#    - name: "rpc-logging"
+#      proto: "tcp"
+#      port: "{{ logstash_port }}"
+#      hostname: "groups['logstash_all'][0]"
+#      action_options: 'ls_json'
+#      template: >
+#        $template ls_json,"{ %timestamp:::date-rfc3339,
+#        jsonf:@timestamp%,%source:::
+#        jsonf:@source_host%,\"@source\":\"syslog://%app-name:::
+#        json%\",\"@message\":\"%msg:::
+#        json%\",\"@fields\":{ %syslogfacility-text:::
+#        jsonf:facility%,%syslogseverity-text:::jsonf:severity%,%app-name:::
+#        jsonf:program%,%procid:::
+#        jsonf:processid%}}"
