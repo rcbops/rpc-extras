@@ -144,11 +144,11 @@ POOL_PARTS = {
         'group': 'nova_api_os_compute',
         'hosts': []
     },
-    'nova_spice_console': {
+    'nova_console': {
         'port': 6082,
         'backend_port': 6082,
         'mon_type': 'http',
-        'group': 'nova_spice_console',
+        'group': 'nova_console',
         'hosts': []
     },
     'cinder_api': {
