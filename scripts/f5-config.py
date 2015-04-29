@@ -332,6 +332,19 @@ POOL_PARTS = {
 }
 
 
+HTTP_REQUEST_IRULE = ('create ltm rule /' + PART + '/' + PREFIX_NAME + '_%(name)s '
+                      'when HTTP_REQUEST { %(rule)s }')
+
+HTTP_REQUEST_RULES = [
+    {'name': 'x_forwarded_host',
+     'rule': 'HTTP::header insert X-Forwarded-Host [HTTP:host]'},
+    {'name': 'x_forwarded_proto',
+     'rule': 'HTTP::header insert X-Forwarded-Proto "https"'},
+    {'name': 'x_forwarded_for',
+     'rule': 'HTTP::header insert X-Forwarded-For [IP::client_addr]'}
+]
+
+
 def recursive_host_get(inventory, group_name, host_dict=None):
     if host_dict is None:
         host_dict = {}
@@ -736,6 +749,12 @@ def main():
                 'sec_container_netmask': netmask
             }
         )
+
+    # define HTTP request irules for proxy server
+    script.append('\n### CREATE PROXY SERVER REQUEST RULES ###')
+    for irule in HTTP_REQUEST_RULES:
+        script.append(HTTP_REQUEST_IRULE % irule)
+    script.append('\n')
 
     script.extend(['%s\n' % i for i in END_COMMANDS])
 
