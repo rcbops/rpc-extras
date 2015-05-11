@@ -13,7 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: elasticsearch.yml
-- include: logstash.yml
-- include: kibana.yml
-- include: beaver.yml
+galaxy_info:
+  author: rcbops
+  description: Installation of the Beaver log shipper
+  company: Rackspace
+  license: Apache2
+  min_ansible_version: 1.6.6
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+  categories:
+    - rackspace
+    - beaver
+
+dependencies:
+  - pip_install

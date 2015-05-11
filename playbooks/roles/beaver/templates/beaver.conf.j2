@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+[beaver]
+logstash_version: 1
+hostname: {{ hostvars[inventory_hostname]['container_address'] }}
+transport: tcp
+tcp_host: {{ logstash_listen_address }}
+tcp_port: {{ logstash_tcp_port }}

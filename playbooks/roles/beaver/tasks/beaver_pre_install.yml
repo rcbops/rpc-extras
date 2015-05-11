@@ -1,0 +1,52 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Create the beaver system group
+  group:
+    name: "{{ beaver_daemon_group }}"
+    state: "present"
+    system: "yes"
+  when: beaver_daemon_group is defined
+        and beaver_daemon_group != 'root'
+  tags:
+    - beaver-pre-install
+    - beaver-create-group
+
+- name: Create the beaver system user
+  user:
+    name: "{{ beaver_daemon_user }}"
+    shell: "/bin/false"
+    group: "{{ beaver_daemon_group }}"
+    groups: "{{ beaver_daemon_group_extras|default() }}"
+    home: "/var/lib/{{ beaver_daemon_user }}"
+    system: "yes"
+    createhome: "yes"
+  when: beaver_daemon_user is defined
+        and beaver_daemon_user != 'root'
+        and beaver_daemon_group is defined
+  tags:
+    - beaver-pre-install
+    - beaver-create-user
+
+- name: Create beaver directories
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ beaver_daemon_user }}"
+    group: "{{ beaver_daemon_group }}"
+  with_items: beaver_directories
+  tags:
+    - beaver-pre-install
+    - beaver-create-directories

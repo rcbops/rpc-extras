@@ -1,0 +1,52 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Install pip packages
+  pip:
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    state: present
+    extra_args: "--isolated"
+  register: install_pip_packages
+  until: install_pip_packages|success
+  retries: 5
+  delay: 2
+  with_items: beaver_pip_packages
+  tags:
+    - beaver-install
+    - beaver-pip-packages
+
+- name: Drop beaver main config file
+  template:
+    src: "beaver.conf.j2"
+    dest: "/etc/beaver/beaver.conf"
+    owner: "{{ beaver_daemon_user }}"
+    group: "{{ beaver_daemon_group }}"
+  notify: Restart beaver
+  tags:
+    - beaver-install
+    - beaver-conf
+
+- name: Drop beaver init file
+  template:
+    src: "beaver.j2"
+    dest: "/etc/init.d/beaver"
+    owner: "root"
+    group: "root"
+    mode: 755
+  notify: Restart beaver
+  tags:
+    - beaver-install
+    - beaver-init-file

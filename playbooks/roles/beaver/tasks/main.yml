@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: elasticsearch.yml
-- include: logstash.yml
-- include: kibana.yml
-- include: beaver.yml
+- include: beaver_pre_install.yml
+- include: beaver_install.yml
+- include: beaver_post_install.yml

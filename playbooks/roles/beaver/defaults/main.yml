@@ -1,0 +1,38 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# the pip packages to install
+beaver_pip_packages:
+  - { name: "beaver", version: "33.3.0", index: "https://pypi.python.org/simple" }
+
+# the beaver daemon settings
+beaver_daemon_log: "/var/log/beaver/beaver.log"
+beaver_daemon_pid: "/var/run/beaver/beaver.pid"
+beaver_daemon_opts: "-c /etc/beaver/beaver.conf -C /etc/beaver/conf.d -P {{ beaver_daemon_pid }} -l {{ beaver_daemon_log }} -D"
+beaver_daemon_user: "beaver"
+beaver_daemon_group: "beaver"
+beaver_daemon_group_extras: "adm,syslog"
+
+beaver_directories:
+  - "/etc/beaver"
+  - "/etc/beaver/conf.d"
+  - "/var/run/beaver"
+  - "/var/log/beaver"
+
+# the logstash IP address to send events to
+logstash_listen_address: "{{ hostvars[groups['logstash'][0]]['container_address'] }}"
+
+# the logstash TCP port to send events to
+logstash_tcp_port: 5140
