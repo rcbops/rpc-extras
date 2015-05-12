@@ -40,53 +40,18 @@ below for more.
 
 Basic Setup:
 
-1. Clone 
-[os-ansible-deployment](https://github.com/stackforge/os-ansible-deployment).
-2. Clone [rpc-extras](https://github.com/rcbops/rpc-extras).
-3. Prepare the os-ansible-deployment configuration. If you're building an AIO
-you can simply execute `scripts/bootstrap-aio.sh` from the root of the
-os-ansible-deployment clone.
-4. From the root of the os-ansible-deployment clone, execute
-`scripts/bootstrap-ansible.sh`.
-5. Recursively copy `rpc-extras/etc/openstack_deploy/*` to
-`/etc/openstack_deploy/`.
-6. Set the `rpc_repo_path` in
-`/etc/openstack_deploy/user_extras_variables.yml` to the path of the
-`os-ansible-deployment` repository clone directory.
-7. Set all other variables in
-`/etc/openstack_deploy/user_extras_variables.yml` appropriately.
-8. Edit `rpc-extras/playbooks/ansible.cfg` and ensure the paths to the roles, 
-playbooks and inventory are correct.
-9. Generate the random passwords for the extras by executing
-`scripts/pw-token-gen.py --file
-/etc/openstack_deploy/user_extras_secrets.yml` from the
-`os-ansible-deployment` clone directory.
-10. Change to the `os-ansible-deployment/playbooks` directory and execute the
-plays. You can optionally execute `scripts/run-playbooks.sh` from the root of
-os-ansible-deployment clone.
-11. If you are planning to include the logstash play in the deployment, 
-uncomment the related yml block in user_extras_variables.yml now. 
-12. Change to the `rpc-extras/playbooks` directory and execute your
-desired plays.  EG:
-
-```bash
-openstack-ansible site.yml
-```
-
-13. __Optional__ If the logstash play is included in the deployment, from the
-os-ansible-deployment/playbooks directory, run the following to apply the
-needed changes to rsyslog configurations in order to ship logs to logstash.
-
-```bash
-openstack-ansible setup-everything.yml --tags rsyslog-client
-```
-
-# Ansible Roles
-
-* `elasticsearch`
-* `horizon_extensions`
-* `kibana`
-* `logstash`
-* `rpc_maas`
-* `rpc_support`
-
+1. From ```/opt```, clone [rpc-extras](https://github.com/rcbops/rpc-extras)
+with the ```--recursive``` option to get all the submodules.
+2. Unless doing an AIO build, prepare the os-ansible-deployment configuration.
+  1. copy everything from ```os-ansible-deployment/etc/openstack_deploy```
+  into ```/etc/openstack_deploy```
+  2. copy everything from ```rpcd/etc/openstack_deploy``` into
+  ```/etc/openstack_deploy```
+  3. Edit configurations in ```/etc/openstack_deploy``` for example:
+    1. ```openstack_user_variables.yml.example``` and
+    ```openstack_user_variables.yml.aio```
+    2. There is a tool to generate the inventory for RAX datacenters, otherwise
+    it will need to be coded by hand.
+3. Run ```scripts/deploy.sh``` within ```/opt/rpc-extras```
+  1. If building AIO, set ```RPCD_AIO=yes``` before running
+  2. If building with Logstash, set ```RPCD_LOGSTASH=yes``` before running

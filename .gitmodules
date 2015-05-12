@@ -1,0 +1,3 @@
+[submodule "os-ansible-deployment"]
+	path = os-ansible-deployment
+	url = https://git.openstack.org/stackforge/os-ansible-deployment

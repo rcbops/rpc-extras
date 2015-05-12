@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Clone plugins repo
-  git:
-    repo: "{{ maas_git_repo }}"
-    dest: /usr/lib/rackspace-monitoring-agent/plugins/
-    version: "{{ maas_git_install_branch }}"
+- name: Install plugin dir
+  file: path=/usr/lib/rackspace-monitoring-agent/plugins/ state=directory owner=root group=root mode=0755
+
+- name: Install MAAS Plugins
+  synchronize:
+    src={{ maas_plugin_dir }} dest=/usr/lib/rackspace-monitoring-agent/plugins/ delete=yes
 
 - name: List plugin files to chmod
   shell: "ls -1 /usr/lib/rackspace-monitoring-agent/plugins/*.py"

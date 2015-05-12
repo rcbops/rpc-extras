@@ -13,4 +13,4 @@
 # limitations under the License.
 
 # This is the location where the rpc repository was checked out
-rpc_repo_path: /opt/os-ansible-deployment
+rpc_repo_path: /opt/rpc-extras/os-ansible-deployment
