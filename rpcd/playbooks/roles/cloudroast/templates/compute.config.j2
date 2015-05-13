@@ -1,0 +1,238 @@
+# ======================================================
+# reference.json.config
+# ------------------------------------------------------
+# This configuration is specifically a reference
+# implementation for a configuration file.
+# You must create a proper configuration file and supply
+# the correct values for your Environment(s)
+# ======================================================
+
+[marshalling]
+serialize_format=json
+deserialize_format=json
+
+[user_auth_config]
+endpoint={{ keystone_service_internalurl }}
+strategy=keystone
+
+[compute_admin_auth_config]
+endpoint={{ keystone_service_adminurl }}
+strategy=keystone
+
+[compute_endpoint]
+region=RegionOne
+compute_endpoint_name=nova
+compute_endpoint_url={{ nova_service_adminuri }}/v2/
+
+[compute_admin_endpoint]
+region=RegionOne
+compute_endpoint_name=nova
+
+[compute]
+hypervisor=kvm
+vnc_supported=False
+
+[user]
+username=demo
+password=demo
+tenant_id={{ keystone_demo_tenant_id }}
+project_id={{ keystone_demo_tenant_id }}
+tenant_name=demo
+
+[compute_admin_user]
+username={{ keystone_admin_user_name }}
+password={{ keystone_auth_admin_password }}
+tenant_name={{ keystone_admin_tenant_name }}
+
+[compute_secondary_user]
+username=alt_demo
+password=alt_demo
+tenant_id={{ keystone_alt_demo_tenant_id }}
+project_id={{ keystone_alt_demo_tenant_id }}
+tenant_name=alt_demo
+
+[flavors]
+primary_flavor=201
+secondary_flavor=202
+resize_enabled={{ cloudroast_compute_resize_enabled }}
+
+[images]
+primary_image={{ cloudroast_glance_image_id }}
+secondary_image={{ cloudroast_glance_image_id }}
+image_status_interval=15
+snapshot_timeout=600
+can_get_deleted_image=False
+primary_image_has_protected_properties=False
+primary_image_default_user={{ cloudroast_compute_image_ssh_user }}
+primary_image_default_pass={{ cloudroast_compute_image_ssh_password }}
+primary_image_default_device=/dev/vba
+
+[servers]
+server_boot_timeout=120
+instance_auth_strategy=password
+server_status_interval=15
+server_build_timeout=600
+server_resize_timeout=780
+network_for_ssh=public
+ip_address_version_for_ssh=4
+instance_disk_path=/dev/vda
+connection_retry_interval=15
+connection_timeout=440
+expected_networks={"private": {"v4": true, "v6": false}}
+split_ephemeral_disk_enabled=True
+disk_format_type=ext3
+personality_file_injection_enabled=False
+ephemeral_disk_max_size=300
+default_injected_files=[{'path': '~/.ssh/authorized_keys', 'contents': 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1+RNQQRqEtjO5idvzrYzDU9XBNR16Pu5bCyZ2+kHNG/fBTz2yY3szo2kibmqKbcczlixVAJgj7dBrPlcLG53UNFY0SR8eeaOtHAg9MYvCQa25qI8TLr82t8h9940cWYnCfInlPNTgiV4XTP5gcfL4rk7etCWUA3JKkYww5G6fnJcg8Aid/Rtr6UqfEIkjRQOrBt32zh1yR3aXekBQqRLFjKnj3BXatGxxni3i7nJ8cw2nnPhNWLFkJuqpgOJaM/d6ZC2R0MX4SD/4rQ4CnxS/4JEMh7FFaWUKHbjyddMMrczIfZ8Ck1+EKuObEFHw/SXyZO2iF8RlXPifrL/L0IGh julian@emotionalhygiene.rackspace.corp'}]
+default_file_path='/'
+auto_assign_floating_ip=True
+floating_ip_pool_name=public
+default_network={{ cloudroast_neutron_public_network_id }}
+
+[security_groups]
+default_security_group=default
+
+[config_drive]
+supported=False
+openstack_meta_path=/mnt/config/openstack/latest/meta_data.json
+ec_meta_path=/mnt/config/ec2/latest/meta-data.json
+base_path_to_mount=/mnt/config
+mount_source_path=/dev/disk/by-label/config-2
+min_size=20
+max_size=35
+
+[blockstorage]
+identity_service_name=cinderv2
+region=RegionOne
+
+[volumes_api]
+
+# Minimum volume size allowed by the environment under test
+min_volume_size=10
+
+# Minimum size a volume can be if building from an image. Used by some
+# behaviors and tests. Depending on how the environment under test is
+# deployed, this value may be superceded by the minimum allowed volume
+# size
+min_volume_from_image_size=10
+
+# Sets all requests made to this api in either json or xml
+serialize_format=json
+
+# Used by some behaviors to attempt to calculate the time it will take
+# for a volume to be deleted based on it's size
+volume_delete_wait_per_gigabyte=10
+
+# Minimum time to allow any behavior to wait for a volume to finish
+# creating when using another volume as its source.
+volume_clone_min_timeout=600
+
+# Used by some behaviors to attempt to calculate the time it will take
+# for a volume to be created based on its size
+volume_create_wait_per_gigabyte=2
+
+# Controlls the rate at which some behaviors will poll the cinder api
+# for information.
+snapshot_status_poll_frequency=5
+
+# Maximum time some behaviors wait for a volume to be confirmed
+# deleted before raising an error
+volume_delete_max_timeout=300
+
+# Sets the default volume type for some behaviors and tests
+default_volume_type=lvm
+
+# Expects Json. Returns an empty dictionary by default (no filter).
+# Dictionary keys should be attributes of the image model, and key
+# values should be a list of values for that model attribute. Used by
+# some tests to decide which images to target for a given test run.
+image_filter={"name": ["cirros"]}
+
+# Maximum time to allow any behavior to wait for a volume to finish
+# creating
+volume_create_max_timeout=80
+
+# Expects Json. Returns an empty dictionary by default. Dictionary
+# keys should be attributes of the volume type model, and key values
+# should be a list of values for that model attribute. Used by some
+# tests to decide which images to target for a given test run.
+volume_type_filter={"name": ["lvm"]}
+
+# Amount of time added by default to the final calculated volume clone
+# timeouts for some behaviors. Useful for adding a constant amount of
+# time to clone timeouts globaly for dialing in good test timeouts.
+volume_create_base_timeout=2
+
+# Maximum time to allow any behavior to wait for a snapshot to finish
+# creating
+snapshot_create_max_timeout=600
+
+# Maximum time some behaviors wait for a volume to be confirmed
+# deleted before raising an error
+volume_delete_min_timeout=80
+
+# Minimum time to allow any behavior to wait for a snapshot to finish
+# creating
+snapshot_create_min_timeout=600
+
+# Requests all responses from this api to be in either json or xml
+deserialize_format=json
+
+# Controlls the rate at which some behaviors will poll the cinder api
+# for information.
+volume_status_poll_frequency=5
+
+# Maximum time to allow any behavior to wait for a volume to finish
+# creating when using another volume as its source.
+volume_clone_max_timeout=600
+
+# Amount of time added by default to the final calculated volume
+# snapshot timeouts for some behaviors. Useful for adding a constant
+# amount of time to volume snapshot timeouts globaly for dialing in
+# good test timeouts.
+snapshot_create_base_timeout=400
+
+# Amount of time added by default to the final calculated volume
+# snapshot timeouts for some behaviors. Useful for adding a constant
+# amount of time to volume snapshot timeouts globaly for dialing in
+# good test timeouts.
+# snapshot_delete_base_timeout=60
+
+# Maximum time some behaviors wait for a volume snapshot to be
+# confirmed deleted before raising an error
+snapshot_delete_max_timeout=400
+
+# Minimum time some behaviors wait for a volume snapshot to be
+# confirmed deleted before raising an error
+snapshot_delete_min_timeout=60
+
+# Amount of time added by default to the final calculated volume
+# create timeouts for some behaviors. Useful for adding a constant
+# amount of time to create timeouts globaly for dialing in good test
+# timeouts
+volume_create_base_timeout=2
+
+# Maximum volume size allowed by the environment under test
+max_volume_size=1024
+
+# Used by some behaviors to attempt to calculate the time it will take
+# for a volume to be created based on it's size when using another
+# volume as its source
+volume_clone_wait_per_gigabyte=5
+
+# Version of the cinder api under test, either '1' or '2'
+version_under_test=2
+
+# Used by some behaviors to attempt to calculate the time it will take
+# for a snapshot to be created based on the size of the original
+# volume
+snapshot_create_wait_per_gigabyte=5
+
+# Used by some behaviors to attempt to calculate the time it will take
+# for a snapshot to be deleted based on the size of the original
+# volume.
+snapshot_delete_wait_per_gigabyte=5
+
+# Minimum time to allow any behavior to wait for a volume to finish
+# creating
+volume_create_min_timeout=2

@@ -1,0 +1,154 @@
+# ======================================================
+# reference.json.config
+# ------------------------------------------------------
+# This configuration is specifically a reference
+# implementation for a configuration file.
+# You must create a proper configuration file and supply
+# the correct values for your Environment(s)
+# ======================================================
+
+[marshalling]
+serialize_format=json
+deserialize_format=json
+
+[user_auth_config]
+endpoint={{ keystone_service_internalurl }}
+strategy=keystone
+
+[compute]
+hypervisor=kvm
+
+[compute_admin_auth_config]
+endpoint={{ keystone_service_adminurl }}
+strategy=keystone
+
+[compute_endpoint]
+region=RegionOne
+compute_endpoint_name=nova
+
+[compute_admin_endpoint]
+region=RegionOne
+compute_endpoint_name=nova
+
+[user]
+# This should not be an admin user
+username=demo
+password=demo
+tenant_id={{ keystone_demo_tenant_id }}
+# user_id=<user_id>
+project_id={{ keystone_demo_tenant_id }}
+
+[compute_admin_user]
+username={{ keystone_admin_user_name }}
+password={{ keystone_auth_admin_password }}
+tenant_name={{ keystone_admin_tenant_name }}
+
+[compute_secondary_user]
+# This should not be an admin user
+username=alt_demo
+password=alt_demo
+tenant_name=alt_demo
+
+[flavors]
+primary_flavor=201
+secondary_flavor=202
+resize_enabled={{ cloudroast_compute_resize_enabled }}
+
+[images]
+primary_image={{ cloudroast_glance_image_id }}
+secondary_image={{ cloudroast_glance_image_id }}
+image_status_interval=15
+snapshot_timeout=900
+can_get_deleted_image=False
+primary_image_has_protected_properties=False
+primary_image_default_user={{ cloudroast_compute_image_ssh_user }}
+# non_inherited_metadata_filepath=<file_path>
+
+[servers]
+instance_auth_strategy=password
+server_status_interval=15
+server_build_timeout=600
+server_resize_timeout=1800
+network_for_ssh=public
+ip_address_version_for_ssh=4
+instance_disk_path=/dev/vda
+connection_retry_interval=15
+connection_timeout=600
+split_ephemeral_disk_enabled=True
+ephemeral_disk_max_size=300
+# resource_build_attempts=<num_of_retries>
+disk_format_type=ext3
+personality_file_injection_enabled=False
+default_file_path='/'
+
+[config_drive]
+openstack_meta_path=/mnt/config/openstack/latest/meta_data.json
+ec_meta_path=/mnt/config/ec2/latest/meta-data.json
+base_path_to_mount=/mnt/config
+mount_source_path=/dev/disk/by-label/config-2
+min_size=20
+max_size=35
+
+[networking_endpoint]
+region=RegionOne
+networking_endpoint_name=neutron
+networking_endpoint_url={{ neutron_service_adminurl }}
+# header_tenant_id=<optional tenant id to set in request headers>
+
+[networking_admin_endpoint]
+region=RegionOne
+networking_endpoint_name=neutron
+networking_endpoint_url={{ neutron_service_adminurl }}
+# header_tenant_id=<optional tenant id to set in request headers>
+
+[networking_admin_auth_config]
+endpoint={{ keystone_service_internalurl }}
+strategy=keystone
+
+[networking_admin_user]
+username={{ keystone_admin_user_name }}
+password={{ keystone_auth_admin_password }}
+# tenant_id=<tenant_id>
+# user_id=<user_id>
+# project_id=<project_id>
+
+[networking_secondary_user]
+username=alt_demo
+password=alt_demo
+tenant_id={{ keystone_alt_demo_tenant_id }}
+# user_id=<user_id>
+project_id={{ keystone_alt_demo_tenant_id }}
+
+[networks]
+public_network_id={{ cloudroast_neutron_public_network_id }}
+service_network_id={{ cloudroast_neutron_private_network_id }}
+resource_build_attempts=6
+keep_resources=False
+keep_resources_on_failure=False
+resource_create_timeout=600
+resource_delete_timeout=300
+starts_with_name=cloudroast
+
+[subnets]
+resource_build_attempts=6
+keep_resources=False
+keep_resources_on_failure=False
+resource_create_timeout=600
+resource_delete_timeout=300
+starts_with_name=cloudroast
+# ipv4_suffix=<Subnet create default IPv4 suffix>
+# ipv4_suffix_max=<Subnet max suffix default value>
+# ipv4_prefix=<Subnet create default IPv4 prefix>
+# private_ipv4_range=<Expected IPv4 private cidr range when creating subnets>
+# ipv6_suffix=<Subnet create default IPv6 suffix>
+# ipv6_suffix_max=<Subnet max suffix default value>
+# ipv6_prefix=<Subnet create default IPv6 prefix>
+# private_ipv6_range=<Expected IPv6 private cidr range when creating subnets>
+
+[ports]
+resource_build_attempts=6
+keep_resources=False
+keep_resources_on_failure=False
+resource_create_timeout=600
+resource_delete_timeout=300
+starts_with_name=cloudroast

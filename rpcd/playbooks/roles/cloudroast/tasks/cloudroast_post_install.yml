@@ -1,0 +1,44 @@
+---
+# Copyright 2014, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Get admin tenant id
+  keystone:
+    command: get_tenant
+    token: "{{ keystone_auth_admin_token }}"
+    tenant_name: admin
+    endpoint: "{{ keystone_service_adminurl }}"
+  register: add_service
+  until: add_service|success
+  retries: 5
+  delay: 10
+
+- name: Store admin tenant id
+  set_fact:
+    cloudroast_admin_tenant_id: "{{ keystone_facts.id }}"
+
+- name: Generate OpenCafe config
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "root"
+    group: "root"
+    mode: "{{ item.mode|default('0644') }}"
+  with_items:
+    - { src: "blockstorage.config.j2", dest: "~/.cloudcafe/configs/blockstorage/blockstorage.conf" }
+    - { src: "compute.config.j2", dest: "~/.cloudcafe/configs/compute/compute.conf" }
+    - { src: "identity.config.j2", dest: "~/.cloudcafe/configs/identity/identity.conf" }
+    - { src: "images.config.j2", dest: "~/.cloudcafe/configs/images/images.conf" }
+    - { src: "networking.config.j2", dest: "~/.cloudcafe/configs/networking/networking.conf" }
+    - { src: "objectstorage.config.j2", dest: "~/.cloudcafe/configs/objectstorage/objectstorage.conf" }

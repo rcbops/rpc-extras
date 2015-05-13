@@ -1,0 +1,59 @@
+---
+# Copyright 2014, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cloudroast_repositories:
+  opencafe:
+    git_repo: https://github.com/stackforge/opencafe.git
+    git_install_branch: "master"
+    git_dest: "/opt/{{ opencafe_repo_path }}"
+  cloudcafe:
+    git_repo: https://github.com/stackforge/cloudcafe.git
+    git_install_branch: "master"
+    git_dest: "/opt/{{ cloudcafe_repo_path }}"
+  cloudroast:
+    git_repo: https://github.com/stackforge/cloudroast.git
+    git_install_branch: "master"
+    git_dest: "/opt/{{ cloudroast_repo_path }}"
+
+opencafe_repo_path: "opencafe_{{ opencafe_git_install_branch | replace ('/', '_') }}"
+cloudcafe_repo_path: "cloudcafe_{{ cloudcafe_git_install_branch | replace ('/', '_') }}"
+cloudroast_repo_path: "cloudroast_{{ cloudroast_git_install_branch | replace ('/', '_') }}"
+
+# git_repo_plugins are other installable packages contained within the same git repo
+opencafe_git_repo_plugins:
+  - { path: "plugins", package: "http" }
+  - { path: "plugins", package: "ssh" }
+
+cloudroast_main_group: utility_all
+
+opencafe_pip_dependencies:
+  - six
+
+cloudcafe_pip_dependencies:
+  - mock
+  - IPy
+  - netaddr
+  - XenAPI
+  - dateutils
+
+cloudroast_pip_dependencies:
+
+cloudroast_compute_image_ssh_user: cirros
+cloudroast_compute_image_alt_ssh_user: cirros
+cloudroast_compute_image_ssh_password: cubswin:)
+cloudroast_compute_image_alt_ssh_password: cubswin:)
+cloudroast_compute_console_output_enabled: True
+cloudroast_compute_resize_enabled: True
+cloudroast_compute_snapshot_enabled: True

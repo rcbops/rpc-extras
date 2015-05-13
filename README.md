@@ -4,7 +4,7 @@ Optional add-ons for Rackspace Private Cloud
 # os-ansible-deployment integration
 
 The rpc-openstack repo includes add-ons for the Rackspace Private Cloud product
-that integrate with the 
+that integrate with the
 [os-ansible-deployment](https://github.com/stackforge/os-ansible-deployment)
 set of Ansible playbooks and roles.
 These add-ons extend the 'vanilla' OpenStack environment with value-added
@@ -32,6 +32,7 @@ support directly any longer.
 Plays:
 
 * `beaver.yml` - deploys the beaver log shipper on all hosts
+* `cloudroast.yml` - deploy the cloudroast test suite within a utility container
 * `elasticsearch.yml` - deploys an elasticsearch host
 * `haproxy` - deploys haproxy configurations for elasticsearch and kibana
 * `horizon_extensions.yml` - rebrands the horizon dashboard for Rackspace,
@@ -92,5 +93,5 @@ To run an upgrade of an existing os-ansible-deployment installation:
 1. Run`scripts/upgrade.sh`.
 
 Please note the following behaviors that are **destructive**:
-    * `/etc/rpc_deploy` will be deprecated and the file structure moved to 
+    * `/etc/rpc_deploy` will be deprecated and the file structure moved to
       `/etc/openstack_deploy`.

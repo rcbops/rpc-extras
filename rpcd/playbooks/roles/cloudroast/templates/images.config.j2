@@ -1,0 +1,71 @@
+# ======================================================
+# reference.json.config
+# ------------------------------------------------------
+# This configuration is specifically a reference
+# implementation for a configuration file.
+# You must create a proper configuration file and supply
+# the correct values for your Environment(s)
+#
+# For multiple environments it is suggested that you
+# generate specific configurations and name the files
+# along the lines of
+# <ENVIRONMENT>.<FORMAT>.config
+# ======================================================
+
+[user_auth_config]
+endpoint={{ keystone_service_adminurl }}
+strategy=keystone
+
+# This should not be an admin user
+[user]
+username=demo
+password=demo
+tenant_name=demo
+
+[images_admin_user]
+username={{ keystone_admin_user_name }}
+password={{ keystone_auth_admin_password }}
+tenant_name={{ keystone_admin_tenant_name }}
+
+[images_secondary_user]
+username=alt_demo
+password=alt_demo
+tenant_name=alt_demo
+
+[compute_endpoint]
+region=nova
+compute_endpoint_name=RegionOne
+
+[flavors]
+primary_flavor=201
+secondary_flavor=202
+
+[images]
+base_url={{ glance_service_adminurl }}
+primary_image={{ cloudroast_glance_image_id }}
+secondary_image={{ cloudroast_glance_image_id }}
+image_status_interval=15
+snapshot_timeout=900
+created_at_offset=300
+updated_at_offset=300
+
+# an image that is preloaded in your deployment for testing
+test_image=cirros
+
+# default properties used in some tests
+test_container_format=bare
+test_disk_format=qcow2
+
+# remote_image is an image file hosted remotely
+remote_image=<http://example.com/some_image.iso>
+
+# http_image is an image file that Glance should attempt to download
+http_image=http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+
+# image_schema_json is the path of the json file
+# which contains the image schema data
+image_schema_json=<.opencafe/data/image_schema.json>
+
+# images_schema_json is the path of the json file
+# which contains the images schema data
+images_schema_json=<.opencafe/data/images_schema.json><F37>
