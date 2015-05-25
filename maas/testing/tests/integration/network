@@ -1,0 +1,304 @@
+{
+    "BLOCK_STORAGE": {
+        "active_suppressions": [],
+        "checks": {
+            "conntrack_count--BLOCK_STORAGE": {
+                "active_suppressions": [],
+                "alarms": {
+                    "conntrack_count_status--BLOCK_STORAGE": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (percentage(metric[\"nf_conntrack_count\"], metric[\"nf_conntrack_max\"]) > 90) { return new AlarmStatus(CRITICAL, \"Connection count is > 90% of maximum allowed.\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "file": "conntrack_count.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "nf_conntrack_count": {
+                        "name": "nf_conntrack_count",
+                        "unit": "unknown"
+                    },
+                    "nf_conntrack_max": {
+                        "name": "nf_conntrack_max",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "COMPUTE": {
+        "active_suppressions": [],
+        "checks": {
+            "conntrack_count--COMPUTE": {
+                "active_suppressions": [],
+                "alarms": {
+                    "conntrack_count_status--COMPUTE": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (percentage(metric[\"nf_conntrack_count\"], metric[\"nf_conntrack_max\"]) > 90) { return new AlarmStatus(CRITICAL, \"Connection count is > 90% of maximum allowed.\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "file": "conntrack_count.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "nf_conntrack_count": {
+                        "name": "nf_conntrack_count",
+                        "unit": "unknown"
+                    },
+                    "nf_conntrack_max": {
+                        "name": "nf_conntrack_max",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "CONTROLLER": {
+        "active_suppressions": [],
+        "checks": {
+            "conntrack_count--CONTROLLER": {
+                "active_suppressions": [],
+                "alarms": {
+                    "conntrack_count_status--CONTROLLER": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (percentage(metric[\"nf_conntrack_count\"], metric[\"nf_conntrack_max\"]) > 90) { return new AlarmStatus(CRITICAL, \"Connection count is > 90% of maximum allowed.\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "file": "conntrack_count.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "nf_conntrack_count": {
+                        "name": "nf_conntrack_count",
+                        "unit": "unknown"
+                    },
+                    "nf_conntrack_max": {
+                        "name": "nf_conntrack_max",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "LOADBALANCER": {
+        "active_suppressions": [],
+        "checks": {},
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "LOGGER": {
+        "active_suppressions": [],
+        "checks": {
+            "conntrack_count--LOGGER": {
+                "active_suppressions": [],
+                "alarms": {
+                    "conntrack_count_status--LOGGER": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (percentage(metric[\"nf_conntrack_count\"], metric[\"nf_conntrack_max\"]) > 90) { return new AlarmStatus(CRITICAL, \"Connection count is > 90% of maximum allowed.\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "file": "conntrack_count.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "nf_conntrack_count": {
+                        "name": "nf_conntrack_count",
+                        "unit": "unknown"
+                    },
+                    "nf_conntrack_max": {
+                        "name": "nf_conntrack_max",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "SWIFT": {
+        "active_suppressions": [],
+        "checks": {
+            "conntrack_count--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "conntrack_count_status--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (percentage(metric[\"nf_conntrack_count\"], metric[\"nf_conntrack_max\"]) > 90) { return new AlarmStatus(CRITICAL, \"Connection count is > 90% of maximum allowed.\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "file": "conntrack_count.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "nf_conntrack_count": {
+                        "name": "nf_conntrack_count",
+                        "unit": "unknown"
+                    },
+                    "nf_conntrack_max": {
+                        "name": "nf_conntrack_max",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    }
+}
