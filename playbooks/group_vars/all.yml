@@ -15,8 +15,8 @@
 # This is the location where the rpc repository was checked out
 rpc_repo_path: /opt/os-ansible-deployment
 
-# This is the OSAD version you are deploying rpc-extras against
-rpc_release: 11.0.1
+# RPC Extras version
+rpc_release: master
 
 # Definitions for the repo server, these should match your OSAD
 # deployment

@@ -28,4 +28,4 @@ galaxy_info:
     - elasticsearch
 
 dependencies:
-  - pip_install
+  - pip_lock_down
