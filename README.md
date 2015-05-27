@@ -15,6 +15,11 @@ OpenStack cloud.
 
 Plays:
 
+* `repo-build.yml` - scans throug the YAML files in the source tree and builds
+any packages or git sources into wheels and deploys them to the local repo
+server(s).
+* `repo-pip-setup.yml` - updates the pip configuration on all of the containers
+to include the rpc-extras source that was created by `repo-build.yml`.
 * `elasticsearch.yml` - deploys an elasticsearch host
 * `haproxy` - deploys haproxy configurations for elasticsearch and kibana
 * `horizon_extensions.yml` - rebrands the horizon dashboard for Rackspace,
@@ -53,20 +58,22 @@ os-ansible-deployment clone.
 6. Set the `rpc_repo_path` in
 `/etc/openstack_deploy/user_extras_variables.yml` to the path of the
 `os-ansible-deployment` repository clone directory.
-7. Set all other variables in
+7. Set the `rpc_release` in `playbooks/group_vars/all.yml` to match the version
+of OSAD that you are deploying.
+8. Set all other variables in
 `/etc/openstack_deploy/user_extras_variables.yml` appropriately.
-8. Edit `rpc-extras/playbooks/ansible.cfg` and ensure the paths to the roles, 
+9. Edit `rpc-extras/playbooks/ansible.cfg` and ensure the paths to the roles, 
 playbooks and inventory are correct.
-9. Generate the random passwords for the extras by executing
+10. Generate the random passwords for the extras by executing
 `scripts/pw-token-gen.py --file
 /etc/openstack_deploy/user_extras_secrets.yml` from the
 `os-ansible-deployment` clone directory.
-10. Change to the `os-ansible-deployment/playbooks` directory and execute the
+11. Change to the `os-ansible-deployment/playbooks` directory and execute the
 plays. You can optionally execute `scripts/run-playbooks.sh` from the root of
 os-ansible-deployment clone.
-11. If you are planning to include the logstash play in the deployment, 
+12. If you are planning to include the logstash play in the deployment, 
 uncomment the related yml block in user_extras_variables.yml now. 
-12. Change to the `rpc-extras/playbooks` directory and execute your
+13. Change to the `rpc-extras/playbooks` directory and execute your
 desired plays.  EG:
 
 ```bash
@@ -83,6 +90,8 @@ openstack-ansible setup-everything.yml --tags rsyslog-client
 
 # Ansible Roles
 
+* `repo-build`
+* `repo-pip-setup`
 * `elasticsearch`
 * `horizon_extensions`
 * `kibana`
