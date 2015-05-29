@@ -13,12 +13,4 @@
 # limitations under the License.
 
 # This is the location where the rpc repository was checked out
-rpc_repo_path: /opt/os-ansible-deployment
-
-# RPC Extras version
-rpc_release: master
-
-# Definitions for the repo server, these should match your OSAD
-# deployment
-repo_server_port: 8181
-openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}"
+rpc_repo_path: /opt/rpc-extras/os-ansible-deployment

@@ -241,5 +241,4 @@ maas_pip_requirements_file: "/usr/lib/rackspace-monitoring-agent/plugins/require
 maas_pip_dependencies:
   - rackspace-monitoring-cli
 
-maas_git_repo: https://github.com/rcbops/rpc-maas.git
-maas_git_install_branch: master
+maas_plugin_dir: /opt/rpc-extras/maas/

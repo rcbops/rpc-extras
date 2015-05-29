@@ -34,7 +34,7 @@ maas_auth_token: some_token
 maas_notification_plan: npManaged
 
 # Where is the os-ansible deployment repo?
-rpc_repo_path: /opt/os-ansible-deployment
+rpc_repo_path: /opt/rpc-extras/os-ansible-deployment
 
 # By default we will create an agent token for each entity, however if you'd
 # prefer to use the same agent token for all entities then specify it here
@@ -81,4 +81,4 @@ maas_filesystem_critical_threshold: 90.0
 
 # For an AIO it's recommended to set the following to limit the expected RAM
 # usage of elasticsearch.
-# elasticsearch_heap_size_mb: 1024
+elasticsearch_heap_size_mb: 1024
