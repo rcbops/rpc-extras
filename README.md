@@ -65,3 +65,13 @@ above.
   1. edit `/etc/openstack_deploy/user_extras_variables.yml` to add credentials
   2. run the MaaS setup plays:
      `cd /opt/rpc-extras/rpcd/playbooks && openstack-ansible setup-maas.yml`
+
+# Upgrading
+
+To run an upgrade of an existing os-ansible-deployment installation:
+
+1. Run`scripts/upgrade.sh`.
+
+Please note the following behaviors that are **destructive**:
+    * `/etc/rpc_deploy` will be deprecated and the file structure moved to 
+      `/etc/openstack_deploy`.
