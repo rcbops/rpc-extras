@@ -87,8 +87,9 @@
     url: "{{ scheme }}://{{ ip_address }}:{{ port }}{{ path }}"
     alarm_name: lb_api_alarm_swift_proxy
     criteria: ":set consecutiveCount={{ maas_alarm_remote_consecutive_count }} if (metric['code'] != '200') { return new AlarmStatus(CRITICAL, 'API unavailable.'); }"
-  when: >
-    inventory_hostname == groups['swift_proxy'][0]
+  when:
+    - defined groups['swift_proxy'][0]
+    - inventory_hostname == groups['swift_proxy'][0]
 
 # Setup swift host local swift-recon checks
 - include: local_setup.yml
