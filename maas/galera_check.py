@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/lib/rackspace-monitoring-agent/plugins/.venv/bin/python
 
 # Copyright 2014, Rackspace US, Inc.
 #
