@@ -233,9 +233,8 @@ maas_apt_packages:
   - rackspace-monitoring-agent
   - mariadb-client
 
-maas_pip_requirements_file: "/usr/lib/rackspace-monitoring-agent/plugins/requirements.txt"
-
-maas_pip_dependencies:
+maas_pip_packages:
   - rackspace-monitoring-cli
+  - ipaddr
 
 maas_plugin_dir: /opt/rpc-extras/maas/
