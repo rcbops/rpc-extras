@@ -21,9 +21,16 @@
     cache_valid_time: 600
   with_items: maas_apt_packages
 
-- name: Install monitoring-cli pip package
+- name: Install pip packages
   pip:
     name: "{{ item }}"
     state: present
-    extra_args: "--isolated"
-  with_items: maas_pip_dependencies
+  with_items: maas_pip_packages
+
+- name: Install pip packages into maas virtualenv
+  pip:
+    name: "{{ item }}"
+    state: present
+    virtualenv: "/usr/lib/rackspace-monitoring-agent/plugins/.venv"
+    virtualenv_site_packages: "no"
+  with_items: maas_venv_pip_packages

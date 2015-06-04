@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/lib/rackspace-monitoring-agent/plugins/.venv/bin/python
 
 from maas_common import metric, status_err, status_ok, print_output
 import shlex
