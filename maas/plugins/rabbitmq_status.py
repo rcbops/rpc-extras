@@ -145,7 +145,7 @@ def main():
         # Check that all other queues are equal to it
         if not all(first == q for q in queues):
             # If they're not, the queues are not synchronized
-            print("status err cluster not replicated across all nodes")
+            status_err('Cluster not replicated across all nodes')
     else:
         status_err('Received status {0} from RabbitMQ API'.format(
             r.status_code))
