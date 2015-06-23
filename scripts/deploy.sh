@@ -25,7 +25,9 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   export DEPLOY_MAAS="no"
   if [[ ! -d /etc/openstack_deploy/ ]]; then
     ./scripts/bootstrap-aio.sh
-    cp -R ${RPCD_DIR}/etc/openstack_deploy/* /etc/openstack_deploy/
+    pushd ${RPCD_DIR}
+        for i in $(find etc/openstack_deploy/ -type f -iname '*.yml'); do ../scripts/update-yaml.py /$i $i; done
+    popd
     # ensure that the elasticsearch JVM heap size is limited
     sed -i 's/# elasticsearch_heap_size_mb/elasticsearch_heap_size_mb/' /etc/openstack_deploy/user_extras_variables.yml
     # set the kibana admin password
