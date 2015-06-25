@@ -15,6 +15,7 @@
 
 # Packages required for support
 support_util_packages:
+  - bash-completion
   - bridge-utils
   - debootstrap
   - dstat
