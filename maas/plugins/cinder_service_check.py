@@ -77,8 +77,7 @@ def check(auth_ref, args):
         if service['status'] == 'enabled' and service['state'] != 'up':
             service_is_up = False
 
-        # We need to match against a host of X and X@lvm (or whatever backend)
-        if args.host and args.host in service['host']:
+        if args.host:
             name = '%s_status' % service['binary']
         else:
             name = '%s_on_host_%s' % (service['binary'], service['host'])
