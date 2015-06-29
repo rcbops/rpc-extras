@@ -11,11 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+- name: Create Openstack Completion directory
+  file:
+    path: "/etc/openstack_completions"
+    state: "directory"
+    mode: "0755"
+
+- name: Add source script to bash_completion.d
+    template:
+      dest: "/etc/bash_completion.d"
+      src: "autocompletion_source.sh.j2"
 
 - name: Add bash completion to openstack clients
   template:
-    dest: "/etc/bash_complete.d/{{ item }}"
-    src: "{{ item }}".j2
+    dest: "/etc/openstack_completions/{{ item }}"
+    src: "{{ item }}.j2"
   with_items:
     - cinder.bash_completion
     - glance.bash_completion
