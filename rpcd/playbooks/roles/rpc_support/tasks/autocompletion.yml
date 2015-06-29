@@ -18,9 +18,9 @@
     mode: "0755"
 
 - name: Add source script to bash_completion.d
-    template:
-      dest: "/etc/bash_completion.d"
-      src: "autocompletion_source.sh.j2"
+  template:
+    dest: "/etc/bash_completion.d/autocompletion_source.sh"
+    src: "autocompletion_source.sh.j2"
 
 - name: Add bash completion to openstack clients
   template:
