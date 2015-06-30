@@ -1,0 +1,29 @@
+#for cinderclient
+if [ -f "/etc/openstack_completions/cinder.bash_completion" ]; then
+  [[ $(which cinder) ]] && . /etc/openstack_completions/cinder.bash_completion
+fi
+
+#for glanceclient
+if [ -f "/etc/openstack_completions/glance.bash_completion" ]; then
+  [[ $(which glance) ]] && . /etc/openstack_completions/glance.bash_completion
+fi
+
+#for heatclient
+if [ -f "/etc/openstack_completions/heat.bash_completion" ]; then
+  [[ $(which heat) ]] && . /etc/openstack_completions/heat.bash_completion
+fi
+
+#for keystoneclient
+if [ -f "/etc/openstack_completions/keystone.bash_completion" ]; then
+  [[ $(which keystone) ]] && . /etc/openstack_completions/keystone.bash_completion
+fi
+
+#for neutronclient
+if [ -f "/etc/openstack_completions/neutron.bash_completion" ]; then
+  [[ $(which neutron) ]] && . /etc/openstack_completions/neutron.bash_completion
+fi
+
+# for novaclient
+if [ -f "/etc/openstack_completions/nova.bash_completion" ]; then
+  [[ $(which nova) ]] && . /etc/openstack_completions/nova.bash_completion
+fi
