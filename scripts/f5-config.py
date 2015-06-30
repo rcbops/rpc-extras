@@ -610,7 +610,10 @@ def main():
         priority = 100
         for node in value['hosts']:
             node['node_name'] = '%s_NODE_%s' % (PREFIX_NAME, node['hostname'])
-            nodes.append(NODES % node)
+            node_new = NODES % node
+            if node_new not in nodes:
+                nodes.append(node_new)
+
             if value.get('persist'):
                 persist = PERSIST_OPTION
             else:
