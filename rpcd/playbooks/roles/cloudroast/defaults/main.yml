@@ -13,18 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+opencafe_git_install_branch: master
+cloudcafe_git_install_branch: master
+cloudroast_git_install_branch: master
+
 cloudroast_repositories:
-  opencafe:
-    git_repo: https://github.com/stackforge/opencafe.git
-    git_install_branch: "master"
+#  opencafe:
+  - git_repo: https://github.com/stackforge/opencafe.git
+    git_install_branch: "{{ opencafe_git_install_branch }}"
     git_dest: "/opt/{{ opencafe_repo_path }}"
-  cloudcafe:
-    git_repo: https://github.com/stackforge/cloudcafe.git
-    git_install_branch: "master"
+#  cloudcafe:
+  - git_repo: https://github.com/stackforge/cloudcafe.git
+    git_install_branch: "{{ cloudcafe_git_install_branch }}"
     git_dest: "/opt/{{ cloudcafe_repo_path }}"
-  cloudroast:
-    git_repo: https://github.com/stackforge/cloudroast.git
-    git_install_branch: "master"
+#  cloudroast:
+  - git_repo: https://github.com/stackforge/cloudroast.git
+    git_install_branch: "{{ cloudroast_git_install_branch }}"
     git_dest: "/opt/{{ cloudroast_repo_path }}"
 
 opencafe_repo_path: "opencafe_{{ opencafe_git_install_branch | replace ('/', '_') }}"

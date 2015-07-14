@@ -52,15 +52,15 @@ project_id={{ keystone_alt_demo_tenant_id }}
 tenant_name=alt_demo
 
 [flavors]
-primary_flavor=201
-secondary_flavor=202
+primary_flavor=301
+secondary_flavor=302
 resize_enabled={{ cloudroast_compute_resize_enabled }}
 
 [images]
 primary_image={{ cloudroast_glance_image_id }}
 secondary_image={{ cloudroast_glance_image_id }}
-image_status_interval=15
-snapshot_timeout=600
+image_status_interval=1
+snapshot_timeout=60
 can_get_deleted_image=False
 primary_image_has_protected_properties=False
 primary_image_default_user={{ cloudroast_compute_image_ssh_user }}
@@ -70,13 +70,13 @@ primary_image_default_device=/dev/vba
 [servers]
 server_boot_timeout=120
 instance_auth_strategy=password
-server_status_interval=15
-server_build_timeout=600
-server_resize_timeout=780
+server_status_interval=1
+server_build_timeout=120
+server_resize_timeout=240
 network_for_ssh=public
 ip_address_version_for_ssh=4
 instance_disk_path=/dev/vda
-connection_retry_interval=15
+connection_retry_interval=5
 connection_timeout=440
 expected_networks={"private": {"v4": true, "v6": false}}
 split_ephemeral_disk_enabled=True
@@ -87,10 +87,10 @@ default_injected_files=[{'path': '~/.ssh/authorized_keys', 'contents': 'ssh-rsa 
 default_file_path='/'
 auto_assign_floating_ip=True
 floating_ip_pool_name=public
-default_network={{ cloudroast_neutron_public_network_id }}
+default_network={{ cloudroast_neutron_private_network_id }}
 
 [security_groups]
-default_security_group=default
+default_security_group=cloudcafe
 
 [config_drive]
 supported=False
@@ -125,7 +125,7 @@ volume_delete_wait_per_gigabyte=10
 
 # Minimum time to allow any behavior to wait for a volume to finish
 # creating when using another volume as its source.
-volume_clone_min_timeout=600
+volume_clone_min_timeout=60
 
 # Used by some behaviors to attempt to calculate the time it will take
 # for a volume to be created based on its size
@@ -133,11 +133,11 @@ volume_create_wait_per_gigabyte=2
 
 # Controlls the rate at which some behaviors will poll the cinder api
 # for information.
-snapshot_status_poll_frequency=5
+snapshot_status_poll_frequency=1
 
 # Maximum time some behaviors wait for a volume to be confirmed
 # deleted before raising an error
-volume_delete_max_timeout=300
+volume_delete_max_timeout=30
 
 # Sets the default volume type for some behaviors and tests
 default_volume_type=lvm
@@ -165,7 +165,7 @@ volume_create_base_timeout=2
 
 # Maximum time to allow any behavior to wait for a snapshot to finish
 # creating
-snapshot_create_max_timeout=600
+snapshot_create_max_timeout=60
 
 # Maximum time some behaviors wait for a volume to be confirmed
 # deleted before raising an error
@@ -173,24 +173,24 @@ volume_delete_min_timeout=80
 
 # Minimum time to allow any behavior to wait for a snapshot to finish
 # creating
-snapshot_create_min_timeout=600
+snapshot_create_min_timeout=60
 
 # Requests all responses from this api to be in either json or xml
 deserialize_format=json
 
 # Controlls the rate at which some behaviors will poll the cinder api
 # for information.
-volume_status_poll_frequency=5
+volume_status_poll_frequency=1
 
 # Maximum time to allow any behavior to wait for a volume to finish
 # creating when using another volume as its source.
-volume_clone_max_timeout=600
+volume_clone_max_timeout=60
 
 # Amount of time added by default to the final calculated volume
 # snapshot timeouts for some behaviors. Useful for adding a constant
 # amount of time to volume snapshot timeouts globaly for dialing in
 # good test timeouts.
-snapshot_create_base_timeout=400
+snapshot_create_base_timeout=40
 
 # Amount of time added by default to the final calculated volume
 # snapshot timeouts for some behaviors. Useful for adding a constant
@@ -200,7 +200,7 @@ snapshot_create_base_timeout=400
 
 # Maximum time some behaviors wait for a volume snapshot to be
 # confirmed deleted before raising an error
-snapshot_delete_max_timeout=400
+snapshot_delete_max_timeout=40
 
 # Minimum time some behaviors wait for a volume snapshot to be
 # confirmed deleted before raising an error

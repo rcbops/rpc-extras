@@ -36,9 +36,9 @@
     group: "root"
     mode: "{{ item.mode|default('0644') }}"
   with_items:
-    - { src: "blockstorage.config.j2", dest: "~/.cloudcafe/configs/blockstorage/blockstorage.conf" }
-    - { src: "compute.config.j2", dest: "~/.cloudcafe/configs/compute/compute.conf" }
-    - { src: "identity.config.j2", dest: "~/.cloudcafe/configs/identity/identity.conf" }
-    - { src: "images.config.j2", dest: "~/.cloudcafe/configs/images/images.conf" }
-    - { src: "networking.config.j2", dest: "~/.cloudcafe/configs/networking/networking.conf" }
-    - { src: "objectstorage.config.j2", dest: "~/.cloudcafe/configs/objectstorage/objectstorage.conf" }
+    - { src: "blockstorage.config.j2", dest: "~/.opencafe/configs/blockstorage/blockstorage.config" }
+    - { src: "compute.config.j2", dest: "~/.opencafe/configs/compute/compute.config" }
+    - { src: "identity.config.j2", dest: "~/.opencafe/configs/identity/identity.config" }
+    - { src: "images.config.j2", dest: "~/.opencafe/configs/images/images.config" }
+    - { src: "networking.config.j2", dest: "~/.opencafe/configs/networking/networking.config" }
+    - { src: "objectstorage.config.j2", dest: "~/.opencafe/configs/objectstorage/objectstorage.config" }

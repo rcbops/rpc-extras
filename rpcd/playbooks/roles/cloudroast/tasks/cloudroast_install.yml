@@ -22,9 +22,9 @@
   retries: 5
   delay: 2
   with_items:
-    - "{{ opencafe_pip_packages }}"
-    - "{{ cloudcafe_pip_packages }}"
-    - "{{ cloudroast_pip_packages }}"
+    - "{{ opencafe_pip_dependencies }}"
+    - "{{ cloudcafe_pip_dependencies }}"
+    - "{{ cloudroast_pip_dependencies }}"
 
 - name: Get dependencies from git
   git:
