@@ -78,6 +78,12 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
   # setup openstack
   install_bits setup-openstack.yml
+
+  if [[ "${DEPLOY_TEMPEST}" == "yes" ]]; then
+    # Deploy tempest
+    install_bits os-tempest-install.yml
+  fi
+
 fi
 
 # begin the RPC installation
