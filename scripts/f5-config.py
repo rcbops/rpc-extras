@@ -256,7 +256,7 @@ POOL_PARTS = {
         'port': 6082,
         'backend_port': 6082,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE',
-        'group': 'nova_console',
+        'group': 'nova_spice_console',
         'hosts': [],
         'ssl_impossible': True,
         'make_public': True,
