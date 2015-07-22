@@ -541,9 +541,9 @@ def main():
 
     commands.extend([
         '### CREATE SECURITY iRULE ###',
-        'create ltm rule /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL',
-        '   --> Copy and Paste the following between pre-included curly brackets <--',
-        'when CLIENT_ACCEPTED { discard }\n',
+        'run util bash',
+        'tmsh create ltm rule /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL when CLIENT_ACCEPTED { discard }',
+        'exit',
         '### CREATE EXTERNAL MONITOR ###',
         '   --> Upload External monitor file to disk <--',
         '       run util bash',
