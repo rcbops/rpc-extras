@@ -23,7 +23,7 @@
       - { 'name': 'cinder_api_local_status', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["cinder_api_local_status"] != 1) { return new AlarmStatus(CRITICAL, "API unavailable"); }' }
   user: root
   when: >
-    inventory_hostname in groups['cinder_api'] 
+    inventory_hostname in groups['cinder_api']
 
 - include: local_setup.yml
   vars:
