@@ -14,7 +14,26 @@
 # limitations under the License.
 #
 # (c) 2015, Nolan Brubaker <nolan.brubaker@rackspace.com>
-set -eux pipefail
+set -ux pipefail
+
+FAILED=0
+
+function run_or_print() {
+        command="$@"
+        if [ $FAILED -ne 0 ]; then
+                echo "  ${command}"
+        else
+                eval "$command"
+                FAILED=$?
+                if [ $FAILED -ne 0 ]; then
+                    echo "******************** FAILURE ********************"
+                    echo "The upgrade script has failed. Please rerun the following task to continue"
+                    echo "Failed on task ${command}"
+                    echo "Do NOT rerun the upgrade script!"
+                    echo "Please execute the remaining tasks:"
+                fi
+        fi
+}
 
 BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 OSAD_DIR="$BASE_DIR/os-ansible-deployment"
@@ -22,22 +41,27 @@ RPCD_DIR="$BASE_DIR/rpcd"
 
 # Merge new overrides into existing user_variables before upgrade
 # contents of existing user_variables take precedence over new overrides
-cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variables.yml
-${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
-mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
+run_or_print cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variables.yml
+run_or_print ${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
+run_or_print mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
 
 # Do the upgrade for os-ansible-deployment components
-cd ${OSAD_DIR}
-${OSAD_DIR}/scripts/run-upgrade.sh
+run_or_print cd ${OSAD_DIR}
+run_or_print ${OSAD_DIR}/scripts/run-upgrade.sh
 
 # Prevent the deployment script from re-running the OSAD playbooks
-export DEPLOY_OSAD="no"
+run_or_print export DEPLOY_OSAD="no"
 
 # Do the upgrade for the RPC components
-source ${OSAD_DIR}/scripts/scripts-library.sh
-cd ${BASE_DIR}
-${BASE_DIR}/scripts/deploy.sh
+run_or_print source ${OSAD_DIR}/scripts/scripts-library.sh
+run_or_print cd ${BASE_DIR}
+run_or_print ${BASE_DIR}/scripts/deploy.sh
 
 # the auth_ref on disk is now not usable by the new plugins
-cd ${RPCD_DIR}/playbooks 
-ansible hosts -m shell -a 'rm /root/.auth_ref.json'
+run_or_print cd ${RPCD_DIR}/playbooks
+run_or_print ansible hosts -m shell -a 'rm /root/.auth_ref.json'
+
+if [ $FAILED -ne 0 ]; then
+    echo "******************** FAILURE ********************"
+fi
+exit $FAILED
