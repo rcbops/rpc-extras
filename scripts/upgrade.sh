@@ -16,27 +16,12 @@
 # (c) 2015, Nolan Brubaker <nolan.brubaker@rackspace.com>
 set -eux -o pipefail
 
-FAILED=0
+export BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
+export OSAD_DIR="$BASE_DIR/os-ansible-deployment"
+export RPCD_DIR="$BASE_DIR/rpcd"
 
-function run_or_print() {
-        command="$@"
-        if [ $FAILED -ne 0 ]; then
-                echo "  ${command}"
-        else
-                eval "$command"
-                FAILED=$?
-                if [ $FAILED -ne 0 ]; then
-                    echo "******************** FAILURE ********************"
-                    echo "The upgrade script has failed. Please rerun the following task to continue"
-                    echo "Failed on task ${command}"
-                    echo "Do NOT rerun the upgrade script!"
-                    echo "Please execute the remaining tasks:"
-                fi
-        fi
-}
+./scripts/resume.sh < scripts/upgrade.steps
 
-BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
-OSAD_DIR="$BASE_DIR/os-ansible-deployment"
-RPCD_DIR="$BASE_DIR/rpcd"
-
-resume.sh < upgrade.steps
+unset BASE_DIR
+unset OSAD_DIR
+unset RPCD_DIR
