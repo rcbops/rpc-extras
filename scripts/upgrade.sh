@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # (c) 2015, Nolan Brubaker <nolan.brubaker@rackspace.com>
-set -ux pipefail
+set -eux -o pipefail
 
 FAILED=0
 
@@ -39,29 +39,4 @@ BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 OSAD_DIR="$BASE_DIR/os-ansible-deployment"
 RPCD_DIR="$BASE_DIR/rpcd"
 
-# Merge new overrides into existing user_variables before upgrade
-# contents of existing user_variables take precedence over new overrides
-run_or_print cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variables.yml
-run_or_print ${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
-run_or_print mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
-
-# Do the upgrade for os-ansible-deployment components
-run_or_print cd ${OSAD_DIR}
-run_or_print ${OSAD_DIR}/scripts/run-upgrade.sh
-
-# Prevent the deployment script from re-running the OSAD playbooks
-run_or_print export DEPLOY_OSAD="no"
-
-# Do the upgrade for the RPC components
-run_or_print source ${OSAD_DIR}/scripts/scripts-library.sh
-run_or_print cd ${BASE_DIR}
-run_or_print ${BASE_DIR}/scripts/deploy.sh
-
-# the auth_ref on disk is now not usable by the new plugins
-run_or_print cd ${RPCD_DIR}/playbooks
-run_or_print ansible hosts -m shell -a 'rm /root/.auth_ref.json'
-
-if [ $FAILED -ne 0 ]; then
-    echo "******************** FAILURE ********************"
-fi
-exit $FAILED
+resume.sh < upgrade.steps
