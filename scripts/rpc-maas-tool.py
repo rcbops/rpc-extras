@@ -28,7 +28,7 @@ def main(args):
     config.read('/root/.raxrc')
 
     driver = get_driver(Provider.RACKSPACE)
-    conn = _get_conn(config, driver)
+    conn = _get_conn(config, driver, user=args.username, api_key=args.api_key)
 
     if conn is None:
         print("Unable to get a client to MaaS, exiting")
@@ -127,13 +127,15 @@ def remove_defunct_alarms(args, conn):
     print("Number of alarms deleted: %s" % alarm_count)
 
 
-def _get_conn(config, driver):
+def _get_conn(config=None, driver=None, user=None, api_key=None):
     conn = None
 
-    if config.has_section('credentials'):
+    if user is not None and api_key is not None:
+        conn = driver(user, api_key)
+    elif config.has_section('credentials'):
         try:
-            user = config.get('credentials', 'username')
-            api_key = config.get('credentials', 'api_key')
+            user = user or config.get('credentials', 'username')
+            api_key = api_key or config.get('credentials', 'api_key')
         except Exception as e:
             print(e)
         else:
@@ -155,14 +157,21 @@ def _get_entities(args, conn):
     entities = []
 
     for entity in conn.list_entities():
-        if args.prefix is None or args.prefix in entity.label:
+        if args.prefix and args.prefix in entity.label:
             entities.append(entity)
+        elif args.entities and entity.label in args.entities:
+            entities.append(entity)
+        elif args.prefix is args.entities is None:
+            entities.append(entity)
+        else:
+            continue
 
     return entities
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test MaaS checks')
+    mut_excl = parser.add_mutually_exclusive_group()
     parser.add_argument('command',
                         type=str,
                         choices=['alarms', 'check', 'delete',
@@ -172,11 +181,16 @@ if __name__ == "__main__":
     parser.add_argument('--force',
                         action="store_true",
                         help='Do stuff irrespective of consequence'),
-    parser.add_argument('--prefix',
-                        type=str,
-                        help='Limit testing to checks on entities labelled w/ '
-                             'this prefix',
-                        default=None)
+    mut_excl.add_argument('--prefix',
+                          type=str,
+                          help='Limit testing to checks on entities labelled '
+                               'with this prefix',
+                          default=None)
+    mut_excl.add_argument('--entities', nargs='+',
+                          help='List of entities on which to run command. '
+                               'Currently only works with delete.')
+    parser.add_argument('--username', help='raxmon username.')
+    parser.add_argument('--api_key', help='raxmon API key.')
     args = parser.parse_args()
 
     main(args)

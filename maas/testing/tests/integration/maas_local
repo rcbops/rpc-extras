@@ -1259,7 +1259,11 @@
                         "-H",
                         "IP_ADDRESS",
                         "-n",
-                        "CONTROLLER_rabbit_mq_container-UID"
+                        "CONTROLLER_rabbit_mq_container-UID",
+                        "-U",
+                        "maas_user",
+                        "-p",
+                        "PASSWORD"
                     ],
                     "file": "rabbitmq_status.py"
                 },
@@ -1678,6 +1682,44 @@
                     },
                     "neutron-metering-agent_status": {
                         "name": "neutron-metering-agent_status",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "neutron_metadata_agent_proxy_check--CONTROLLER_neutron_agents_container-UID": {
+                "active_suppressions": [],
+                "alarms": {
+                    "neutron_metadata_agent_proxy_status--CONTROLLER_neutron_agents_container-UID": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"neutron-metadata-agent-proxy_status\"] != 1) { return new AlarmStatus(CRITICAL, \"neutron-metadata-agent-proxy non-responsive\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "IP_ADDRESS"
+                    ],
+                    "file": "neutron_metadata_local_check.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "neutron-metadata-agent-proxy_status": {
+                        "name": "neutron-metadata-agent-proxy_status",
                         "unit": "unknown"
                     }
                 },

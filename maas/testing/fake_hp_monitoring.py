@@ -22,7 +22,9 @@ if args == ['-s', 'show server']:
 elif args == ['-s', 'show dimm']:
     print('Status Ok')
 elif args == ['ctrl', 'all', 'show', 'config']:
-    print('logicaldrive OK')
+    print('logicaldrive OK)')
+elif args == ['ctrl', 'all', 'show', 'status']:
+    print('Controller Status OK\nCache Status OK\nBattery/Capacitor Status OK')
 else:
     sys.exit('fake_hp_monitoring.py has received the following '
              'unexpected arguments - "%s".' % str(args))
