@@ -26,6 +26,14 @@ cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variabl
 ${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
 mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
 
+# Upgrade Ansible in-place so we have access to the patch module.
+cd ${OSAD_DIR}
+${OSAD_DIR}/scripts/bootstrap-ansible.sh
+
+# Apply any patched files.
+cd ${RPCD_DIR}/playbooks
+openstack-ansible -i "localhost," patcher.yml
+
 # Do the upgrade for os-ansible-deployment components
 cd ${OSAD_DIR}
 ${OSAD_DIR}/scripts/run-upgrade.sh
