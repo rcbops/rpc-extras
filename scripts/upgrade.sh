@@ -14,30 +14,14 @@
 # limitations under the License.
 #
 # (c) 2015, Nolan Brubaker <nolan.brubaker@rackspace.com>
-set -eux pipefail
+set -eux -o pipefail
 
-BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
-OSAD_DIR="$BASE_DIR/os-ansible-deployment"
-RPCD_DIR="$BASE_DIR/rpcd"
+export BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
+export OSAD_DIR="$BASE_DIR/os-ansible-deployment"
+export RPCD_DIR="$BASE_DIR/rpcd"
 
-# Merge new overrides into existing user_variables before upgrade
-# contents of existing user_variables take precedence over new overrides
-cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variables.yml
-${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
-mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
+./scripts/resume.sh < scripts/upgrade.steps
 
-# Do the upgrade for os-ansible-deployment components
-cd ${OSAD_DIR}
-${OSAD_DIR}/scripts/run-upgrade.sh
-
-# Prevent the deployment script from re-running the OSAD playbooks
-export DEPLOY_OSAD="no"
-
-# Do the upgrade for the RPC components
-source ${OSAD_DIR}/scripts/scripts-library.sh
-cd ${BASE_DIR}
-${BASE_DIR}/scripts/deploy.sh
-
-# the auth_ref on disk is now not usable by the new plugins
-cd ${RPCD_DIR}/playbooks 
-ansible hosts -m shell -a 'rm /root/.auth_ref.json'
+unset BASE_DIR
+unset OSAD_DIR
+unset RPCD_DIR
