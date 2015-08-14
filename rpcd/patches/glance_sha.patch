@@ -1,0 +1,27 @@
+From 86960c1708a9a231de80c1bcc3067f01c48a0ee9 Mon Sep 17 00:00:00 2001
+From: Jesse Pretorius <jesse.pretorius@rackspace.co.uk>
+Date: Fri, 14 Aug 2015 09:21:32 +0100
+Subject: [PATCH] Update glance for CVE-2015-5163
+
+This patch includes the upstream backport:
+ - https://review.openstack.org/212568
+
+Change-Id: Iaab3a9d1007ccae6d51942fe045e274b7a518e9f
+Closes-Bug: #1484766
+---
+ playbooks/defaults/repo_packages/openstack_services.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/playbooks/defaults/repo_packages/openstack_services.yml b/playbooks/defaults/repo_packages/openstack_services.yml
+index ad4e72c..bd458e9 100644
+--- a/playbooks/defaults/repo_packages/openstack_services.yml
++++ b/playbooks/defaults/repo_packages/openstack_services.yml
+@@ -42,7 +42,7 @@ cinder_git_dest: "/opt/cinder_{{ cinder_git_install_branch | replace('/', '_') }
+ 
+ ## Glance service
+ glance_git_repo: https://github.com/openstack/glance
+-glance_git_install_branch: 4f0c41df05f3ede4ae57753d0d034a790709293b # HEAD of "stable/kilo" as of 23.07.2015
++glance_git_install_branch: eb99e45829a1b4c93db5692bdbf636a86faa56c4 # HEAD of "stable/kilo" as of 13.08.2015
+ glance_git_dest: "/opt/glance_{{ glance_git_install_branch | replace('/', '_') }}"
+ 
+ 

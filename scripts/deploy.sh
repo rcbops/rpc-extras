@@ -50,6 +50,10 @@ which openstack-ansible || ./scripts/bootstrap-ansible.sh
 # ensure all needed passwords and tokens are generated
 ./scripts/pw-token-gen.py --file /etc/openstack_deploy/user_extras_secrets.yml
 
+# Apply any patched files.
+cd ${RPCD_DIR}/playbooks
+openstack-ansible -i "localhost," patcher.yml
+
 # begin the openstack installation
 if [[ "${DEPLOY_OSAD}" == "yes" ]]; then
   cd ${OSAD_DIR}/playbooks/
