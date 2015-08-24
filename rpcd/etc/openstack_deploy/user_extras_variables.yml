@@ -94,3 +94,21 @@ maas_filesystem_critical_threshold: 90.0
 #   - { package: "libvirt-bin", version: "1.2.2-0ubuntu13.1.9" }
 #   - { package: "rabbitmq-server", origin: "www.rabbitmq.com" }
 #   - { package: "*", release: "MariaDB" }
+
+
+# Defined upstream rpc repo domain and url
+rpc_repo_domain: rpc-repo.rackspace.com
+rpc_repo_url: "https://{{ rpc_repo_domain }}"
+
+# Instructions for pip to be locked to our upstream release.
+pip_get_pip_options: >
+  --no-index
+  --find-links="{{ rpc_repo_url }}/os-releases/{{ openstack_release }}
+  --trusted-host {{ rpc_repo_domain }}
+
+# Define the cache location of the container image that we want to use.
+lxc_container_caches:
+  - url: "{{ rpc_repo_url }}/container_images/rpc-trusty-container.tgz"
+    name: "trusty.tgz"
+    sha256sum: "56c6a6e132ea7d10be2f3e8104f47136ccf408b30e362133f0dc4a0a9adb4d0c"
+
