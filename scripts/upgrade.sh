@@ -36,7 +36,7 @@ openstack-ansible -i "localhost," patcher.yml
 
 # Do the upgrade for os-ansible-deployment components
 cd ${OSAD_DIR}
-echo 'YES' > ${OSAD_DIR}/scripts/run-upgrade.sh
+echo 'YES' | ${OSAD_DIR}/scripts/run-upgrade.sh
 
 # Prevent the deployment script from re-running the OSAD playbooks
 export DEPLOY_OSAD="no"
