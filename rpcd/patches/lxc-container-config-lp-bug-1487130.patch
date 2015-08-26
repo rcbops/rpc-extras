@@ -496,15 +496,16 @@ index 34acb6a..20e49d9 100644
          - repo-dirs
      - name: Flush net cache
 diff --git a/playbooks/roles/lxc_container_create/tasks/container_create.yml b/playbooks/roles/lxc_container_create/tasks/container_create.yml
-index b5ab225..e30c699 100644
+index b5ab225..59bcd1f 100644
 --- a/playbooks/roles/lxc_container_create/tasks/container_create.yml
 +++ b/playbooks/roles/lxc_container_create/tasks/container_create.yml
-@@ -76,8 +76,7 @@
+@@ -76,8 +76,8 @@
        mkdir -p /var/log/{{ properties.service_name }}
      container_config:
        - "lxc.mount.entry=/openstack/backup/{{ inventory_hostname }} var/backup none defaults,bind,rw 0 0"
 -      - "lxc.mount.entry=/openstack/log/{{ inventory_hostname }} var/log/{{ properties.service_name }} none defaults,bind,rw 0 0"
 -      - "lxc.aa_profile=lxc-openstack"
++      - "lxc.aa_profile=unconfined"
 +      - "lxc.mount.entry=/openstack/log/{{ inventory_hostname }} var/log/{{ properties.log_directory | default(properties.service_name) }} none defaults,bind,rw 0 0"
    when: properties.service_name is defined
    delegate_to: "{{ physical_host }}"
