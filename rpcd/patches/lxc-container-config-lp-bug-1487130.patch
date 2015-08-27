@@ -575,3 +575,20 @@ index 53555a2..c160d89 100644
    roles:
      - { role: "galera_client", tags: [ "utility-galera-client" ] }
      - { role: "pip_lock_down", tags: [ "utility-pip-lock-down" ] }
+diff --git a/scripts/run-upgrade.sh b/scripts/run-upgrade.sh
+index 89073da..fd4d71b 100755
+--- a/scripts/run-upgrade.sh
++++ b/scripts/run-upgrade.sh
+@@ -473,12 +473,6 @@ cat > /tmp/fix_host_things.yml <<EOF
+         state: "absent"
+         regexp: 'add_network_interface\.conf'
+       with_items: containers.stdout_lines
+-    - name: Remove aa_profile entries
+-      lineinfile:
+-        dest: "{{ item }}"
+-        state: "absent"
+-        regexp: '^lxc.aa_profile'
+-      with_items: containers.stdout_lines
+     - name: Remove old add_network_interface.conf file
+       file:
+         path: "{{ item | dirname }}/add_network_interface.conf"
