@@ -6,19 +6,19 @@ set -o pipefail
 export ADMIN_PASSWORD=${ADMIN_PASSWORD:-"secrete"}
 export DEPLOY_AIO=${DEPLOY_AIO:-"no"}
 export DEPLOY_HAPROXY=${DEPLOY_HAPROXY:-"no"}
-export DEPLOY_OSAD=${DEPLOY_OSAD:-"yes"}
+export DEPLOY_OA=${DEPLOY_OA:-"yes"}
 export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
 export DEPLOY_MAAS=${DEPLOY_MAAS:-"no"}
 export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER=${DEPLOY_CEILOMETER:-"no"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 
-source /opt/rpc-openstack/os-ansible-deployment/scripts/scripts-library.sh
-OSAD_DIR='/opt/rpc-openstack/os-ansible-deployment'
+source /opt/rpc-openstack/openstack-ansible/scripts/scripts-library.sh
+OA_DIR='/opt/rpc-openstack/openstack-ansible'
 RPCD_DIR='/opt/rpc-openstack/rpcd'
 
 # begin the bootstrap process
-cd ${OSAD_DIR}
+cd ${OA_DIR}
 
 # bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
@@ -56,8 +56,8 @@ cd ${RPCD_DIR}/playbooks
 openstack-ansible -i "localhost," patcher.yml
 
 # begin the openstack installation
-if [[ "${DEPLOY_OSAD}" == "yes" ]]; then
-  cd ${OSAD_DIR}/playbooks/
+if [[ "${DEPLOY_OA}" == "yes" ]]; then
+  cd ${OA_DIR}/playbooks/
 
   # ensure that the ELK containers aren't created if they're not
   # going to be used

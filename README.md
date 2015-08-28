@@ -1,11 +1,11 @@
 # rpc-openstack
 Optional add-ons for Rackspace Private Cloud
 
-# os-ansible-deployment integration
+# openstack-ansible integration
 
 The rpc-openstack repo includes add-ons for the Rackspace Private Cloud product
 that integrate with the 
-[os-ansible-deployment](https://github.com/stackforge/os-ansible-deployment)
+[openstack-ansible](https://github.com/openstack/openstack-ansible)
 set of Ansible playbooks and roles.
 These add-ons extend the 'vanilla' OpenStack environment with value-added
 features that Rackspace has found useful, but are not core to deploying an
@@ -17,14 +17,14 @@ In Juno, the MaaS plugins code is contained in a separate repo,
 [rpc-maas](https://github.com/rcbops/rpc-maas), and the Ansible code to deploy
 and configure the checks and alarms using these plugins is contained in tree
 with the
-[os-ansible-deployment](http://git.openstack.org/cgit/stackforge/os-ansible-deployment/tree/?h=juno)
+[openstack-ansible](http://git.openstack.org/cgit/openstack/openstack-ansible/tree/?h=juno)
 repo with the Juno branch.
 
 As of Kilo, both the Maas plugins, and the Ansible code to deploy and
 configure the checks and alarms, are contained in the
 [rpc-openstack](https://github.com/rcbops/rpc-openstack) repo.
 
-The Kilo branch of os-ansible-deployment does not include any rpc-maas
+The Kilo branch of openstack-ansible does not include any rpc-maas
 support directly any longer.
 
 # Ansible Playbooks
@@ -40,7 +40,7 @@ Heat templates for commonly deployed applications.
 * `kibana.yml` - Setup Kibana on the Kibana hosts for the logging dashboard.
 * `logstash.yml` - deploys a logstash host. If this play is used, be sure to
 uncomment the related block in user_extra_variables.yml before this play is
-run and then rerun the appropriate plays in os-ansible-deployment after this
+run and then rerun the appropriate plays in openstack-ansible after this
 play to ensure that rsyslog ships logs to logstash. See steps 11 - 13 below
 for more.
 * `repo-build.yml` - scans throug the YAML files in the source tree and builds
@@ -64,9 +64,9 @@ above.
 
 1. Clone the RPC repository:
    `cd /opt && git clone --recursive https://github.com/rcbops/rpc-openstack`
-2. Unless doing an AIO build, prepare the os-ansible-deployment configuration.
+2. Unless doing an AIO build, prepare the openstack-ansible configuration.
   1. recursively copy the openstack-ansible-deployment configuration files:
-     `cp -R os-ansible-deployment/etc/openstack_deploy /etc/openstack_deploy`
+     `cp -R openstack-ansible/etc/openstack_deploy /etc/openstack_deploy`
   2. merge /etc/openstack_deploy/user_variables.yml with rpcd/etc/openstack_deploy/user_variables.yml:
 
      ```
@@ -93,7 +93,7 @@ above.
 
 # Upgrading
 
-To run an upgrade of an existing os-ansible-deployment installation:
+To run an upgrade of an existing openstack-ansible installation:
 
 1. Run`scripts/upgrade.sh`.
 
