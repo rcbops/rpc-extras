@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # The directory we want to apply patches to.
-patcher_dest_dir: "/opt/rpc-openstack/os-ansible-deployment"
+patcher_dest_dir: "/opt/rpc-openstack/openstack-ansible"
 
 # The directory we want to apply patches from
 patcher_src_dir: "/opt/rpc-openstack/rpcd/patches"

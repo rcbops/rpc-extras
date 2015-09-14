@@ -243,7 +243,7 @@ maas_apt_packages:
   - mariadb-client
 
 #
-# maas_pip_packages: Packages we need but are not built by os-ansible-deployment
+# maas_pip_packages: Packages we need but are not built by openstack-ansible
 #
 maas_pip_packages:
   - rackspace-monitoring-cli
@@ -251,7 +251,7 @@ maas_pip_packages:
 
 #
 # maas_pip_dependencies: These are pip packages we depend on, but should already be built in
-#                        os-ansible-deployment
+#                        openstack-ansible
 maas_pip_dependencies:
   - requests
   - lxml

@@ -17,7 +17,7 @@
 set -eux pipefail
 
 BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
-OSAD_DIR="$BASE_DIR/os-ansible-deployment"
+OA_DIR="$BASE_DIR/openstack-ansible"
 RPCD_DIR="$BASE_DIR/rpcd"
 
 # Merge new overrides into existing user_variables before upgrade
@@ -27,22 +27,22 @@ ${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_depl
 mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
 
 # Upgrade Ansible in-place so we have access to the patch module.
-cd ${OSAD_DIR}
-${OSAD_DIR}/scripts/bootstrap-ansible.sh
+cd ${OA_DIR}
+${OA_DIR}/scripts/bootstrap-ansible.sh
 
 # Apply any patched files.
 cd ${RPCD_DIR}/playbooks
 openstack-ansible -i "localhost," patcher.yml
 
-# Do the upgrade for os-ansible-deployment components
-cd ${OSAD_DIR}
-echo 'YES' | ${OSAD_DIR}/scripts/run-upgrade.sh
+# Do the upgrade for openstack-ansible components
+cd ${OA_DIR}
+echo 'YES' | ${OA_DIR}/scripts/run-upgrade.sh
 
-# Prevent the deployment script from re-running the OSAD playbooks
-export DEPLOY_OSAD="no"
+# Prevent the deployment script from re-running the OA playbooks
+export DEPLOY_OA="no"
 
 # Do the upgrade for the RPC components
-source ${OSAD_DIR}/scripts/scripts-library.sh
+source ${OA_DIR}/scripts/scripts-library.sh
 cd ${BASE_DIR}
 ${BASE_DIR}/scripts/deploy.sh
 

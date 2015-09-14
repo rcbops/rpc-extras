@@ -17,7 +17,7 @@
 #   1) This needs to happen pre-run of the ansible playbooks.
 #   2) Since it's a pre-run, the inventory won't necessarily be
 #      available or accurate
-- name: Patch OSAD files
+- name: Patch upstream files
   hosts: 127.0.0.1
   connection: local
   gather_facts: No

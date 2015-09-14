@@ -26,8 +26,8 @@ echo "Running Basic Ansible Lint Check"
 
 
 # Install the development requirements.
-if [[ -f "os-ansible-deployment/dev-requirements.txt" ]]; then
-  pip2 install -r os-ansible-deployment/dev-requirements.txt || pip install -r os-ansible-deployment/dev-requirements.txt
+if [[ -f "openstack-ansible/dev-requirements.txt" ]]; then
+  pip2 install -r openstack-ansible/dev-requirements.txt || pip install -r openstack-ansible/dev-requirements.txt
 else
   pip2 install ansible-lint || pip install ansible-lint
 fi
