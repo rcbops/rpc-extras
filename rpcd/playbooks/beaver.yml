@@ -21,71 +21,71 @@
     - { role: "beaver" }
   vars:
     beaver_log_monitors:
-      - { name: "cinder",
-          log_file: "/var/log/cinder/*",
-          tags: "cinder,openstack,oslofmt",
-          multiline_regex_before: '.*\sTRACE\s.*' }
-      - { name: "nova",
-          log_file: "/var/log/nova/*",
-          tags: "nova,openstack,oslofmt",
-          multiline_regex_before: '.*\sTRACE\s.*' }
-      - { name: "heat",
-          log_file: "/var/log/heat/*",
-          tags: "heat,openstack,oslofmt",
-          multiline_regex_before: '.*\sTRACE\s.*' }
-      - { name: "keystone",
-          log_file: "/var/log/keystone/keystone.log",
-          tags: "keystone,openstack,oslofmt",
-          multiline_regex_before: '.*\sTRACE\s.*' }
-      - { name: "keystone-access",
-          log_file: "/var/log/keystone/ssl_access.log",
-          tags: "keystone,openstack,apache-access" }
-      - { name: "keystone-error",
-          log_file: "/var/log/keystone/keystone-apache-error.log",
-          tags: "keystone,openstack,apache-error" }
-      - { name: "glance",
-          log_file: "/var/log/glance/*",
-          tags: "glance,openstack,oslofmt",
-          multiline_regex_before: '.*\sTRACE\s.*' }
-      - { name: "horizon",
-          log_file: "/var/log/horizon/*.log",
-          tags: "horizon,openstack" }
-      - { name: "swift-proxy",
-          log_file: "/var/log/swift/proxy*.log",
-          tags: "swift,openstack" }
-      - { name: "swift-account",
-          log_file: "/openstack/log/{{ inventory_hostname }}/account*.log",
-          tags: "swift,openstack" }
-      - { name: "swift-container",
-          log_file: "/openstack/log/{{ inventory_hostname }}/container*.log",
-          tags: "swift,openstack" }
-      - { name: "swift-object",
-          log_file: "/openstack/log/{{ inventory_hostname }}/object*.log",
-          tags: "swift,openstack" }
-      - { name: "neutron",
-          log_file: "/var/log/neutron/*",
-          tags: "neutron,openstack,oslofmt" }
-      - { name: "mysql",
-          log_file: "/var/log/mysql_logs/*.log",
-          tags: "mysql,infrastructure",
-          multiline_regex_after: '(^#\sUser@Host:\s)',
-          multiline_regex_before: '(.*)'  }
-      - { name: "rabbitmq",
-          log_file: "/var/log/rabbitmq/rabbit@{{ inventory_hostname }}.log",
-          tags: "rabbitmq,infrastructure",
-          multiline_regex_after: '(^=.*)',
-          multiline_regex_before: '(^\s\*.*)|(^[a-zA-Z]+.*)' }
-      - { name: "elasticsearch",
-          log_file: "/var/log/elasticsearch/*.log",
-          tags: "elasticsearch,infrastructure",
-          multiline_regex_after: '(^org.elasticsearch.*)',
-          multiline_regex_before: '(^\s+at\s.*)|(^org.elasticsearch.*)|(^Caused by.*)|(^\s+\.\.\.)' }
-      - { name: "logstash",
-          log_file: "/var/log/logstash/*.log",
-          tags: "logstash,infrastructure" }
-      - { name: "beaver",
-          log_file: "/var/log/beaver/beaver.log",
-          tags: "beaver,infrastructure" }
-      - { name: "auth",
-          log_file: "/var/log/auth.log",
-          tags: "auth,infrastructure" }
+      - name: "cinder"
+        log_file: "/var/log/cinder/*"
+        tags: "cinder,openstack,oslofmt"
+        multiline_regex_before: '.*\sTRACE\s.*'
+      - name: "nova"
+        log_file: "/var/log/nova/*"
+        tags: "nova,openstack,oslofmt"
+        multiline_regex_before: '.*\sTRACE\s.*'
+      - name: "heat"
+        log_file: "/var/log/heat/*"
+        tags: "heat,openstack,oslofmt"
+        multiline_regex_before: '.*\sTRACE\s.*'
+      - name: "keystone"
+        log_file: "/var/log/keystone/keystone.log"
+        tags: "keystone,openstack,oslofmt"
+        multiline_regex_before: '.*\sTRACE\s.*'
+      - name: "keystone-access"
+        log_file: "/var/log/keystone/ssl_access.log"
+        tags: "keystone,openstack,apache-access"
+      - name: "keystone-error"
+        log_file: "/var/log/keystone/keystone-apache-error.log"
+        tags: "keystone,openstack,apache-error"
+      - name: "glance"
+        log_file: "/var/log/glance/*"
+        tags: "glance,openstack,oslofmt"
+        multiline_regex_before: '.*\sTRACE\s.*'
+      - name: "horizon"
+        log_file: "/var/log/horizon/*.log"
+        tags: "horizon,openstack"
+      - name: "swift-proxy"
+        log_file: "/var/log/swift/proxy*.log"
+        tags: "swift,openstack"
+      - name: "swift-account"
+        log_file: "/openstack/log/{{ inventory_hostname }}/account*.log"
+        tags: "swift,openstack"
+      - name: "swift-container"
+        log_file: "/openstack/log/{{ inventory_hostname }}/container*.log"
+        tags: "swift,openstack"
+      - name: "swift-object"
+        log_file: "/openstack/log/{{ inventory_hostname }}/object*.log"
+        tags: "swift,openstack"
+      - name: "neutron"
+        log_file: "/var/log/neutron/*"
+        tags: "neutron,openstack,oslofmt"
+      - name: "mysql"
+        log_file: "/var/log/mysql_logs/*.log"
+        tags: "mysql,infrastructure"
+        multiline_regex_after: '(^#\sUser@Host:\s)'
+        multiline_regex_before: '(.*)'
+      - name: "rabbitmq"
+        log_file: "/var/log/rabbitmq/rabbit@{{ inventory_hostname }}.log"
+        tags: "rabbitmq,infrastructure"
+        multiline_regex_after: '(^=.*)'
+        multiline_regex_before: '(^\s\*.*)|(^[a-zA-Z]+.*)'
+      - name: "elasticsearch"
+        log_file: "/var/log/elasticsearch/*.log"
+        tags: "elasticsearch,infrastructure"
+        multiline_regex_after: '(^org.elasticsearch.*)'
+        multiline_regex_before: '(^\s+at\s.*)|(^org.elasticsearch.*)|(^Caused by.*)|(^\s+\.\.\.)'
+      - name: "logstash"
+        log_file: "/var/log/logstash/*.log"
+        tags: "logstash,infrastructure"
+      - name: "beaver"
+        log_file: "/var/log/beaver/beaver.log"
+        tags: "beaver,infrastructure"
+      - name: "auth"
+        log_file: "/var/log/auth.log"
+        tags: "auth,infrastructure"

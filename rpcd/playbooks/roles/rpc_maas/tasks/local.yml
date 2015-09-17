@@ -23,7 +23,7 @@
       - { 'name': 'cinder_api_local_status', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["cinder_api_local_status"] != 1) { return new AlarmStatus(CRITICAL, "API unavailable"); }' }
   user: root
   when: >
-    inventory_hostname in groups['cinder_api'] 
+    inventory_hostname in groups['cinder_api']
 
 - include: local_setup.yml
   vars:
@@ -292,7 +292,7 @@
 - include: local_setup.yml
   vars:
     check_name: nova_spice_console_check
-    check_details: file=service_api_local_check.py,args=nova_spice,args={{ ansible_ssh_host }},args=6082
+    check_details: file=service_api_local_check.py,args=nova_spice,args={{ ansible_ssh_host }},args=6082,args=--path,args=spice_auto.html
     check_period: "{{ maas_check_period }}"
     check_timeout: "{{ maas_check_timeout }}"
     alarms:
@@ -304,7 +304,7 @@
 - include: local_setup.yml
   vars:
     check_name: rabbitmq_status
-    check_details: file={{ check_name }}.py,args=-H,args={{ ansible_ssh_host }},args=-n,args={{ inventory_hostname.split('.')[0] }}
+    check_details: file={{ check_name }}.py,args=-H,args={{ ansible_ssh_host }},args=-n,args={{ inventory_hostname.split('.')[0] }},args=-U,args={{ maas_rabbitmq_user }},args=-p,args={{ maas_rabbitmq_password }}
     check_period: "{{ maas_check_period }}"
     check_timeout: "{{ maas_check_timeout }}"
     alarms:

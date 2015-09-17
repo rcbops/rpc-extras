@@ -121,7 +121,7 @@ maas_scheme: http
 # maas_keystone_scheme: https
 # maas_neutron_scheme: https
 # maas_nova_scheme: https
-# maas_horizon_scheme: https
+maas_horizon_scheme: https
 # maas_heat_api_scheme: https
 # maas_heat_cfn_scheme: https
 # maas_heat_cloudwatch_scheme: https
@@ -132,6 +132,12 @@ maas_scheme: http
 #                     OpenStack APIs.
 #
 maas_keystone_user: maas
+
+#
+# maas_rabbitmq_user: The rabbitmq user that is created for rabbitmq tests to use.
+#
+#
+maas_rabbitmq_user: maas_user
 
 #
 # maas_alarm_local_consecutive_count: The number of consecutive failures before an alert is
@@ -237,7 +243,7 @@ maas_apt_packages:
   - mariadb-client
 
 #
-# maas_pip_packages: Packages we need but are not built by os-ansible-deployment
+# maas_pip_packages: Packages we need but are not built by openstack-ansible
 #
 maas_pip_packages:
   - rackspace-monitoring-cli
@@ -245,7 +251,7 @@ maas_pip_packages:
 
 #
 # maas_pip_dependencies: These are pip packages we depend on, but should already be built in
-#                        os-ansible-deployment
+#                        openstack-ansible
 maas_pip_dependencies:
   - requests
   - lxml
@@ -257,4 +263,4 @@ maas_pip_dependencies:
   - python-novaclient
   - python-memcached
 
-maas_plugin_dir: /opt/rpc-openstack/maas/
+maas_plugin_dir: /opt/rpc-openstack/maas/plugins/

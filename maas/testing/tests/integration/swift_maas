@@ -1,0 +1,1112 @@
+{
+    "BLOCK_STORAGE": {
+        "active_suppressions": [],
+        "checks": {},
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "COMPUTE": {
+        "active_suppressions": [],
+        "checks": {},
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "CONTROLLER": {
+        "active_suppressions": [],
+        "checks": {
+            "swift_proxy_server_check--CONTROLLER_swift_proxy_container-UID": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_proxy_server_api_local_status--CONTROLLER_swift_proxy_container-UID": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"swift_proxy_server_api_local_status\"] != 1) { return new AlarmStatus(CRITICAL, \"API unavailable\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "swift_proxy_server",
+                        "--path",
+                        "/healthcheck",
+                        "IP_ADDRESS",
+                        "8080"
+                    ],
+                    "file": "service_api_local_check.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "swift_proxy_server_api_local_response_time": {
+                        "name": "swift_proxy_server_api_local_response_time",
+                        "unit": "ms"
+                    },
+                    "swift_proxy_server_api_local_status": {
+                        "name": "swift_proxy_server_api_local_status",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "LOADBALANCER": {
+        "active_suppressions": [],
+        "checks": {
+            "lb_api_check_swift_proxy": {
+                "active_suppressions": [],
+                "alarms": {
+                    "lb_api_alarm_swift_proxy": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=1 if (metric['code'] != '200') { return new AlarmStatus(CRITICAL, 'API unavailable.'); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "follow_redirects": true,
+                    "include_body": false,
+                    "method": "GET",
+                    "url": "http://IP_ADDRESS:8080/healthcheck"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "mzdfw.bytes": {
+                        "name": "mzdfw.bytes",
+                        "unit": "bytes"
+                    },
+                    "mzdfw.code": {
+                        "name": "mzdfw.code",
+                        "unit": "unknown"
+                    },
+                    "mzdfw.duration": {
+                        "name": "mzdfw.duration",
+                        "unit": "milliseconds"
+                    },
+                    "mzdfw.truncated": {
+                        "name": "mzdfw.truncated",
+                        "unit": "bytes"
+                    },
+                    "mzdfw.tt_connect": {
+                        "name": "mzdfw.tt_connect",
+                        "unit": "milliseconds"
+                    },
+                    "mzdfw.tt_firstbyte": {
+                        "name": "mzdfw.tt_firstbyte",
+                        "unit": "milliseconds"
+                    },
+                    "mzhkg.bytes": {
+                        "name": "mzhkg.bytes",
+                        "unit": "bytes"
+                    },
+                    "mzhkg.code": {
+                        "name": "mzhkg.code",
+                        "unit": "unknown"
+                    },
+                    "mzhkg.duration": {
+                        "name": "mzhkg.duration",
+                        "unit": "milliseconds"
+                    },
+                    "mzhkg.truncated": {
+                        "name": "mzhkg.truncated",
+                        "unit": "bytes"
+                    },
+                    "mzhkg.tt_connect": {
+                        "name": "mzhkg.tt_connect",
+                        "unit": "milliseconds"
+                    },
+                    "mzhkg.tt_firstbyte": {
+                        "name": "mzhkg.tt_firstbyte",
+                        "unit": "milliseconds"
+                    },
+                    "mziad.bytes": {
+                        "name": "mziad.bytes",
+                        "unit": "bytes"
+                    },
+                    "mziad.code": {
+                        "name": "mziad.code",
+                        "unit": "unknown"
+                    },
+                    "mziad.duration": {
+                        "name": "mziad.duration",
+                        "unit": "milliseconds"
+                    },
+                    "mziad.truncated": {
+                        "name": "mziad.truncated",
+                        "unit": "bytes"
+                    },
+                    "mziad.tt_connect": {
+                        "name": "mziad.tt_connect",
+                        "unit": "milliseconds"
+                    },
+                    "mziad.tt_firstbyte": {
+                        "name": "mziad.tt_firstbyte",
+                        "unit": "milliseconds"
+                    },
+                    "mzlon.bytes": {
+                        "name": "mzlon.bytes",
+                        "unit": "bytes"
+                    },
+                    "mzlon.code": {
+                        "name": "mzlon.code",
+                        "unit": "unknown"
+                    },
+                    "mzlon.duration": {
+                        "name": "mzlon.duration",
+                        "unit": "milliseconds"
+                    },
+                    "mzlon.truncated": {
+                        "name": "mzlon.truncated",
+                        "unit": "bytes"
+                    },
+                    "mzlon.tt_connect": {
+                        "name": "mzlon.tt_connect",
+                        "unit": "milliseconds"
+                    },
+                    "mzlon.tt_firstbyte": {
+                        "name": "mzlon.tt_firstbyte",
+                        "unit": "milliseconds"
+                    },
+                    "mzord.bytes": {
+                        "name": "mzord.bytes",
+                        "unit": "bytes"
+                    },
+                    "mzord.code": {
+                        "name": "mzord.code",
+                        "unit": "unknown"
+                    },
+                    "mzord.duration": {
+                        "name": "mzord.duration",
+                        "unit": "milliseconds"
+                    },
+                    "mzord.truncated": {
+                        "name": "mzord.truncated",
+                        "unit": "bytes"
+                    },
+                    "mzord.tt_connect": {
+                        "name": "mzord.tt_connect",
+                        "unit": "milliseconds"
+                    },
+                    "mzord.tt_firstbyte": {
+                        "name": "mzord.tt_firstbyte",
+                        "unit": "milliseconds"
+                    }
+                },
+                "monitoring_zones_poll": [
+                    "mzdfw",
+                    "mziad",
+                    "mzord",
+                    "mzlon",
+                    "mzhkg"
+                ],
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": "access_ip0_v4",
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "remote.http"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "LOGGER": {
+        "active_suppressions": [],
+        "checks": {},
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    },
+    "SWIFT": {
+        "active_suppressions": [],
+        "checks": {
+            "swift_account_replication_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_account_replication_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"time_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Account Replication Failure Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "--ring-type",
+                        "account",
+                        "replication"
+                    ],
+                    "file": "swift-recon.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "attempted_avg": {
+                        "name": "attempted_avg",
+                        "unit": "unknown"
+                    },
+                    "attempted_failed": {
+                        "name": "attempted_failed",
+                        "unit": "unknown"
+                    },
+                    "attempted_high": {
+                        "name": "attempted_high",
+                        "unit": "unknown"
+                    },
+                    "attempted_low": {
+                        "name": "attempted_low",
+                        "unit": "unknown"
+                    },
+                    "attempted_no_result": {
+                        "name": "attempted_no_result",
+                        "unit": "unknown"
+                    },
+                    "attempted_reported": {
+                        "name": "attempted_reported",
+                        "unit": "unknown"
+                    },
+                    "attempted_total": {
+                        "name": "attempted_total",
+                        "unit": "unknown"
+                    },
+                    "failure_avg": {
+                        "name": "failure_avg",
+                        "unit": "unknown"
+                    },
+                    "failure_failed": {
+                        "name": "failure_failed",
+                        "unit": "unknown"
+                    },
+                    "failure_high": {
+                        "name": "failure_high",
+                        "unit": "unknown"
+                    },
+                    "failure_low": {
+                        "name": "failure_low",
+                        "unit": "unknown"
+                    },
+                    "failure_no_result": {
+                        "name": "failure_no_result",
+                        "unit": "unknown"
+                    },
+                    "failure_reported": {
+                        "name": "failure_reported",
+                        "unit": "unknown"
+                    },
+                    "failure_total": {
+                        "name": "failure_total",
+                        "unit": "unknown"
+                    },
+                    "success_avg": {
+                        "name": "success_avg",
+                        "unit": "unknown"
+                    },
+                    "success_failed": {
+                        "name": "success_failed",
+                        "unit": "unknown"
+                    },
+                    "success_high": {
+                        "name": "success_high",
+                        "unit": "unknown"
+                    },
+                    "success_low": {
+                        "name": "success_low",
+                        "unit": "unknown"
+                    },
+                    "success_no_result": {
+                        "name": "success_no_result",
+                        "unit": "unknown"
+                    },
+                    "success_reported": {
+                        "name": "success_reported",
+                        "unit": "unknown"
+                    },
+                    "success_total": {
+                        "name": "success_total",
+                        "unit": "unknown"
+                    },
+                    "time_avg": {
+                        "name": "time_avg",
+                        "unit": "unknown"
+                    },
+                    "time_failed": {
+                        "name": "time_failed",
+                        "unit": "unknown"
+                    },
+                    "time_high": {
+                        "name": "time_high",
+                        "unit": "unknown"
+                    },
+                    "time_low": {
+                        "name": "time_low",
+                        "unit": "unknown"
+                    },
+                    "time_no_result": {
+                        "name": "time_no_result",
+                        "unit": "unknown"
+                    },
+                    "time_reported": {
+                        "name": "time_reported",
+                        "unit": "unknown"
+                    },
+                    "time_total": {
+                        "name": "time_total",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_account_server_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_account_server_api_local_status--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"swift_account_server_api_local_status\"] != 1) { return new AlarmStatus(CRITICAL, \"API unavailable\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "swift_account_server",
+                        "--path",
+                        "/healthcheck",
+                        "IP_ADDRESS",
+                        "6002"
+                    ],
+                    "file": "service_api_local_check.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "swift_account_server_api_local_response_time": {
+                        "name": "swift_account_server_api_local_response_time",
+                        "unit": "ms"
+                    },
+                    "swift_account_server_api_local_status": {
+                        "name": "swift_account_server_api_local_status",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_async_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_async_avg_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"async_avg\"] > 25.0) { return new AlarmStatus(CRITICAL, \"Swift Async Pending Average above threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_async_failure_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"async_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Async Pending Failure Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "async-pendings"
+                    ],
+                    "file": "swift-recon.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "async_avg": {
+                        "name": "async_avg",
+                        "unit": "unknown"
+                    },
+                    "async_failed": {
+                        "name": "async_failed",
+                        "unit": "unknown"
+                    },
+                    "async_high": {
+                        "name": "async_high",
+                        "unit": "unknown"
+                    },
+                    "async_low": {
+                        "name": "async_low",
+                        "unit": "unknown"
+                    },
+                    "async_no_result": {
+                        "name": "async_no_result",
+                        "unit": "unknown"
+                    },
+                    "async_reported": {
+                        "name": "async_reported",
+                        "unit": "unknown"
+                    },
+                    "async_total": {
+                        "name": "async_total",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_container_replication_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_container_replication_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"time_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Container Replication Failure Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "--ring-type",
+                        "container",
+                        "replication"
+                    ],
+                    "file": "swift-recon.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "attempted_avg": {
+                        "name": "attempted_avg",
+                        "unit": "unknown"
+                    },
+                    "attempted_failed": {
+                        "name": "attempted_failed",
+                        "unit": "unknown"
+                    },
+                    "attempted_high": {
+                        "name": "attempted_high",
+                        "unit": "unknown"
+                    },
+                    "attempted_low": {
+                        "name": "attempted_low",
+                        "unit": "unknown"
+                    },
+                    "attempted_no_result": {
+                        "name": "attempted_no_result",
+                        "unit": "unknown"
+                    },
+                    "attempted_reported": {
+                        "name": "attempted_reported",
+                        "unit": "unknown"
+                    },
+                    "attempted_total": {
+                        "name": "attempted_total",
+                        "unit": "unknown"
+                    },
+                    "failure_avg": {
+                        "name": "failure_avg",
+                        "unit": "unknown"
+                    },
+                    "failure_failed": {
+                        "name": "failure_failed",
+                        "unit": "unknown"
+                    },
+                    "failure_high": {
+                        "name": "failure_high",
+                        "unit": "unknown"
+                    },
+                    "failure_low": {
+                        "name": "failure_low",
+                        "unit": "unknown"
+                    },
+                    "failure_no_result": {
+                        "name": "failure_no_result",
+                        "unit": "unknown"
+                    },
+                    "failure_reported": {
+                        "name": "failure_reported",
+                        "unit": "unknown"
+                    },
+                    "failure_total": {
+                        "name": "failure_total",
+                        "unit": "unknown"
+                    },
+                    "success_avg": {
+                        "name": "success_avg",
+                        "unit": "unknown"
+                    },
+                    "success_failed": {
+                        "name": "success_failed",
+                        "unit": "unknown"
+                    },
+                    "success_high": {
+                        "name": "success_high",
+                        "unit": "unknown"
+                    },
+                    "success_low": {
+                        "name": "success_low",
+                        "unit": "unknown"
+                    },
+                    "success_no_result": {
+                        "name": "success_no_result",
+                        "unit": "unknown"
+                    },
+                    "success_reported": {
+                        "name": "success_reported",
+                        "unit": "unknown"
+                    },
+                    "success_total": {
+                        "name": "success_total",
+                        "unit": "unknown"
+                    },
+                    "time_avg": {
+                        "name": "time_avg",
+                        "unit": "unknown"
+                    },
+                    "time_failed": {
+                        "name": "time_failed",
+                        "unit": "unknown"
+                    },
+                    "time_high": {
+                        "name": "time_high",
+                        "unit": "unknown"
+                    },
+                    "time_low": {
+                        "name": "time_low",
+                        "unit": "unknown"
+                    },
+                    "time_no_result": {
+                        "name": "time_no_result",
+                        "unit": "unknown"
+                    },
+                    "time_reported": {
+                        "name": "time_reported",
+                        "unit": "unknown"
+                    },
+                    "time_total": {
+                        "name": "time_total",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_container_server_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_container_server_api_local_status--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"swift_container_server_api_local_status\"] != 1) { return new AlarmStatus(CRITICAL, \"API unavailable\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "swift_container_server",
+                        "--path",
+                        "/healthcheck",
+                        "IP_ADDRESS",
+                        "6001"
+                    ],
+                    "file": "service_api_local_check.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "swift_container_server_api_local_response_time": {
+                        "name": "swift_container_server_api_local_response_time",
+                        "unit": "ms"
+                    },
+                    "swift_container_server_api_local_status": {
+                        "name": "swift_container_server_api_local_status",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_md5_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_conf_md5_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"swift_conf_errors\"] > 0) { return new AlarmStatus(CRITICAL, \"Swift conf md5sum inconsistent\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_ring_md5_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"ring_errors\"] > 0) { return new AlarmStatus(CRITICAL, \"Ring md5sum Inconsistent\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "md5"
+                    ],
+                    "file": "swift-recon.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "ring_errors": {
+                        "name": "ring_errors",
+                        "unit": "unknown"
+                    },
+                    "ring_success": {
+                        "name": "ring_success",
+                        "unit": "unknown"
+                    },
+                    "ring_total": {
+                        "name": "ring_total",
+                        "unit": "unknown"
+                    },
+                    "swift_conf_errors": {
+                        "name": "swift_conf_errors",
+                        "unit": "unknown"
+                    },
+                    "swift_conf_success": {
+                        "name": "swift_conf_success",
+                        "unit": "unknown"
+                    },
+                    "swift_conf_total": {
+                        "name": "swift_conf_total",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_object_replication_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_object_replication_check--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"time_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Object Replication Failure Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "--ring-type",
+                        "object",
+                        "replication"
+                    ],
+                    "file": "swift-recon.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "time_avg": {
+                        "name": "time_avg",
+                        "unit": "unknown"
+                    },
+                    "time_failed": {
+                        "name": "time_failed",
+                        "unit": "unknown"
+                    },
+                    "time_high": {
+                        "name": "time_high",
+                        "unit": "unknown"
+                    },
+                    "time_low": {
+                        "name": "time_low",
+                        "unit": "unknown"
+                    },
+                    "time_no_result": {
+                        "name": "time_no_result",
+                        "unit": "unknown"
+                    },
+                    "time_reported": {
+                        "name": "time_reported",
+                        "unit": "unknown"
+                    },
+                    "time_total": {
+                        "name": "time_total",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_object_server_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_object_server_api_local_status--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"swift_object_server_api_local_status\"] != 1) { return new AlarmStatus(CRITICAL, \"API unavailable\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "swift_object_server",
+                        "--path",
+                        "/healthcheck",
+                        "IP_ADDRESS",
+                        "6000"
+                    ],
+                    "file": "service_api_local_check.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "swift_object_server_api_local_response_time": {
+                        "name": "swift_object_server_api_local_response_time",
+                        "unit": "ms"
+                    },
+                    "swift_object_server_api_local_status": {
+                        "name": "swift_object_server_api_local_status",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            },
+            "swift_quarantine_check--SWIFT": {
+                "active_suppressions": [],
+                "alarms": {
+                    "swift_quarantine_account_avg--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"accounts_avg\"] > 25.0) { return new AlarmStatus(CRITICAL, \"Swift Account Quarantine Average Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_quarantine_account_failed--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"accounts_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Account Quarantine Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_quarantine_container_avg--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"containers_avg\"] > 25.0) { return new AlarmStatus(CRITICAL, \"Swift Container Quarantine Average Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_quarantine_container_failed--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"containers_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Container Quarantine Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_quarantine_object_avg--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"objects_avg\"] > 25.0) { return new AlarmStatus(CRITICAL, \"Swift Object Quarantine Average Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    },
+                    "swift_quarantine_object_failed--SWIFT": {
+                        "active_suppressions": [],
+                        "confd_hash": null,
+                        "confd_name": null,
+                        "criteria": ":set consecutiveCount=3 if (metric[\"objects_failed\"] > 5.0) { return new AlarmStatus(CRITICAL, \"Swift Object Quarantine Percentage Above Threshold\"); }",
+                        "disabled": false,
+                        "metadata": null,
+                        "scheduled_suppressions": []
+                    }
+                },
+                "confd_hash": null,
+                "confd_name": null,
+                "details": {
+                    "args": [
+                        "quarantine"
+                    ],
+                    "file": "swift-recon.py"
+                },
+                "disabled": false,
+                "metadata": null,
+                "metrics": {
+                    "accounts_avg": {
+                        "name": "accounts_avg",
+                        "unit": "unknown"
+                    },
+                    "accounts_failed": {
+                        "name": "accounts_failed",
+                        "unit": "unknown"
+                    },
+                    "accounts_high": {
+                        "name": "accounts_high",
+                        "unit": "unknown"
+                    },
+                    "accounts_low": {
+                        "name": "accounts_low",
+                        "unit": "unknown"
+                    },
+                    "accounts_no_result": {
+                        "name": "accounts_no_result",
+                        "unit": "unknown"
+                    },
+                    "accounts_reported": {
+                        "name": "accounts_reported",
+                        "unit": "unknown"
+                    },
+                    "accounts_total": {
+                        "name": "accounts_total",
+                        "unit": "unknown"
+                    },
+                    "containers_avg": {
+                        "name": "containers_avg",
+                        "unit": "unknown"
+                    },
+                    "containers_failed": {
+                        "name": "containers_failed",
+                        "unit": "unknown"
+                    },
+                    "containers_high": {
+                        "name": "containers_high",
+                        "unit": "unknown"
+                    },
+                    "containers_low": {
+                        "name": "containers_low",
+                        "unit": "unknown"
+                    },
+                    "containers_no_result": {
+                        "name": "containers_no_result",
+                        "unit": "unknown"
+                    },
+                    "containers_reported": {
+                        "name": "containers_reported",
+                        "unit": "unknown"
+                    },
+                    "containers_total": {
+                        "name": "containers_total",
+                        "unit": "unknown"
+                    },
+                    "objects_avg": {
+                        "name": "objects_avg",
+                        "unit": "unknown"
+                    },
+                    "objects_failed": {
+                        "name": "objects_failed",
+                        "unit": "unknown"
+                    },
+                    "objects_high": {
+                        "name": "objects_high",
+                        "unit": "unknown"
+                    },
+                    "objects_low": {
+                        "name": "objects_low",
+                        "unit": "unknown"
+                    },
+                    "objects_no_result": {
+                        "name": "objects_no_result",
+                        "unit": "unknown"
+                    },
+                    "objects_reported": {
+                        "name": "objects_reported",
+                        "unit": "unknown"
+                    },
+                    "objects_total": {
+                        "name": "objects_total",
+                        "unit": "unknown"
+                    }
+                },
+                "monitoring_zones_poll": null,
+                "period": 60,
+                "scheduled_suppressions": [],
+                "target_alias": null,
+                "target_hostname": null,
+                "target_resolver": null,
+                "timeout": 30,
+                "type": "agent.plugin"
+            }
+        },
+        "ip_addresses": {
+            "access_ip0_v4": "IP_ADDRESS",
+            "access_ip1_v6": "IP_ADDRESS",
+            "heat_mgmt_vxlan0_v4": "IP_ADDRESS",
+            "heat_storage0_v4": "IP_ADDRESS",
+            "heat_tunnel0_v4": "IP_ADDRESS",
+            "private0_v4": "IP_ADDRESS",
+            "public0_v4": "IP_ADDRESS",
+            "public1_v6": "IP_ADDRESS"
+        },
+        "managed": false,
+        "metadata": null,
+        "scheduled_suppressions": []
+    }
+}

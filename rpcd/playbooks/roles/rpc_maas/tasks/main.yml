@@ -21,6 +21,10 @@
   when: >
     inventory_hostname == groups['utility'][0]
 
+- include: rabbitmq_user.yml
+  when: >
+    inventory_hostname == groups['rabbitmq_all'][0]
+
 - include: create_my_cnf.yml
   when: >
     inventory_hostname in groups['galera']

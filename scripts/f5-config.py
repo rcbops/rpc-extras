@@ -43,7 +43,7 @@ MONITORS = [
     r'create ltm monitor mysql /' + PART + '/' + PREFIX_NAME + '_MON_GALERA { count 1 database'
     r' information_schema debug no defaults-from mysql destination *:*'
     r' interval 3 recv big5_chinese_ci recv-column 2 recv-row 0 send "select'
-    r' * from CHARACTER_SETS;" time-until-up 0 timeout 10 username haproxy }',
+    r' * from CHARACTER_SETS;" time-until-up 0 timeout 10 username monitoring }',
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_KEYSTONE_ADMIN { defaults-from'
     r' http destination *:35357 recv "200 OK" send "HEAD /v3 HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
