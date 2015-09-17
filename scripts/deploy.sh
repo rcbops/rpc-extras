@@ -90,7 +90,7 @@ fi
 cd ${RPCD_DIR}/playbooks/
 
 # build the RPC python package repository
-install_bits repo-build.yml
+install_bits repo-install.yml
 
 # configure all hosts and containers to use the RPC python packages
 install_bits repo-pip-setup.yml
