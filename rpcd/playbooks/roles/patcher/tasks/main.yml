@@ -1,4 +1,4 @@
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is the location where the rpc repository was checked out
-rpc_repo_path: /opt/rpc-openstack/openstack-ansible
-
-# RPC Extras version
-rpc_release: master
-
-# Definitions for the repo server, these should match your openstack-ansible
-# deployment
-repo_server_port: 8181
-openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}"
+- name: Apply patch files
+  patch:
+    src: "{{ patcher_src_dir }}/{{ item }}"
+    basedir: "{{ patcher_dest_dir}}"
+    strip: 1
+  with_items: patcher_files
+  when: patcher_files is defined
+  tags:
+    - apply-patches

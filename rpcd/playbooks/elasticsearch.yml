@@ -33,8 +33,7 @@
         container_command: |
           [[ ! -d "/var/lib/elasticsearch" ]] && mkdir -p "/var/lib/elasticsearch"
         container_config:
-          - "lxc.mount.entry=/openstack/{{ container_name
-            }}/var/lib/elasticsearch var/lib/elasticsearch none bind 0 0"
+          - "lxc.mount.entry=/openstack/{{ container_name }}/var/lib/elasticsearch var/lib/elasticsearch none bind 0 0"
           - "lxc.aa_profile=unconfined"
       delegate_to: "{{ physical_host }}"
       when: is_metal == false or is_metal == "False"

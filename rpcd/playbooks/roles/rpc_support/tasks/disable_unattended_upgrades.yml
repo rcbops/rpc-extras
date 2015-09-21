@@ -14,7 +14,6 @@
 # limitations under the License.
 
 - name: Disable unattended upgrades
-  lineinfile:
-    dest: '/etc/apt/apt.conf.d/50unattended-upgrades'
-    regexp: '\-security\";$'
-    line: '//   "${distro_id}:${distro_codename}-security";'
+  file:
+    name: '/etc/apt/apt.conf.d/50unattended-upgrades'
+    state: absent

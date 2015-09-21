@@ -16,17 +16,36 @@
 # (c) 2015, Nolan Brubaker <nolan.brubaker@rackspace.com>
 set -eux pipefail
 
-OSAD_DIR='/opt/rpc-openstack/os-ansible-deployment'
-RPCD_DIR='/opt/rpc-openstack/rpcd'
+BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
+OA_DIR="$BASE_DIR/openstack-ansible"
+RPCD_DIR="$BASE_DIR/rpcd"
 
-# Do the upgrade for os-ansible-deployment components
-cd ${OSAD_DIR}
-${OSAD_DIR}/scripts/run-upgrade.sh
+# Merge new overrides into existing user_variables before upgrade
+# contents of existing user_variables take precedence over new overrides
+cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variables.yml
+${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
+mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
 
-# Prevent the deployment script from re-running the OSAD playbooks
-export DEPLOY_OSAD="no"
+# Upgrade Ansible in-place so we have access to the patch module.
+cd ${OA_DIR}
+${OA_DIR}/scripts/bootstrap-ansible.sh
+
+# Apply any patched files.
+cd ${RPCD_DIR}/playbooks
+openstack-ansible -i "localhost," patcher.yml
+
+# Do the upgrade for openstack-ansible components
+cd ${OA_DIR}
+echo 'YES' | ${OA_DIR}/scripts/run-upgrade.sh
+
+# Prevent the deployment script from re-running the OA playbooks
+export DEPLOY_OA="no"
 
 # Do the upgrade for the RPC components
-source ${OSAD_DIR}/scripts/scripts-library.sh
-cd ${RPCD_DIR}
-${RPCD_DIR}/scripts/deploy.sh
+source ${OA_DIR}/scripts/scripts-library.sh
+cd ${BASE_DIR}
+${BASE_DIR}/scripts/deploy.sh
+
+# the auth_ref on disk is now not usable by the new plugins
+cd ${RPCD_DIR}/playbooks
+ansible hosts -m file -a 'path=/root/.auth_ref.json state=absent'

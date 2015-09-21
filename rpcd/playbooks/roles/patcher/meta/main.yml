@@ -1,4 +1,5 @@
-# Copyright 2014, Rackspace US, Inc.
+---
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is the location where the rpc repository was checked out
-rpc_repo_path: /opt/rpc-openstack/openstack-ansible
-
-# RPC Extras version
-rpc_release: master
-
-# Definitions for the repo server, these should match your openstack-ansible
-# deployment
-repo_server_port: 8181
-openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}"
+galaxy_info:
+  author: rcbops
+  description: OpenStack Ansible patcher
+  company: Rackspace
+  license: Apache2
+  min_ansible_version: 1.6.6
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+  categories:
+    - rackspace
+    - patching

@@ -2,5 +2,5 @@
 export OS_USERNAME={{ maas_keystone_user }}
 export OS_PASSWORD={{ maas_keystone_password }}
 export OS_TENANT_NAME={{ keystone_admin_tenant_name }}
-export OS_AUTH_URL={{ keystone_service_internalurl }}
+export OS_AUTH_URL={{ keystone_service_internalurl_v3 }}
 export OS_NO_CACHE=1

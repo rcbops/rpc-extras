@@ -132,7 +132,7 @@
     scheme: "{{ maas_horizon_scheme | default(maas_scheme)}}"
     ip_address: "{{ maas_external_ip_address }}"
     port: 443
-    path: ""
+    path: "/auth/login/"
     url: "{{ scheme }}://{{ ip_address }}:{{ port }}{{ path }}"
     alarm_name: lb_api_alarm_horizon
     criteria: ":set consecutiveCount={{ maas_alarm_remote_consecutive_count }} if (metric['code'] != '200') { return new AlarmStatus(CRITICAL, 'API unavailable.'); }"

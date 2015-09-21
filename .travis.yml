@@ -1,0 +1,6 @@
+language: python
+
+script: ./scripts/linting.sh
+
+notifications:
+    email: false

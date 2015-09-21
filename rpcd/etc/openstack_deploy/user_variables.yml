@@ -15,6 +15,14 @@
 
 # Nova overrides
 nova_cross_az_attach: False
+nova_rpc_conn_pool_size: 180
+nova_rpc_response_timeout: 180
+nova_rpc_thread_pool_size: 180
+
+# Neutron overrides
+neutron_rpc_conn_pool_size: 180
+neutron_rpc_response_timeout: 180
+neutron_rpc_thread_pool_size: 180
 
 ## Apache SSL Settings
 # These do not need to be configured unless you're creating certificates for
@@ -22,3 +30,10 @@ nova_cross_az_attach: False
 ssl_protocol: "ALL -SSLv2 -SSLv3"
 # Cipher suite string from https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
 ssl_cipher_suite: "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS"
+
+# Keystone overrides
+keystone_token_provider: "keystone.token.providers.uuid.Provider"
+keystone_token_driver: "keystone.token.persistence.backends.sql.Token"
+
+# Galera overrides
+galera_cluster_name: rpc_galera_cluster

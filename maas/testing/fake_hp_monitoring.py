@@ -1,4 +1,5 @@
-# Copyright 2014, Rackspace US, Inc.
+#!/usr/bin/env python
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is the location where the rpc repository was checked out
-rpc_repo_path: /opt/rpc-openstack/openstack-ansible
+import sys
 
-# RPC Extras version
-rpc_release: master
+args = sys.argv[1:]
 
-# Definitions for the repo server, these should match your openstack-ansible
-# deployment
-repo_server_port: 8181
-openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}"
+if args == ['-s', 'show server']:
+    print('Status Ok')
+elif args == ['-s', 'show dimm']:
+    print('Status Ok')
+elif args == ['ctrl', 'all', 'show', 'config']:
+    print('logicaldrive OK')
+else:
+    sys.exit('fake_hp_monitoring.py has received the following '
+             'unexpected arguments - "%s".' % str(args))
