@@ -84,6 +84,14 @@
       sudo_user: "{{ repo_service_user_name }}"
       tags:
         - repo-html-indexes
+
+    - name: Restart lsyncd
+      service:
+        name: lsyncd
+        state: restarted
+      tags:
+        - repo-restart-lsync
+
   vars:
     repo_build_dir: "/tmp/rpc-builder"
     repo_build_output: "/tmp/rpc-wheel-output"
