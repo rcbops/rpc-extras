@@ -193,6 +193,19 @@ Hostname or IP address of service to test
     ...
 
 ***
+#### neutron_metadata_local_check.py
+
+##### Description:
+polls the neutron metadata agent proxies in each network namespace with DHCP enabled to ensure the agent is responsive.
+
+##### mandatory args:
+Hostname or IP address of Neutron API service
+##### example output:
+
+    metric neutron-metadata-agent-proxy_status uint32 1
+    ...
+
+***
 ***
 ### OTHER CHECKS
 ***

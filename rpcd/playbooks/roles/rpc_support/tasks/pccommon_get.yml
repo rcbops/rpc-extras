@@ -15,6 +15,6 @@
 
 - name: Download pccommon.sh
   get_url:
-    url: "https://github.com/rsoprivatecloud/pubscripts/blob/master/pccommon.sh"
+    url: "https://raw.githubusercontent.com/rsoprivatecloud/pubscripts/master/pccommon.sh"
     dest: /root/pccommon.sh
     mode: 0700

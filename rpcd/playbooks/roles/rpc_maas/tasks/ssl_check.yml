@@ -26,7 +26,7 @@
     scheme: "https"
     ip_address: "{{ external_vip_address }}"
     port: "443"
-    path: ""
+    path: "/auth/login/"
     url: "{{ scheme }}://{{ ip_address }}:{{ port }}{{ path }}"
     alarm_name: lb_ssl_cert_expiry_alarm
     criteria: "if (metric['cert_end_in'] < 604800) {return new AlarmStatus(CRITICAL, 'Cert expiring in less than 7 days.');}if (metric['cert_end_in'] < 2628288) {return new AlarmStatus(WARNING, 'Cert expiring in less than 30 days.');}return new AlarmStatus(OK, 'HTTP certificate does not expire soon.');"

@@ -41,11 +41,11 @@
 
 - include: support_key_pair.yml
   when: >
-    inventory_hostname == groups['utility'][0]
+    groups['nova_api_os_compute']|length > 0 and inventory_hostname == groups['utility'][0]
 
 - include: support_sec_group.yml
   when: >
-    inventory_hostname == groups['utility'][0]
+    groups['neutron_server']|length > 0 and inventory_hostname == groups['utility'][0]
 
 - include: distribute_auth_key.yml
   when: >
