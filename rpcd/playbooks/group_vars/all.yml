@@ -16,7 +16,7 @@
 rpc_repo_path: /opt/rpc-openstack/openstack-ansible
 
 # rpc-openstack version
-rpc_release: r11.1.0rc0
+rpc_release: r11.1.0rc1
 
 # Definitions for the repo server, these should match your openstack-ansible
 # deployment
