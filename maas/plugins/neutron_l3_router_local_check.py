@@ -12,23 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from maas_common import (status_ok,
-                         status_err,
-                         metric,
-                         metric_bool,
-                         get_auth_ref,
-                         get_endpoint_url_for_service,
-                         print_output)
-from requests import Session
+from maas_common import get_auth_ref
+from maas_common import get_endpoint_url_for_service
+from maas_common import metric
+from maas_common import metric_bool
+from maas_common import print_output
+from maas_common import status_err
+from maas_common import status_ok
 from requests import exceptions as exc
+from requests import Session
+
 
 def check(auth_ref):
     auth_token = auth_ref['token']['id']
     # Use internalURL as this is a local plugin
-    endpoint = get_endpoint_url_for_service('network', auth_ref['serviceCatalog'], url_type='internalURL')
+    endpoint = get_endpoint_url_for_service('network',
+                                            auth_ref['serviceCatalog'],
+                                            url_type='internalURL')
     # TODO set this from args.version to future-proof // version = args.version
     version = 'v2.0'
-    api_endpoint = '{endpoint}/{version}'.format(endpoint=endpoint,version=version)
+    api_endpoint = '{endpoint}/{version}'.format(endpoint=endpoint,
+                                                 version=version)
     s = Session()
     s.headers.update(
         {'Content-type': 'application/json',
@@ -63,22 +67,22 @@ def check(auth_ref):
         router_name = (router['name']).replace(" ","").lower()
         failed = []
 
-    # If router_status is ACTIVE, perform ping check
+        # If router_status is ACTIVE, perform ping check
         if(router_status == 'ACTIVE'):
-            import os, sys, time
+            import os
 
             # IP address is the WAN interface of the router
             ip_address = router['external_gateway_info']['external_fixed_ips'][0]['ip_address']
 
             rc = os.system('ping -c1 -W3 ' + ip_address + ' > /dev/null')
             if(rc == 0):
-		pass
+                pass
             else:
                 failed.append(router_name)
 
         failed_routers = ', '.join(failed)
 
-        if failed:
+        if failed is None:
             return metric('neutron_router_ping', 'string', 'PING FAILURE: ' + failed_routers)
 
         return metric('neutron_router_ping', 'string', 'SUCCESS')
