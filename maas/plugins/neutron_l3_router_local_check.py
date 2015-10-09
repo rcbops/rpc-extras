@@ -29,7 +29,7 @@ def check(auth_ref):
     endpoint = get_endpoint_url_for_service('network',
                                             auth_ref['serviceCatalog'],
                                             url_type='internalURL')
-    # TODO(melv7301): set with args.version to future-proof // version = args.version
+    # TODO(melv7301): set with args.version to future-proof
     version = 'v2.0'
     api_endpoint = '{endpoint}/{version}'.format(endpoint=endpoint,
                                                  version=version)
@@ -73,7 +73,7 @@ def check(auth_ref):
 
             # IP address is the WAN interface of the router
             ip_address = router['external_gateway_info']['external_fixed_ips']\
-                               [0]['ip_address']
+[0]['ip_address']
 
             rc = os.system('ping -c1 -W3 ' + ip_address + ' > /dev/null')
             if(rc == 0):
