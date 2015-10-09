@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright 2015, Melvin Hillsman, the Blackout Group
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,18 +13,13 @@
 # limitations under the License.
 
 import argparse
-# Not sure if collections is needed at this time
-# import collections
+
 from maas_common import (status_ok, status_err, metric, metric_bool,
                          get_neutron_client, get_auth_ref, get_endpoint_url_for_service, print_output)
 from requests import Session
 from requests import exceptions as exc
 
-# **Related to monitoring only one router
-
-# **def check(auth_ref, args):
 def check(auth_ref):
-    # **router = args.routerid
     auth_token = auth_ref['token']['id']
     
     # Use internalURL as this is a local plugin
@@ -58,18 +51,14 @@ def check(auth_ref):
     else:
         # Gather some metrics to report
         try:
-            # **r = s.get('%s/routers/%s' % (api_endpoint, router), verify=False,
-                      #timeout=10)
             r = s.get('%s/routers' % (api_endpoint), verify=False, timeout=10)
         except Exception as e:
             status_err(str(e))
         else:
-            # **router_status = r.json()['router']['status']
             routers = r.json()['routers']
 
 
     status_ok()
-    #is_active = False
     metric_bool('neutron_api_status', is_active)
 
     for router in routers:
@@ -80,9 +69,6 @@ def check(auth_ref):
         router_name = (router['name']).replace(" ","").lower()
         failed = []
 
-        #if(router_status == 'ACTIVE'):
-        #    metric_bool('neutron_router_' + router_name + '_status', 1)
-
     # If router_status is ACTIVE, perform ping check
         if(router_status == 'ACTIVE'):
             import os, sys, time
@@ -92,13 +78,9 @@ def check(auth_ref):
         
             rc = os.system('ping -c1 -W3 ' + ip_address + ' > /dev/null')
             if(rc == 0):
-                #failed.append(router_name)
-                #metric('neutron_router_ping', 'string', 'SUCCESS')
 		pass
             else:
-                #metric('neutron_router_ping', 'string', 'PING FAILURE: ' + failed_routers)
                 failed.append(router_name)
-                #print(', '.join(failed))
 
         failed_routers = ', '.join(failed)
         
@@ -107,18 +89,12 @@ def check(auth_ref):
         
         return metric('neutron_router_ping', 'string', 'SUCCESS')
 
-# **def main(args):
+
 def main():
     auth_ref = get_auth_ref()
-    # **check(auth_ref, args)
     check(auth_ref)
 
 
 if __name__ == "__main__":
     with print_output():
-        # **parser = argparse.ArgumentParser(description='Simple ping check of router')
-        # **parser.add_argument('routerid',
-                            #help='uuid of the router to check')
-        # **args = parser.parse_args()
-        # **main(args)
         main()
