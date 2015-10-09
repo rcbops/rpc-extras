@@ -72,8 +72,8 @@ def check(auth_ref):
             import os
 
             # IP address is the WAN interface of the router
-            ip_address = router['external_gateway_info']\
-            ['external_fixed_ips'][0]['ip_address']
+            gateway = router['external_gateway_info']
+            ip_address = gateway['external_fixed_ips'][0]['ip_address']
 
             rc = os.system('ping -c1 -W3 ' + ip_address + ' > /dev/null')
             if(rc == 0):
