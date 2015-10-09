@@ -29,7 +29,7 @@ def check(auth_ref):
     endpoint = get_endpoint_url_for_service('network',
                                             auth_ref['serviceCatalog'],
                                             url_type='internalURL')
-    # TODO set this from args.version to future-proof // version = args.version
+    # TODO: set this from args.version to future-proof // version = args.version
     version = 'v2.0'
     api_endpoint = '{endpoint}/{version}'.format(endpoint=endpoint,
                                                  version=version)
@@ -60,11 +60,11 @@ def check(auth_ref):
     metric_bool('neutron_api_status', is_active)
 
     for router in routers:
-        if(router['external_gateway_info'] == None):
+        if router['external_gateway_info'] is None:
             continue
 
         router_status = router['status']
-        router_name = (router['name']).replace(" ","").lower()
+        router_name = (router['name']).replace(" ", "").lower()
         failed = []
 
         # If router_status is ACTIVE, perform ping check
@@ -82,10 +82,15 @@ def check(auth_ref):
 
         failed_routers = ', '.join(failed)
 
-        if failed is None:
-            return metric('neutron_router_ping', 'string', 'PING FAILURE: ' + failed_routers)
+        if failed:
+            return metric('neutron_router_ping',
+                          'string',
+                          'PING FAILURE: ' + failed_routers)
 
-        return metric('neutron_router_ping', 'string', 'SUCCESS')
+        return metric('neutron_router_ping',
+                      'string',
+                      'SUCCESS')
+
 
 def main():
     auth_ref = get_auth_ref()
