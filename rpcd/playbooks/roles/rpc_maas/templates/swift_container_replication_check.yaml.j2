@@ -1,0 +1,17 @@
+type: agent.plugin
+label: "swift_container_replication_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : swift-recon.py
+    args    : ["--ring-type", "container", "replication"]
+alarms      :
+    swift_container_replication_check :
+        label                   : swift_container_replication_check--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["time_failed"] > {{ swift_container_replication_failure_percentage_threshold }}) {
+                return new AlarmStatus(CRITICAL, "Swift Container Replication Failure Percentage Above Threshold");
+            }

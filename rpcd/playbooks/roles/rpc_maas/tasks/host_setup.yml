@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: ensure_local_checks.yml
+- include: repo_setup.yml
+
+- include: package_install.yml
+
+- include: raxmon_cli_config.yml
+
+- include: raxmon_agent_install.yml
   vars:
-    checks:
-      - { name: "hp-memory", group: "hosts" }
-      - { name: "hp-processors", group: "hosts" }
-      - { name: "hp-vdisk", group: "hosts" }
+    entity_name: "{{ inventory_hostname }}{{ maas_fqdn_extension }}"

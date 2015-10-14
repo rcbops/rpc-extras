@@ -231,6 +231,34 @@ maas_filesystem_critical_threshold: 90.0
 #    warning_threshold: 80.0
 #    critical_threshold: 90.0
 
+# MaaS CPU idle threshold
+cpu_idle_percent_avg_threshold: 10.0
+
+# MaaS Memory in use threshold
+memory_used_percentage_threshold: 95.0
+
+# Set the threshold for the "Max Channels per Connection" Rabbitmq alarm
+rabbitmq_max_channels_per_con_threshold: 10
+
+# Set the threshold for the "Disk utilisation" MaaS alarms
+disk_utilisation_threshold: 90
+
+# nf_conntrack threshold
+nf_conntrack_threshold: 90
+
+# Swift MaaS thresholds
+swift_object_quarantine_failed_percentage_threshold: 5.0
+swift_object_quarantine_average_threshold: 25.0
+swift_object_replication_failure_percentage_threshold: 5.0
+swift_account_quarantine_failed_percentage_threshold: 5.0
+swift_account_quarantine_average_threshold: 25.0
+swift_account_replication_failure_percentage_threshold: 5.0
+swift_container_quarantine_failed_percentage_threshold: 5.0
+swift_container_quarantine_average_threshold: 25.0
+swift_container_replication_failure_percentage_threshold: 5.0
+swift_async_pending_failure_percentage_threshold: 5.0
+swift_async_pending_average_threshold: 25.0
+
 raxmon_repo_url: "http://stable.packages.cloudmonitoring.rackspace.com/ubuntu-14.04-x86_64"
 maas_apt_keys:
   - { url: "https://monitoring.api.rackspacecloud.com/pki/agent/linux.asc", state: "present" }
@@ -264,3 +292,12 @@ maas_pip_dependencies:
   - python-memcached
 
 maas_plugin_dir: /opt/rpc-openstack/maas/plugins/
+
+#
+# maas_excluded_checks: List of checks and alarms to exclude from this deploy
+#
+maas_excluded_checks: []
+
+# path to the rpc-openstack directory
+maas_rpc_dir: /opt/rpc-openstack
+

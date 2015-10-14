@@ -1,0 +1,22 @@
+type              : remote.http
+label             : lb_api_check_cinder
+disabled          : false
+period            : "{{ maas_check_period }}"
+timeout           : "{{ maas_check_timeout }}"
+target_resolver   : "IPv4"
+target_hostname   : "{{ ip_address }}"
+details           :
+    url           : "{{ maas_cinder_scheme | default(maas_scheme)}}://{{ ip_address }}:{{ cinder_service_port }}"
+monitoring_zones_poll:
+{% for zone in maas_monitoring_zones %}
+  - {{ zone }}
+{% endfor %}
+alarms            :
+    lb_api_alarm_cinder     :
+        notification_plan_id: "{{ maas_notification_plan }}"
+        label               : lb_api_alarm_cinder
+        criteria            : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric['code'] != '200') {
+                return new AlarmStatus(CRITICAL, 'API unavailable.');
+            }

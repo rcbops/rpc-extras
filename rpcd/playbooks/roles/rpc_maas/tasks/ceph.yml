@@ -30,34 +30,9 @@
     dest: "/etc/ceph/ceph.client.raxmon.keyring"
   delegate_to: "{{ physical_host }}"
 
-- include: ceph_osd_setup.yml
+- include: ensure_local_checks.yml
   vars:
-    check_name: ceph_osd_stats
-    check_details: "file=ceph_monitoring.py,args={{ '--name' }},args='client.raxmon',args={{ '--keyring' }},args='/etc/ceph/ceph.client.raxmon.keyring',args={{ 'osd' }},args={{ '--osd_ids' }},args={{ ceph_osd_host['osd_ids'] | join(' ') | quote }}"
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'ceph_warn', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["OSD_up"] == 0) { return new AlarmStatus(CRITICAL, "Ceph osd error."); }' }
-  when: inventory_hostname in groups['osds']
-
-- include: local_setup.yml
-  vars:
-    check_name: ceph_mon_stats
-    check_details: "file=ceph_monitoring.py,args={{ '--name' }},args='client.raxmon',args={{ '--keyring' }},args='/etc/ceph/ceph.client.raxmon.keyring',args={{ 'mon' }},args={{ '--host' }},args={{ ansible_hostname }}"
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'mon_health_err', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["mon_health"] == 0) { return new AlarmStatus(CRITICAL, "Ceph mon error."); }' }
-      - { 'name': 'mon_health_warn', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["mon_health"] == 1) { return new AlarmStatus(WARNING, "Ceph mon warning."); }' }
-  when: inventory_hostname in groups['mons']
-
-- include: local_setup.yml
-  vars:
-    check_name: ceph_cluster_stats
-    check_details: "file=ceph_monitoring.py,args={{ '--name' }},args='client.raxmon',args={{ '--keyring' }},args='/etc/ceph/ceph.client.raxmon.keyring',args={{ 'cluster' }}"
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'ceph_health_err', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["cluster_health"] == 0) { return new AlarmStatus(CRITICAL, "Ceph cluster error."); }' }
-      - { 'name': 'ceph_health_warn', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["cluster_health"] == 1) { return new AlarmStatus(WARNING, "Ceph cluster warning."); }' }
-  when: inventory_hostname in groups['mons']
+    checks:
+      - { name: "ceph_osd_stats", group: "osds" }
+      - { name: "ceph_mon_stats", group: "mons" }
+      - { name: "ceph_cluster_stats", group: "mons" }

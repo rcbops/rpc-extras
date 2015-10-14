@@ -1,0 +1,26 @@
+type: agent.plugin
+label: "swift_async_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : swift-recon.py
+    args    : ["async-pendings"]
+alarms      :
+    swift_async_failure_check :
+        label                   : swift_async_failure_check--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["async_failed"] > {{ swift_async_pending_failure_percentage_threshold }}) {
+                return new AlarmStatus(CRITICAL, "Swift Async Pending Failure Percentage Above Threshold");
+            }
+
+    swift_async_avg_check :
+        label                   : swift_async_avg_check--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["async_avg"] > {{ swift_async_pending_average_threshold }}) {
+                return new AlarmStatus(CRITICAL, "Swift Async Pending Average above threshold");
+            }

@@ -1,0 +1,17 @@
+type: agent.plugin
+label: cinder_scheduler_check--{{ ansible_hostname }}
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : cinder_service_check.py
+    args    : ["--host", "{{ ansible_hostname }}", "{{ internal_vip_address }}"]
+alarms      :
+    cinder_scheduler_status :
+        label                   : cinder_scheduler_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["cinder-scheduler_status"] != 1) {
+                return new AlarmStatus(CRITICAL, "cinder-scheduler down");
+            }

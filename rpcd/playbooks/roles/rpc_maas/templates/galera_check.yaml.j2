@@ -1,0 +1,26 @@
+type: agent.plugin
+label: "galera_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : galera_check.py
+    args    : ["-H", "{{ ansible_ssh_host }}"]
+alarms      :
+    wsrep_cluster_size :
+        label                   : wsrep_cluster_size--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["wsrep_cluster_size"] < {{ groups["galera"] | length }}) {
+                return new AlarmStatus(CRITICAL, "Galera cluster size less than expected");
+            }
+
+    wsrep_local_state :
+        label                   : wsrep_local_state--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["wsrep_local_state_comment"] != "Synced" ) {
+                return new AlarmStatus(CRITICAL, "Galera cluster node not synced");
+            }

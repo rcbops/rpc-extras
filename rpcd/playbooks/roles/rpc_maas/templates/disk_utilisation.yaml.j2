@@ -1,0 +1,19 @@
+type: agent.plugin
+label: "disk_utilisation--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : disk_utilisation.py
+    args    : ["{{ ansible_ssh_host }}"]
+alarms      :
+{% for device in devices %}
+    percentage_disk_utilisation_{{ device }}:
+        label                   : percentage_disk_utilisation_{{ device }}--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["disk_utilisation_{{ device }}"] > {{ disk_utilisation_threshold }}) {
+                return new AlarmStatus(CRITICAL, "Disk utilisation for {{ device }} >= {{ disk_utilisation_threshold }}%");
+            }
+{% endfor %}

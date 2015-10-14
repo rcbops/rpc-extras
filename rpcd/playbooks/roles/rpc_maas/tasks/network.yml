@@ -13,12 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: local_setup.yml
+- include: ensure_local_checks.yml
   vars:
-    check_name: conntrack_count
-    check_details: file={{ check_name }}.py
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'conntrack_count_status', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (percentage(metric["nf_conntrack_count"], metric["nf_conntrack_max"]) > 90) { return new AlarmStatus(CRITICAL, "Connection count is > 90% of maximum allowed."); }' }
-  user: root
+    checks:
+      - { name: "conntrack_count", group: "hosts" }
+
