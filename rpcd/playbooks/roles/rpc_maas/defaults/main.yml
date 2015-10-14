@@ -297,3 +297,7 @@ maas_plugin_dir: /opt/rpc-openstack/maas/plugins/
 # maas_excluded_checks: List of checks and alarms to exclude from this deploy
 #
 maas_excluded_checks: []
+
+# path to the rpc-openstack directory
+maas_rpc_dir: /opt/rpc-openstack
+

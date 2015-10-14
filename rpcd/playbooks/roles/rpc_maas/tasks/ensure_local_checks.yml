@@ -38,3 +38,7 @@
     - item.name in maas_excluded_checks
   delegate_to: "{{ physical_host }}"
   notify: Restart raxmon agent
+
+- meta: flush_handlers
+
+- include: validate_checks.yml
