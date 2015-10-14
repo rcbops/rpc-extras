@@ -4,7 +4,7 @@ disabled    : false
 period      : "{{ maas_check_period }}"
 timeout     : "{{ maas_check_timeout }}"
 details     :
-    file    : neutron_metadata_local_check.py.py
+    file    : neutron_metadata_local_check.py
     args    : ["{{ internal_vip_address }}"]
 alarms      :
     neutron_metadata_agent_proxy_status :
