@@ -9,7 +9,7 @@ contributor guidelines
 Filing Bugs
 -----------
 
-Bugs should be filed on GitHub: "https://github.com/rcbops/rcbops-extras"
+Bugs should be filed on GitHub: "https://github.com/rcbops/rpc-openstack"
 
 
 When submitting a bug, or working on a bug, please ensure the following criteria are met:
