@@ -48,7 +48,7 @@ def check(args):
 
         # gather some vaguely interesting metrics to return
         project_count = len(keystone.projects.list())
-        user_count = len(keystone.users.list())
+        user_count = len(keystone.users.list(domain='Default'))
 
     status_ok()
     metric_bool('keystone_api_local_status', is_up)
