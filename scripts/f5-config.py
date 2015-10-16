@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 # (c) 2014, Kevin Carter <kevin.carter@rackspace.com>
+# Fork by David Pham <david.pham@rackspace.com>
 import argparse
 import json
 import os
@@ -51,13 +52,13 @@ MONITORS = [
     r' defaults-from http destination *:8775 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_HORIZON { defaults-from http'
-    r' destination *:80 recv "302 Found" send "HEAD / HTTP/1.1\r\nHost:'
+    r' destination *:80 recv "200 OK" send "HEAD /auth/login/ HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE {'
-    r' defaults-from http destination *:6082 recv "200 OK" send "HEAD /'
+    r' defaults-from http destination *:6082 recv "200 OK" send "HEAD /spice_auto.html'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
     r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_HORIZON_SSL { defaults-from'
-    r' https destination *:443 recv "302 FOUND" send "HEAD / HTTP/1.1\r\nHost:'
+    r' https destination *:443 recv "200 OK" send "HEAD /auth/login/ HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
     r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_NOVA_SPICE_CONSOLE {'
     r' defaults-from https destination *:6082 recv "200 OK" send "HEAD /'
@@ -88,7 +89,7 @@ PRIORITY_ENTRY = '{ priority-group %(priority_int)s }'
 
 POOL_NODE = {
     'beginning': 'create ltm pool /' + PART + '/%(pool_name)s {'
-                 ' load-balancing-mode fastest-node members replace-all-with'
+                 ' load-balancing-mode least-connections-node members replace-all-with'
                  ' { %(nodes)s }',
     'priority': 'min-active-members 1',
     'end': 'monitor %(mon_type)s }'
@@ -252,7 +253,7 @@ POOL_PARTS = {
         'make_public': True,
         'hosts': []
     },
-    'nova_console': {
+    'nova_spice_console': {
         'port': 6082,
         'backend_port': 6082,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE',
@@ -330,6 +331,19 @@ POOL_PARTS = {
         'hosts': []
     }
 }
+
+
+HTTP_REQUEST_IRULE = ('create ltm rule RPC_%(name)s '
+                      'when HTTP_REQUEST { %(rule)s }')
+
+HTTP_REQUEST_RULES = [
+    {'name': 'x_forwarded_host',
+     'rule': 'HTTP::header insert X-Forwarded-Host [HTTP::host]'},
+    {'name': 'x_forwarded_proto',
+     'rule': 'HTTP::header insert X-Forwarded-Proto "https"'},
+    {'name': 'x_forwarded_for',
+     'rule': 'HTTP::header insert X-Forwarded-For [IP::client_addr]'}
+]
 
 
 def recursive_host_get(inventory, group_name, host_dict=None):
@@ -549,6 +563,7 @@ def main():
         '       run util bash',
         '       cd /config/monitors/',
         '       vi RPC-MON-EXT-ENDPOINT.monitor',
+        '       tmsh',
         '   --> Copy and Paste the External monitor into vi <--',
         '       create sys file external-monitor /' + PART + '/RPC-MON-EXT-ENDPOINT { source-path file:///config/monitors/RPC-MON-EXT-ENDPOINT.monitor }',
         '       save sys config',
@@ -736,6 +751,12 @@ def main():
                 'sec_container_netmask': netmask
             }
         )
+
+    # define HTTP request irules for proxy server
+    script.append('\n### CREATE PROXY SERVER REQUEST RULES ###')
+    for irule in HTTP_REQUEST_RULES:
+        script.append(HTTP_REQUEST_IRULE % irule)
+    script.append('\n')
 
     script.extend(['%s\n' % i for i in END_COMMANDS])
 
