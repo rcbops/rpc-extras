@@ -34,6 +34,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -77,6 +89,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -119,6 +143,18 @@
                     },
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
                         "unit": "unknown"
                     }
                 },
@@ -181,6 +217,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -224,6 +272,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -266,6 +326,18 @@
                     },
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
                         "unit": "unknown"
                     }
                 },
@@ -328,6 +400,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -371,6 +455,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -413,6 +509,18 @@
                     },
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
                         "unit": "unknown"
                     }
                 },
@@ -492,6 +600,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -535,6 +655,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -577,6 +709,18 @@
                     },
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
                         "unit": "unknown"
                     }
                 },
@@ -639,6 +783,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -682,6 +838,18 @@
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
                         "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
+                        "unit": "unknown"
                     }
                 },
                 "monitoring_zones_poll": null,
@@ -724,6 +892,18 @@
                     },
                     "hardware_processors_status": {
                         "name": "hardware_processors_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_battery_status": {
+                        "name": "hardware_controller_battery_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_cache_status": {
+                        "name": "hardware_controller_cache_status",
+                        "unit": "unknown"
+                    },
+                    "hardware_controller_status": {
+                        "name": "hardware_controller_status",
                         "unit": "unknown"
                     }
                 },

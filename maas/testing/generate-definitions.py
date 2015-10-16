@@ -109,10 +109,26 @@ def things_by(by_what, things):
 def remove_keys(dictionary):
     to_remove = {'created_at', 'updated_at', 'latest_alarm_states',
                  'check_id', 'entity_id', 'id', 'agent_id', 'label',
-                 'notification_plan_id', 'uri'}
+                 'notification_plan_id', 'uri', 'collectors'}
     for key in dictionary.keys():
         if key in to_remove:
             del dictionary[key]
+
+
+def apply_specific_transformations(data):
+    """Make ad hoc modifications to the data.
+
+    The are some pieces of data that do not fit into a common pattern, yet are
+    unique e.g. passwords. This data needs to be templated out and this
+    function is the place to make those changes.
+    """
+    for entity_name, entity_data in data.viewitems():
+        for check_name, check_data in entity_data['checks'].viewitems():
+            if check_name.startswith('rabbitmq_status--'):
+                for index, value in enumerate(check_data['details']['args']):
+                    if value == '-p':
+                        check_data['details']['args'][index + 1] = 'PASSWORD'
+
 
 if __name__ == '__main__':
     args = parse_args()
@@ -218,8 +234,10 @@ if __name__ == '__main__':
 
     json_blob = re.sub(regex, 'IP_ADDRESS', json_blob)
 
+    maas_data = json.loads(json_blob)
+    apply_specific_transformations(maas_data)
     filename = args.tasks
     path = os.path.join(directory, filename)
     with open(path, 'w') as f:
-        f.write(json.dumps(json.loads(json_blob), indent=4,
+        f.write(json.dumps(maas_data, indent=4,
                            separators=(',', ': '), sort_keys=True))
