@@ -36,7 +36,7 @@ openstack-ansible -i "localhost," patcher.yml
 
 # Do the upgrade for openstack-ansible components
 cd ${OA_DIR}
-echo 'YES' | ${OA_DIR}/scripts/run-upgrade.sh
+echo 'YES' | ${OA_DIR}/scripts/run-upgrade-old.sh
 
 # Prevent the deployment script from re-running the OA playbooks
 export DEPLOY_OA="no"
