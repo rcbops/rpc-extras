@@ -55,8 +55,3 @@
   when: >
     inventory_hostname in groups['ceph_all'] and
     groups['ceph_all'] is defined
-
-- meta: flush_handlers
-
-- include: verify_checks.yml
-- include: verify_alarms.yml

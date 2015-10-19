@@ -379,7 +379,7 @@ maas_pip_dependencies:
 
 maas_plugin_dir: /opt/rpc-openstack/maas/plugins/
 
-maas_rpc_dir: /opt/rpc-openstack/
+maas_rpc_scripts_dir: /opt/rpc-openstack/scripts
 #
 # maas_excluded_checks: List of checks and alarms to exclude from this deploy
 #

@@ -58,7 +58,10 @@ for Rackspace Private Clouds.
 Elasticsearch, and Kibana to tag, index, and expose aggregated logs from all
 hosts and containers in the deployment using the related plays mentioned
 above.
-* `site.yml` - deploys all the above playbooks.
+* `site.yml` - deploys all the playbooks mentioned here.
+* `verify_maas.yml` - confirms each maas check selected for each host has been
+captured server-side for recording in MaaS and that each chec has at least one 
+alarm configured for it.
 
 # Basic Setup:
 
@@ -90,6 +93,8 @@ above.
   1. edit `/etc/openstack_deploy/user_extras_variables.yml` to add credentials
   2. run the MaaS setup plays:
      `cd /opt/rpc-openstack/rpcd/playbooks && openstack-ansible setup-maas.yml`
+  3. run the MaaS verify play:
+     `cd /opt/rpc-openstack/rpcd/playbooks && openstack-ansible verify-maas.yml`
 
 # Upgrading
 
