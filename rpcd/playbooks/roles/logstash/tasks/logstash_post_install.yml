@@ -71,6 +71,7 @@
     - 16-elasticsearch.conf
     - 17-rabbitmq.conf
     - 18-ceph.conf
+    - 19-nginx.conf
     - 99-output.conf
   notify: Restart Logstash
   tags:
