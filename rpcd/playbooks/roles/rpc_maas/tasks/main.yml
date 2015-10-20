@@ -51,4 +51,4 @@
 
 - include: ceph.yml
   when:
-    inventory_hostname in groups['ceph_all']
+    groups['ceph_all'] is defined and inventory_hostname in groups['ceph_all']
