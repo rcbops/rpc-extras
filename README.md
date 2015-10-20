@@ -59,7 +59,7 @@ Elasticsearch, and Kibana to tag, index, and expose aggregated logs from all
 hosts and containers in the deployment using the related plays mentioned
 above.
 * `site.yml` - deploys all the playbooks mentioned here.
-* `verify_maas.yml` - confirms each maas check selected for each host has been
+* `verify-maas.yml` - confirms each maas check selected for each host has been
 captured server-side for recording in MaaS and that each chec has at least one 
 alarm configured for it.
 
