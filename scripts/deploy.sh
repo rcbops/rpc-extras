@@ -133,6 +133,8 @@ install_bits horizon_extensions.yml
 # deploy and configure RAX MaaS
 if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
   install_bits setup-maas.yml
+  sleep 30
+  install_bits verify-maas.yml
 fi
 
 # deploy and configure the ELK stack

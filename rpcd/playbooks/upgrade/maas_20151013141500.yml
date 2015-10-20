@@ -1,0 +1,92 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Pre-Migrate MaaS checks and alarms to template-driven configuration
+  hosts: hosts
+  user: root
+  pre_tasks:
+    #
+    # Check pre-conditions
+    #
+    - name: Ensure migrations index exists
+      file: path={{ migrations_dir }} state=directory
+    - name: Ensure maas migrations index exists
+      file: path={{ maas_migrations_dir }} state=directory
+    - name: Locate evidence of prior MaaS migration
+      stat: path={{ maas_migrations_dir }}/20151013141500
+      register: maas_upgraded_result
+      changed_when: False
+    - name: Stop if migraiton has been run
+      fail: msg="MaaS has been previously run migration 20151013141500"
+      when: maas_upgraded_result.stat.exists | bool
+    - name: Locate existing Rackspace monitoring agent
+      stat: path=/etc/rackspace-monitoring-agent.cfg
+      register: raxmon
+      changed_when: False
+    - fail: msg="MaaS is not installed and configured already"
+      when: not raxmon.stat.exists
+    #
+    # Capture state prior to upgrade
+    #
+    - name: Inspect existing checks - all entities
+      script: "{{ maas_rpc_dir }}/scripts/rpc-maas-tool.py --tab True checks"
+      register: maas_prior_checks
+      changed_when: False
+    - name: Record report of existing checks - all entities
+      local_action: lineinfile create=yes line="{{ item }}" dest=/tmp/maas_20151013141500_prior_checks.tab
+      with_items: "{{ maas_prior_checks.stdout_lines | sort }}"
+  tasks:
+    #
+    # Remove all checks for all entities
+    #   checks set up through CLI they cannot be managed by the agent through
+    #   template files
+    #
+    - name: Delete existing checks and alarms
+      script: "{{ maas_rpc_dir }}/scripts/rpc-maas-tool.py --force delete"
+    - name: Record migration in index
+      file: path={{ maas_migrations_dir }}/20151013141500 state=touch
+  vars:
+    # path to the rpc-openstack directory
+    maas_rpc_dir: /opt/rpc-openstack
+    # path to the migrations markers, indicating which migrations have run
+    migrations_dir: /etc/openstack_deploy/migrations
+    maas_migrations_dir: /etc/openstack_deploy/migrations/maas
+
+#
+# Run the rpc_maas playbook to ensure a current configuration
+#
+- include: setup-maas.yml
+#
+# Run the maas verification playbook, until it passes
+#
+- include: verify-maas.yml
+  retries: 5
+  delay: 12
+
+#-------------------------------------
+- name: Post-Migrate MaaS checks and alarms to template-driven configuration
+  hosts: hosts
+  user: root
+  tasks:
+    #
+    # Capture state after upgrade
+    #
+    - name: Inspect existing checks - all entities
+      script: "{{ maas_rpc_dir }}/scripts/rpc-maas-tool.py checks  --tab True"
+      register: maas_post_checks
+      changed_when: False
+    - name: Record report of existing checks - all entities
+      local_action: lineinfile create=yes line="{{ item }}" dest=/tmp/maas_20151013141500_post_checks.tab
+      with_items: "{{ maas_post_checks.stdout_lines | sort }}"
