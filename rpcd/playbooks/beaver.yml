@@ -22,15 +22,15 @@
   vars:
     beaver_log_monitors:
       - name: "cinder"
-        log_file: "/var/log/cinder/*"
+        log_file: "/var/log/cinder/*.log"
         tags: "cinder,openstack,oslofmt"
         multiline_regex_before: '.*\sTRACE\s.*'
       - name: "nova"
-        log_file: "/var/log/nova/*"
+        log_file: "/var/log/nova/*.log"
         tags: "nova,openstack,oslofmt"
         multiline_regex_before: '.*\sTRACE\s.*'
       - name: "heat"
-        log_file: "/var/log/heat/*"
+        log_file: "/var/log/heat/*.log"
         tags: "heat,openstack,oslofmt"
         multiline_regex_before: '.*\sTRACE\s.*'
       - name: "keystone"
@@ -44,7 +44,7 @@
         log_file: "/var/log/keystone/keystone-apache-error.log"
         tags: "keystone,openstack,apache-error"
       - name: "glance"
-        log_file: "/var/log/glance/*"
+        log_file: "/var/log/glance/*.log"
         tags: "glance,openstack,oslofmt"
         multiline_regex_before: '.*\sTRACE\s.*'
       - name: "horizon"
@@ -63,7 +63,7 @@
         log_file: "/openstack/log/{{ inventory_hostname }}/object*.log"
         tags: "swift,openstack"
       - name: "neutron"
-        log_file: "/var/log/neutron/*"
+        log_file: "/var/log/neutron/*.log"
         tags: "neutron,openstack,oslofmt"
       - name: "mysql"
         log_file: "/var/log/mysql_logs/*.log"
