@@ -18,3 +18,21 @@
     url: "https://raw.githubusercontent.com/rsoprivatecloud/pubscripts/master/pccommon.sh"
     dest: /root/pccommon.sh
     mode: 0700
+  tags:
+    - pccommon-install
+
+
+
+- name: Install pccommon pip dependencies
+  pip:
+    name: "{{ item }}"
+    state: present
+  register: install_pip_packages
+  until: install_pip_packages|success
+  retries: 2
+  delay: 2
+  with_items:
+    - python-openstackclient
+  tags:
+    - pccommon-install
+
