@@ -13,6 +13,7 @@ export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER=${DEPLOY_CEILOMETER:-"no"}
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
+export MAX_RETRIES=${MAX_RETRIES:-"2"}
 
 source /opt/rpc-openstack/openstack-ansible/scripts/scripts-library.sh
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
