@@ -106,7 +106,7 @@ hp_check: false
 # lb_name: Defines the entity name of the load balancing device against which the remote MaaS
 #          checks and alarms are configured.
 #
-lb_name: 'unspecified'
+lb_name: 'unspecified_lb'
 
 #
 # maas_scheme: The scheme (http/https) to use when creating remote.http checks.
@@ -231,7 +231,128 @@ maas_filesystem_critical_threshold: 90.0
 #    warning_threshold: 80.0
 #    critical_threshold: 90.0
 
+# MaaS CPU idle threshold
+cpu_idle_percent_avg_threshold: 10.0
+
+# MaaS Memory in use threshold
+memory_used_percentage_threshold: 95.0
+
+# Set the threshold for the "Max Channels per Connection" Rabbitmq alarm
+rabbitmq_max_channels_per_con_threshold: 10
+rabbitmq_fd_used_threshold: 90
+rabbitmq_proc_used_threshold: 90
+rabbitmq_socket_used_threshold: 90
+
+# Set the threshold for the "Disk utilisation" MaaS alarms
+disk_utilisation_threshold: 90
+
+# nf_conntrack threshold
+nf_conntrack_threshold: 90
+
+# Swift MaaS thresholds
+swift_object_quarantine_failed_percentage_threshold: 5.0
+swift_object_quarantine_average_threshold: 25.0
+swift_object_replication_failure_percentage_threshold: 5.0
+swift_account_quarantine_failed_percentage_threshold: 5.0
+swift_account_quarantine_average_threshold: 25.0
+swift_account_replication_failure_percentage_threshold: 5.0
+swift_container_quarantine_failed_percentage_threshold: 5.0
+swift_container_quarantine_average_threshold: 25.0
+swift_container_replication_failure_percentage_threshold: 5.0
+swift_async_pending_failure_percentage_threshold: 5.0
+swift_async_pending_average_threshold: 25.0
+
+# List of checks, by type - variable:
+hp_checks_list:
+  - { name: "hp-memory", group: "hosts" }
+  - { name: "hp-processors", group: "hosts" }
+  - { name: "hp-vdisk", group: "hosts" }
+
+dell_checks_list:
+  - { name: "openmanage-memory", group: "hosts" }
+  - { name: "openmanage-processors", group: "hosts" }
+  - { name: "openmanage-vdisk", group: "hosts" }
+
+cpu_memory_checks_list:
+  - { name: "cpu_check", group: "hosts" }
+  - { name: "memory_check", group: "hosts" }
+
+disk_utilisation_checks_list:
+  - { name: "disk_utilisation", group: "hosts" }
+
+ceph_checks_list:
+  - { name: "ceph_osd_stats", group: "osds" }
+  - { name: "ceph_mon_stats", group: "mons" }
+  - { name: "ceph_cluster_stats", group: "mons" }
+
+network_checks_list:
+  - { name: "conntrack_count", group: "hosts" }
+
+openstack_service_local_checks_list:
+  - { name: "cinder_api_local_check", group: "cinder_api" }
+  - { name: "cinder_scheduler_check", group: "cinder_scheduler" }
+  - { name: "cinder_volume_check", group: "cinder_volume" }
+  - { name: "glance_api_local_check", group: "glance_api" }
+  - { name: "glance_registry_local_check", group: "glance_registry" }
+  - { name: "heat_api_local_check", group: "heat_api" }
+  - { name: "heat_cfn_api_check", group: "heat_api_cfn" }
+  - { name: "heat_cw_api_check", group: "heat_api_cloudwatch" }
+  - { name: "horizon_local_check", group: "horizon" }
+  - { name: "keystone_api_local_check", group: "keystone" }
+  - { name: "neutron_api_local_check", group: "neutron_server" }
+  - { name: "neutron_dhcp_agent_check", group: "neutron_dhcp_agent" }
+  - { name: "neutron_l3_agent_check", group: "neutron_l3_agent" }
+  - { name: "neutron_linuxbridge_agent_check", group: "neutron_linuxbridge_agent" }
+  - { name: "neutron_metadata_agent_check", group: "neutron_metadata_agent" }
+  - { name: "neutron_metadata_agent_proxy_check", group: "neutron_metadata_agent" }
+  - { name: "neutron_metering_agent_check", group: "neutron_metering_agent" }
+  - { name: "nova_api_metadata_local_check", group: "nova_api_metadata" }
+  - { name: "nova_api_local_check", group: "nova_api_os_compute" }
+  - { name: "nova_compute_check", group: "nova_compute" }
+  - { name: "nova_cert_check", group: "nova_cert" }
+  - { name: "nova_conductor_check", group: "nova_conductor" }
+  - { name: "nova_scheduler_check", group: "nova_scheduler" }
+  - { name: "nova_consoleauth_check", group: "nova_console" }
+  - { name: "nova_spice_console_check", group: "nova_console" }
+
+swift_checks_list:
+  - { name: "swift_object_server_check", group: "swift_obj" }
+  - { name: "swift_account_server_check", group: "swift_acc" }
+  - { name: "swift_container_server_check", group: "swift_cont" }
+  - { name: "swift_proxy_server_check", group: "swift_proxy" }
+  - { name: "swift_md5_check", group: "swift_hosts" }
+  - { name: "swift_quarantine_check", group: "swift_hosts" }
+  - { name: "swift_async_check", group: "swift_hosts" }
+  - { name: "swift_object_replication_check", group: "swift_obj" }
+  - { name: "swift_account_replication_check", group: "swift_acc" }
+  - { name: "swift_container_replication_check", group: "swift_cont" }
+
+openstack_service_remote_checks_list:
+  - { name: "lb_api_check_cinder", group: "cinder_api" }
+  - { name: "lb_api_check_glance", group: "glance_api" }
+  - { name: "lb_api_check_keystone", group: "keystone" }
+  - { name: "lb_api_check_neutron", group: "neutron_server" }
+  - { name: "lb_api_check_nova", group: "nova_api_os_compute" }
+  - { name: "lb_api_check_horizon", group: "horizon" }
+  - { name: "lb_api_check_heat_api", group: "heat_api" }
+  - { name: "lb_api_check_heat_cfn", group: "heat_api_cfn" }
+  - { name: "lb_api_check_heat_cloudwatch", group: "heat_api_cloudwatch" }
+  - { name: "lb_api_check_swift_proxy", group: "swift_proxy" }
+
+ssl_cert_checks_list:
+  - { name: "lb_ssl_cert_expiry_check", group: "utility"}
+
+infra_service_local_checks_list:
+  - { name: "rabbitmq_status", group: "rabbitmq" }
+  - { name: "galera_check", group: "galera" }
+  - { name: "memcached_status", group: "memcached" }
+
+# Set this to 'false' to set the lb checks against ALL service infra hosts.
+# Checks will be setup but disabled on all but host[0] when this is 'true'.
+lb_check_on_single_host: true
+
 raxmon_repo_url: "http://stable.packages.cloudmonitoring.rackspace.com/ubuntu-14.04-x86_64"
+
 maas_apt_keys:
   - { url: "https://monitoring.api.rackspacecloud.com/pki/agent/linux.asc", state: "present" }
 
@@ -264,3 +385,9 @@ maas_pip_dependencies:
   - python-memcached
 
 maas_plugin_dir: /opt/rpc-openstack/maas/plugins/
+
+maas_rpc_scripts_dir: /opt/rpc-openstack/scripts
+#
+# maas_excluded_checks: List of checks and alarms to exclude from this deploy
+#
+maas_excluded_checks: []

@@ -13,32 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: hardware_setup.yml
+- include: ensure_local_checks.yml
   vars:
-    check_name: hp-memory
-    file_name: hp_monitoring
-    check_details: file={{ file_name }}.py
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'hardware_memory_status', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["hardware_memory_status"] != 1) { return new AlarmStatus(CRITICAL, "Physical Memory Error"); }' }
-
-- include: hardware_setup.yml
-  vars:
-    check_name: hp-processors
-    file_name: hp_monitoring
-    check_details: file={{ file_name }}.py
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'hardware_processors_status', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["hardware_processors_status"] != 1) { return new AlarmStatus(CRITICAL, "Physical Processor Error"); }' }
-
-- include: hardware_setup.yml
-  vars:
-    check_name: hp-disk
-    file_name: hp_monitoring
-    check_details: file={{ file_name }}.py
-    check_period: "{{ maas_check_period }}"
-    check_timeout: "{{ maas_check_timeout }}"
-    alarms:
-      - { 'name': 'hardware_disk_status', 'criteria': ':set consecutiveCount={{ maas_alarm_local_consecutive_count }} if (metric["hardware_disk_status"] != 1) { return new AlarmStatus(CRITICAL, "Physical Disk Error"); }' }
+    checks: "{{ hp_checks_list }}"

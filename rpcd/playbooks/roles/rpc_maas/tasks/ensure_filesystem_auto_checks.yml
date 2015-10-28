@@ -13,24 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: repo_setup.yml
-
-- include: package_install.yml
-
-- include: raxmon_cli_config.yml
-
-- include: raxmon_agent_install.yml
-  vars:
-    entity_name: "{{ inventory_hostname }}{{ maas_fqdn_extension }}"
-
-- include: network.yml
-
-- include: cdm.yml
-
-- include: dell.yml
-  when: >
-    dell_check == true
-
-- include: hp.yml
-  when: >
-    hp_check == true
+- name: Install fileystem auto checks
+  template:
+    src: "filesystem_auto.yaml.j2"
+    dest: "/etc/rackspace-monitoring-agent.conf.d/filesystem_{{ item|replace('/', '.') }}--{{ inventory_hostname }}.yaml"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  with_items:
+    - "{{ drives }}"
+  when: inventory_hostname in groups["hosts"]
+  delegate_to: "{{ physical_host }}"
+  notify: Restart raxmon agent

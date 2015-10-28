@@ -1,0 +1,26 @@
+type: agent.plugin
+label: "swift_md5_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : swift-recon.py
+    args    : ["md5"]
+alarms      :
+    swift_ring_md5_check :
+        label                   : swift_ring_md5_check--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["ring_errors"] > 0) {
+                return new AlarmStatus(CRITICAL, "Ring md5sum Inconsistent");
+            }
+
+    swift_conf_md5_check :
+        label                   : swift_conf_md5_check--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["swift_conf_errors"] > 0) {
+                return new AlarmStatus(CRITICAL, "Swift conf md5sum Inconsistent");
+            }

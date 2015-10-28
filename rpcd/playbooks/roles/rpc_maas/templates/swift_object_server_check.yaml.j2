@@ -1,0 +1,17 @@
+type: agent.plugin
+label: "swift_object_server_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : service_api_local_check.py
+    args    : ["swift_object_server", "--path", "/healthcheck", "{{ storage_address }}", "6000"]
+alarms      :
+    swift_object_server_api_local_status :
+        label                   : swift_object_server_api_local_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["swift_object_server_api_local_status"] != 1) {
+                return new AlarmStatus(CRITICAL, "API unavailable");
+            }

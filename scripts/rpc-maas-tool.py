@@ -5,7 +5,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,6 +38,8 @@ def main(args):
         alarms(args, conn)
     elif args.command == 'check':
         check(args, conn)
+    elif args.command == 'checks':
+        checks(args, conn)
     elif args.command == 'delete':
         delete(args, conn)
     elif args.command == 'remove-defunct-checks':
@@ -50,9 +52,14 @@ def alarms(args, conn):
     for entity in _get_entities(args, conn):
         alarms = conn.list_alarms(entity)
         if alarms:
-            print('Entity %s (%s):' % (entity.id, entity.label))
-            for alarm in alarms:
-                print(' - %s' % alarm.label)
+            _write(args, entity, alarms)
+
+
+def checks(args, conn):
+    for entity in _get_entities(args, conn):
+        checks = conn.list_checks(entity)
+        if checks:
+            _write(args, entity, checks)
 
 
 def check(args, conn):
@@ -161,11 +168,28 @@ def _get_entities(args, conn):
     return entities
 
 
+def _write(args, entity, objects):
+    if args.tab:
+        for o in objects:
+            if o.confd_name:
+                import ast
+
+                keys = ast.literal_eval(o.confd_name)
+            else:
+                keys = {"check": "default", "filename": ""}
+            print("\t".join([entity.id, entity.label, o.id, o.label,
+                             keys["filename"]]))
+    else:
+        print('Entity %s (%s):' % (entity.id, entity.label))
+        for o in objects:
+            print(' - %s' % o.label)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test MaaS checks')
     parser.add_argument('command',
                         type=str,
-                        choices=['alarms', 'check', 'delete',
+                        choices=['alarms', 'check', 'checks', 'delete',
                                  'remove-defunct-checks',
                                  'remove-defunct-alarms'],
                         help='Command to execute')
@@ -177,6 +201,11 @@ if __name__ == "__main__":
                         help='Limit testing to checks on entities labelled w/ '
                              'this prefix',
                         default=None)
+    parser.add_argument('--tab',
+                        type=bool,
+                        help='Output in tab-separated format, applies only to '
+                             'alarms and checks commands',
+                        default=False)
     args = parser.parse_args()
 
     main(args)

@@ -13,21 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: host_only.yml
+- include: host_setup.yml
   when: >
     inventory_hostname in groups['hosts']
 
 - include: keystone_user.yml
   when: >
-    inventory_hostname == groups['utility'][0]
+    groups['utility']|length > 0 and inventory_hostname == groups['utility'][0]
 
 - include: rabbitmq_user.yml
   when: >
-    inventory_hostname == groups['rabbitmq_all'][0]
+    groups['rabbitmq_all']|length > 0 and inventory_hostname == groups['rabbitmq_all'][0]
 
 - include: create_my_cnf.yml
   when: >
     inventory_hostname in groups['galera']
+
+- include: host_monitoring.yml
+  when: >
+    inventory_hostname in groups['hosts']
+
+- include: network.yml
 
 - include: local.yml
   vars:
@@ -35,20 +41,17 @@
 
 - include: remote.yml
   vars:
-    external_vip_address: "{{ external_lb_vip_address }}"
+    ip_address: "{{ external_lb_vip_address }}"
   when: >
     remote_check == true
 
 - include: swift.yml
   vars:
     external_vip_address: "{{ external_lb_vip_address }}"
-
-- include: ssl_check.yml
-  vars:
-    external_vip_address: "{{ external_lb_vip_address }}"
   when: >
-    inventory_hostname == groups['utility'][0] and ssl_check == true
+    inventory_hostname in groups['swift_all']
 
 - include: ceph.yml
-  when:
-    inventory_hostname in groups['ceph_all']
+  when: >
+    inventory_hostname in groups['ceph_all'] and
+    groups['ceph_all'] is defined

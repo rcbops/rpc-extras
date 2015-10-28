@@ -1,0 +1,18 @@
+type              : remote.http
+label             : lb_api_check_heat_cloudwatch--{{ lb_name }}
+disabled          : "{{ check_disabled }}"
+period            : "{{ maas_check_period }}"
+timeout           : "{{ maas_check_timeout }}"
+target_resolver   : "IPv4"
+target_hostname   : "{{ ip_address }}"
+details           :
+    url           : "{{ maas_heat_cloudwatch_scheme | default(maas_scheme)}}://{{ ip_address }}:8003"
+alarms            :
+    lb_api_alarm_heat_cloudwatch :
+        notification-plan   : "{{ maas_notification_plan }}"
+        label               : lb_api_alarm_heat_cloudwatch
+        criteria            : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric['code'] != '300') {
+                return new AlarmStatus(CRITICAL, 'API unavailable.');
+            }

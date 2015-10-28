@@ -1,0 +1,19 @@
+type: agent.filesystem
+label: "filesystem_{{ item }}--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    target  : "{{ item }}"
+alarms      :
+    filesystem_{{ item }}_check :
+        label                   : "Disk space used on {{ item }}--{{ ansible_hostname }}"
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (percentage(metric['used'], metric['total']) >= {{ maas_filesystem_critical_threshold }}) {
+                return new AlarmStatus(CRITICAL, "{{ item }} filesystem is >= {{ maas_filesystem_critical_threshold }}% full.");
+            }
+            if (percentage(metric['used'], metric['total']) >= {{ maas_filesystem_warning_threshold }}) {
+                return new AlarmStatus(WARNING, "{{ item }} filesystem is >= {{ maas_filesystem_warning_threshold }}% full.");
+            }

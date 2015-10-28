@@ -1,0 +1,43 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Part of MaaS Migration: maas-20151013.yml
+- name: Ensure MaaS Migration Requirements
+  hosts: hosts
+  user: root
+  tasks:
+    - name: Ensure migrations index exists
+      local_action: file path={{ migrations_dir }} state=directory
+      when: inventory_hostname == groups['hosts'][0]
+    - name: Locate evidence of prior MaaS migration
+      local_action: stat path={{ migrations_dir }}/maas-20151013
+      when: inventory_hostname == groups['hosts'][0]
+      register: maas_upgraded_result
+      changed_when: False
+    - name: Stop if migration has been run
+      fail: msg="MaaS has been previously run migration 20151013"
+      when:
+        - maas_upgraded_result is defined
+        - maas_upgraded_result.stat.exists | bool
+    - name: Locate existing Rackspace monitoring agent
+      stat: path=/etc/rackspace-monitoring-agent.cfg
+      register: raxmon
+      changed_when: False
+    - name: Halt if monitoring agent not found
+      fail: msg="MaaS is not installed and configured already"
+      when:
+       - raxmon is defined
+       - not raxmon.stat.exists
+

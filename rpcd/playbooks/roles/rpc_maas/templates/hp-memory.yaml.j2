@@ -1,0 +1,16 @@
+type: agent.plugin
+label: hp-memory
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : hp_monitoring.py
+alarms      :
+    hp-memory_status :
+        label                   : hp-memory--{{ inventory_hostname|quote }}
+        notification_plan_id    : {{ maas_notification_plan }}
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["hardware_memory_status"] != 1) {
+                return new AlarmStatus(CRITICAL, "Physical Memory Error");
+            }

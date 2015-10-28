@@ -1,0 +1,26 @@
+type: agent.plugin
+label: "ceph_mon_stats--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : ceph_monitoring.py
+    args    : ["--name", "client.raxmon", "--keyring", "/etc/ceph/ceph.client.raxmon.keyring", "mon", "--host", "{{ ansible_hostname }}"]
+alarms      :
+    mon_health_err :
+        label                   : mon_health_err--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["mon_health"] == 0) {
+                return new AlarmStatus(CRITICAL, "Ceph mon error.");
+            }
+
+    mon_health_warn :
+        label                   : mon_health_warn--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["mon_health"] == 1) {
+                return new AlarmStatus(WARNING, "Ceph mon warning.");
+            }

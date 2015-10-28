@@ -48,7 +48,7 @@ remote_check: true
 hp_check: false
 
 # Set the LB device name in CORE
-lb_name: 'unspecified'
+#lb_name: 'unspecified'
 
 # Set the maas_scheme
 maas_scheme: http

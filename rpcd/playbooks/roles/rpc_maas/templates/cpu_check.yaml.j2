@@ -1,0 +1,14 @@
+type              : agent.cpu
+label             : cpu_check--{{ inventory_hostname|quote }}
+disabled          : false
+period            : "{{ maas_check_period }}"
+timeout           : "{{ maas_check_timeout }}"
+alarms            :
+    idle_percent_average        :
+        label                   : idle_percent_average--{{ inventory_hostname|quote }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["idle_percent_average"] <= {{ cpu_idle_percent_avg_threshold }}) {
+                return new AlarmStatus(WARNING, "CPU time spent idle has dropped to <= {{ cpu_idle_percent_avg_threshold }}%");
+            }

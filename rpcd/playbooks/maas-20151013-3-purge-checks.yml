@@ -1,0 +1,39 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Migrate MaaS checks and alarms to template-driven configuration
+  hosts: hosts
+  user: root
+  pre_tasks:
+    - meta: flush_handlers
+  tasks:
+    - name: Lookup Entity ID for physical_host
+      shell: raxmon-entities-list | grep "label={{ physical_host|quote }}{{ maas_fqdn_extension }} " | sed -e 's/^.* id=\(.*\) label=.*$/\1/g'
+      register: entity_id
+      changed_when: False
+    - name: Identify checks to purge
+      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py --prefix {{ inventory_hostname }} --tab True checks"
+      register: checks_purge_list
+      changed_when: False
+    - name: Delete existing checks and alarms
+      shell: raxmon-checks-delete --entity-id={{ entity_id.stdout }} --id=$(echo '{{ item }}'| awk '{print $3}') --why="MaaS Migration 20151013"
+      when: inventory_hostname in "{{ item }}"
+      with_items: checks_purge_list.stdout_lines
+  post_tasks:
+    - name: Record migration in index
+      local_action: file path={{ migrations_dir }}/maas-20151013 state=touch
+      when: inventory_hostname == groups['hosts'][0]
+  vars_files:
+    - "roles/rpc_maas/defaults/main.yml"

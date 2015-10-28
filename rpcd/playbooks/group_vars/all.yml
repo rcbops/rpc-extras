@@ -22,3 +22,6 @@ rpc_release: r11.0.1
 # deployment
 repo_server_port: 8181
 openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}"
+
+# Location to store a catalog of migrations completed
+migrations_dir: /etc/openstack_deploy/migrations
