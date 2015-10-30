@@ -26,5 +26,3 @@
   user: root
   roles:
     - { role: "rpc_maas", tags: [ "maas-setup" ] }
-  vars_files:
-    - "{{ rpc_repo_path }}/playbooks/roles/os_cinder/defaults/main.yml"

@@ -127,6 +127,7 @@ maas_horizon_scheme: https
 # maas_heat_cloudwatch_scheme: https
 # maas_swift_proxy_scheme: https
 
+cinder_service_port: 8776
 #
 # maas_keystone_user: The keystone user to use/create to allow monitoring plugins to query
 #                     OpenStack APIs.
