@@ -307,6 +307,10 @@ connects to an individual member of a galera cluster and checks various statuses
     metric wsrep_cluster_status string primary
     metric wsrep_local_state_uuid string 67e41d08-165d-11e4-9d87-7e94ef43b302
     metric wsrep_local_state_comment string synced
+    metric max_configured_connections int64 800 connections
+    metric current_connections int64 1 connections
+    metric max_seen_connections int64 2 connections
+    metric percentage_used_connections int64 0
 
 ***
 #### conntrack_count.py
