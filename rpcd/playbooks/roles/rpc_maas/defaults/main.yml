@@ -231,6 +231,10 @@ maas_filesystem_critical_threshold: 90.0
 #    warning_threshold: 80.0
 #    critical_threshold: 90.0
 
+# Maas mysql connection thresholds
+mysql_connection_warning_threshold: 80
+mysql_connection_critical_threshold: 90
+
 # MaaS CPU idle threshold
 cpu_idle_percent_avg_threshold: 10.0
 
