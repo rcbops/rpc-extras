@@ -35,6 +35,8 @@
 
 - include: network.yml
 
+- include: kernel.yml
+
 - include: local.yml
   vars:
     internal_vip_address: "{{ internal_lb_vip_address }}"
