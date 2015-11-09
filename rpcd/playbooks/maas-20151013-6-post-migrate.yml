@@ -25,7 +25,7 @@
       changed_when: False
     - name: Record report of existing checks - all entities
       local_action: lineinfile create=yes line="{{ item }}" dest=/tmp/maas_20151013_post_checks.tab
-      with_items: "{{ maas_post_checks.stdout_lines | sort }}"
+      with_items: "{{ maas_post_checks.stdout_lines | default([]) | sort }}"
       when: inventory_hostname == groups['hosts'][0]
   vars_files:
     - "roles/rpc_maas/defaults/main.yml"
