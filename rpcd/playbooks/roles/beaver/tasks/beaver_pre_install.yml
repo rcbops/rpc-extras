@@ -49,7 +49,6 @@
   with_items:
     - "/etc/beaver"
     - "/etc/beaver/conf.d"
-    - "/var/run/beaver"
     - "/var/log/beaver"
   tags:
     - beaver-pre-install

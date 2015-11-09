@@ -26,6 +26,13 @@ BEAVER_USER="{{ beaver_daemon_user }}"
 
 do_start() {
     test -f "${BEAVER_BIN}" || exit 0
+
+    local BEAVER_PID_DIRNAME="$(dirname $BEAVER_PID)"
+    if [ ! -d "$BEAVER_PID_DIRNAME" ]; then
+       mkdir -p "${BEAVER_PID_DIRNAME}"
+       chown "${BEAVER_NAME}":"${BEAVER_NAME}" "${BEAVER_PID_DIRNAME}"
+    fi
+
     if is_up
     then
         echo $"${BEAVER_NAME} has already been started."
@@ -60,6 +67,7 @@ do_stop() {
         I="$((I+1))"
     done
     echo '.'
+    test -f ${BEAVER_PID} && rm -f ${BEAVER_PID}
 }
 
 beaver_pid() {
