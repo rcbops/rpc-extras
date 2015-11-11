@@ -24,6 +24,13 @@ function run_ansible {
   openstack-ansible ${ANSIBLE_PARAMETERS} --forks ${FORKS} $@
 }
 
+apt-get install python-dev -y
+curl https://raw.githubusercontent.com/pypa/pip/7.1.2/contrib/get-pip.py -o /opt/get-pip.py
+python2 /opt/get-pip.py || python /opt/get-pip.py
+pip install --force-reinstall 'ansible===1.9.4'
+ansible-playbook -i 'localhost,' /opt/rpc-openstack/rpcd/playbooks/repo-fetcher.yml
+ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --ignore-errors --force
+
 # begin the bootstrap process
 cd ${OA_DIR}
 

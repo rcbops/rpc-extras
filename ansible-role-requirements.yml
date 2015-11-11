@@ -1,0 +1,12 @@
+- name: ceph-common
+  path: /opt/rpc-openstack/rpcd/playbooks/roles
+  src: https://github.com/ceph/ansible-ceph-common.git
+  version: 7d017ea47091b6b081cc672a987709fe6b8390a8
+- name: ceph-mon
+  path: /opt/rpc-openstack/rpcd/playbooks/roles
+  src: https://github.com/ceph/ansible-ceph-mon.git
+  version: fbb4e78f77a48fb3da787e05e35e1c727b5b44d3
+- name: ceph-osd
+  path: /opt/rpc-openstack/rpcd/playbooks/roles
+  src: https://github.com/ceph/ansible-ceph-osd.git
+  version: 1662cdfd1e6d2aaf2a40e5c8c68811760fbd1f22

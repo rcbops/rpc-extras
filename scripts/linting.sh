@@ -16,4 +16,14 @@
 ## Shell Opts ----------------------------------------------------------------
 set -euo pipefail
 
+# linting is done in a diferent directory
+sed -i 's/\/opt/\/home\/travis\/build\/rcbops/g' ansible-role-requirements.yml
+sed -i 's/\/opt/\/home\/travis\/build\/rcbops/g' rpcd/playbooks/repo-fetcher.yml
+
+# we need ansible to fetch upstream openstack-ansible
+pip2 install --force-reinstall 'ansible===1.9.4'
+ansible-playbook -i <(echo '[all]\nlocalhost ansible_connection=local') rpcd/playbooks/repo-fetcher.yml
+
+ansible-galaxy install --role-file=ansible-role-requirements.yml --ignore-errors --force
+
 python -m tox
