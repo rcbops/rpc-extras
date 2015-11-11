@@ -28,17 +28,21 @@ function run_ansible {
 }
 
 # begin the bootstrap process
-cd ${OA_DIR}
+cd "${RPCD_DIR}/.."
 
 # bootstrap ansible and install galaxy roles (needed whether AIO or multinode)
 which openstack-ansible || ./scripts/bootstrap-ansible.sh
+ansible-playbook -i 'localhost,' /opt/rpc-openstack/rpcd/playbooks/repo-fetcher.yml
 ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --force \
                            --roles-path=/opt/rpc-openstack/rpcd/playbooks/roles
+ansible-galaxy install --role-file=/opt/rpc-openstack/openstack-ansible/ansible-role-requirements.yml --force --ignore-errors
+
+# bootstrap the AIO
+cd ${OA_DIR}
 
 # Enable playbook callbacks from OSA to display playbook statistics
 grep -q callback_plugins playbooks/ansible.cfg || sed -i '/\[defaults\]/a callback_plugins = plugins/callbacks' playbooks/ansible.cfg
 
-# bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   # Determine the largest secondary disk device available for repartitioning
   DATA_DISK_DEVICE=$(lsblk -brndo NAME,TYPE,RO,SIZE | \

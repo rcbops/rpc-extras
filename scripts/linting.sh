@@ -16,7 +16,11 @@
 ## Shell Opts ----------------------------------------------------------------
 set -euo pipefail
 
-# we need to fetch roles
+# linting is done in travis, update the path
+sed -i 's|/opt|/home/travis/build/rcbops|g' rpcd/playbooks/repo-fetcher.yml
+
+# we need to fetch roles and openstack-ansible
+ansible-playbook -i <(echo '[all]\nlocalhost ansible_connection=local') rpcd/playbooks/repo-fetcher.yml
 ansible-galaxy install --role-file=ansible-role-requirements.yml --force --roles-path=/home/travis/build/rcbops/rpc-openstack/rpcd/playbooks/roles
 
 python -m tox

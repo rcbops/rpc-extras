@@ -1,0 +1,67 @@
+---
+- name: lay the repos down
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+  tasks:
+    - name: lay the repos down
+      git:
+        dest: "{{ item.value.dest }}"
+        repo: "{{ item.value.repo }}"
+        version: "{{ item.value.version }}"
+      with_dict: "{{repos}}"
+    - name: generate rpcd ansible.cfg
+      copy:
+        dest: /opt/rpc-openstack/rpcd/playbooks/ansible.cfg
+        content: |
+          [defaults]
+          gathering = smart
+          host_key_checking = False
+
+          # Setting forks should be based on your system. The Ansible defaults to 5,
+          # the os-lxc-hosts assumes that you have a system that can support
+          # OpenStack, thus it has been conservatively been set to 15
+          forks = 15
+
+          # SSH timeout
+          timeout = 120
+
+          # Set the path to the folder in openstack-ansible which holds the dynamic
+          # inventory script - new config setting for ansible v1.9 and above
+          inventory = {{ repos.openstack_ansible.dest }}/playbooks/inventory/
+
+          # Set the path to the folder in openstack-ansible which holds the dynamic
+          # inventory script - uncomment if using ansible below v1.9
+          #hostfile = {{ repos.openstack_ansible.dest }}/playbooks/inventory/
+
+          # Set the path to the folder in openstack-ansible which holds the
+          # libraries required
+          library = {{ repos.openstack_ansible.dest }}/playbooks/library/
+
+          # Set the path to the folder in openstack-ansible which holds the roles
+          # that are depended on by the rpc-openstack roles
+          roles_path = {{ repos.openstack_ansible.dest }}/playbooks/roles/
+
+          # Set the path to the folder in openstack-ansible which holds the
+          # lookup plugins required
+          lookup_plugins = {{ repos.openstack_ansible.dest }}/playbooks/plugins/lookups/
+
+          # Set the path to the folder in openstack-ansible which holds the filter
+          # plugins required
+          filter_plugins = {{ repos.openstack_ansible.dest }}/playbooks/plugins/filters/
+
+          # Set the path to the folder in openstack-ansible which holds the action
+          # plugins required
+          action_plugins = {{ repos.openstack_ansible.dest }}/playbooks/plugins/actions/
+
+          [ssh_connection]
+          pipelining = True
+
+
+  vars:
+    repos:
+      openstack_ansible:
+        dest: /opt/rpc-openstack/openstack-ansible
+        repo: https://github.com/openstack/openstack-ansible.git
+        version: e0025962cf09822dce858b5235fce2fdf8a31b94

@@ -54,6 +54,8 @@ docs/_build/
 target/
 
 # generated files
+rpcd/playbooks/ansible.cfg
+openstack-ansible
 rpcd/playbooks/roles/ceph-common
 rpcd/playbooks/roles/ceph-mon
 rpcd/playbooks/roles/ceph-osd

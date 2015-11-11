@@ -27,18 +27,21 @@ ${BASE_DIR}/scripts/update-yaml.py /tmp/upgrade_user_variables.yml /etc/rpc_depl
 mv /tmp/upgrade_user_variables.yml /etc/rpc_deploy/user_variables.yml
 
 # Upgrade Ansible in-place so we have access to the patch module.
+cd "${BASE_DIR}"
+${BASE_DIR}/scripts/bootstrap-ansible.sh
+ansible-playbook -i 'localhost,' /opt/rpc-openstack/rpcd/playbooks/repo-fetcher.yml
+ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --force
+                       --roles-path=/opt/rpc-openstack/rpcd/playbooks/roles
+ansible-galaxy install --role-file=/opt/rpc-openstack/openstack-ansible/ansible-role-requirements.yml --force --ignore-errors
+
 cd ${OA_DIR}
 
 # Enable playbook callbacks from OSA to display playbook statistics
 grep -q callback_plugins playbooks/ansible.cfg || sed -i '/\[defaults\]/a callback_plugins = plugins/callbacks' playbooks/ansible.cfg
 
-${OA_DIR}/scripts/bootstrap-ansible.sh
-ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --force
-                       --roles-path=/opt/rpc-openstack/rpcd/playbooks/roles
-
 # Apply any patched files.
 cd ${RPCD_DIR}/playbooks
-openstack-ansible -i "localhost," patcher.yml
+openstack-ansible -i 'localhost,' patcher.yml
 
 # Do the upgrade for openstack-ansible components
 cd ${OA_DIR}
