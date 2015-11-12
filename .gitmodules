@@ -10,3 +10,6 @@
 [submodule "rpcd/playbooks/roles/ceph-osd"]
 	path = rpcd/playbooks/roles/ceph-osd
 	url = https://github.com/ceph/ansible-ceph-osd
+[submodule "maas/plugins"]
+	path = maas/plugins
+	url = https://github.com/rcbops/rpc-maas.git
