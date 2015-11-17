@@ -42,6 +42,26 @@ IP address of service to test
     metric nova_instances_in_state_ERROR uint32 0 instances
 
 ***
+#### nova_cloud_stats.py
+
+##### Description:
+Polls a nova API living on the specified IP. Checks statistics at the 'whole cloud' level and reports as metrics
+##### Mandatory Arguments:
+IP address of service to test
+##### Example Output:
+
+    status okay
+    metric cloud_resource_total_memory uint32 15704 Megabytes
+    metric cloud_resource_free_disk_space uint32 310 Gigabytes
+    metric cloud_resource_used_memory uint32 4096 Megabytes
+    metric cloud_resource_used_disk_space uint32 4 Gigabytes
+    metric cloud_resource_free_memory uint32 11608 Megabytes
+    metric cloud_resource_hypervisor_count uint32 2 hypervisors
+    metric cloud_resource_total_disk_space uint32 314 Gigabytes
+    metric cloud_resource_used_vcpus uint32 0 vcpu
+    metric cloud_resource_total_vcpus uint32 16 vcpu
+
+***
 #### cinder_api_local_check.py
 
 ##### Description:
