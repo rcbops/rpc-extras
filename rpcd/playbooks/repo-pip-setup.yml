@@ -24,7 +24,14 @@
   roles:
     - pip_lock_down
   post_tasks:
-    - name: Add new pip link
+    - name: Remove old pip link
+      file:
+        path: "{{ ansible_env.HOME }}/.pip/links.d/rpc_release.link"
+        state: "absent"
+      tags:
+        - lock-pip-file
+
+    - name: Create new pip link
       lineinfile:
         dest: "{{ ansible_env.HOME }}/.pip/links.d/rpc_release.link"
         line: "{{ openstack_repo_url }}/rpc-releases/{{ rpc_release }}/"
