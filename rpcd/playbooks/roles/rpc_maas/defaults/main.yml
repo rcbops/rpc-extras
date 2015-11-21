@@ -241,7 +241,7 @@ memory_used_percentage_threshold: 95.0
 rabbitmq_max_channels_per_con_threshold: 10
 rabbitmq_fd_used_threshold: 90
 rabbitmq_proc_used_threshold: 90
-rabbitmq_socket_used_threshold: 90
+rabbitmq_sockets_used_threshold: 90
 
 # Set the threshold for the "Disk utilisation" MaaS alarms
 disk_utilisation_threshold: 90
