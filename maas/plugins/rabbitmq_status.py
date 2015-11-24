@@ -98,10 +98,12 @@ def main():
 
     if r.ok:
         resp_json = r.json()  # Parse the JSON once
-        max_chans = max(connection['channels'] for connection in resp_json
-                        if 'channels' in connection)
-        for k in CONNECTIONS_METRICS:
-            metrics[k] = {'value': max_chans, 'unit': CONNECTIONS_METRICS[k]}
+        if resp_json:
+            max_chans = max(connection['channels'] for connection in resp_json
+                            if 'channels' in connection)
+            for k in CONNECTIONS_METRICS:
+                metrics[k] = {'value': max_chans,
+                              'unit': CONNECTIONS_METRICS[k]}
     else:
         status_err('Received status {0} from RabbitMQ API'.format(
             r.status_code))

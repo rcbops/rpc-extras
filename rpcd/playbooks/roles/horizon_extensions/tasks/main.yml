@@ -41,6 +41,7 @@
 - name: Install python dependencies
   pip:
     requirements: "{{ horizon_extensions_pip_requirements_file }}"
+    extra_args: "{{ pip_install_options | default('') }}"
 
 - name: "Create /etc/rackspace if it doesn't exist"
   file:

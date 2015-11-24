@@ -24,6 +24,9 @@ neutron_rpc_conn_pool_size: 180
 neutron_rpc_response_timeout: 180
 neutron_rpc_thread_pool_size: 180
 
+#RabbitMQ overrides
+rabbitmq_ulimit: 65535
+
 ## Apache SSL Settings
 # These do not need to be configured unless you're creating certificates for
 # services running behind Apache (currently, Horizon and Keystone).

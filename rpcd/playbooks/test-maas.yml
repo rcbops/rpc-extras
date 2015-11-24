@@ -45,7 +45,9 @@
 - hosts: 127.0.0.1
   connection: local
   tasks:
-    - pip: name=virtualenv
+    - pip:
+        name: virtualenv
+        extra_args: "{{ pip_install_options | default('') }}"
       tags:
         - setup
 
@@ -53,7 +55,7 @@
       pip:
       args:
         requirements: /opt/rpc-openstack/maas/testing/requirements.txt
-        extra_args: "--isolated"
+        extra_args: "{{ pip_install_options | default('--isolated') }}"
         virtualenv: /opt/rpc-openstack/maas/testing/venv
       tags:
         - setup
