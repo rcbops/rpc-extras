@@ -172,7 +172,8 @@ else:
 
 try:
     from keystoneclient.openstack.common.apiclient import exceptions as k_exc
-    from keystoneclient.v3 import client as k_client
+    from keystoneclient.v3 import client as k3_client
+    from keystoneclient.v2_0 import client as k2_client
 except ImportError:
     def keystone_auth(*args, **kwargs):
         status_err('Cannot import keystoneclient')
@@ -182,6 +183,10 @@ except ImportError:
 else:
     def keystone_auth(auth_details):
         try:
+            if auth_details['OS_AUTH_URL'].endswith('v3'):
+                k_client = k3_client
+            else:
+                k_client = k2_client
             tenant_name = auth_details['OS_TENANT_NAME']
             keystone = k_client.Client(username=auth_details['OS_USERNAME'],
                                        password=auth_details['OS_PASSWORD'],
@@ -207,11 +212,17 @@ else:
         # don't need to auth with keystone every time
         if not auth_ref:
             auth_ref = get_auth_ref()
+
+        auth_version = auth_ref['version']
         if not endpoint:
             endpoint = get_endpoint_url_for_service('identity',
                                                     auth_ref['catalog'],
-                                                    'admin', version='v3')
-
+                                                    'admin',
+                                                    version=auth_version)
+        if auth_version == 'v3':
+            k_client = k3_client
+        else:
+            k_client = k2_client
         keystone = k_client.Client(auth_ref=auth_ref, endpoint=endpoint)
 
         try:
