@@ -21,9 +21,33 @@ trap "exit -1" ERR
 # Track whether linting failed; we don't want to bail on lint failures
 failed=0
 
-## Main ----------------------------------------------------------------------
-echo "Running Basic Ansible Lint Check"
+## Bash Syntax Check ---------------------------------------------------------
+echo "Running Bash Syntax Check"
 
+find_bash_scripts(){
+  (
+    find . -iname '*.sh' #find scripts by name
+    egrep -rln '^#!(/usr)?/bin/(env)?/?\s*(ba)?sh' . #find by shebang
+  ) |sed 's+^\./++' \
+    |sort -u \
+    |egrep -v '(^\.git|\.j2$)'
+}
+
+while read sfile
+do
+  echo -en "$sfile\t"
+  # run the bash syntax check
+  bash -n $sfile \
+    && echo "[syntax ok]" \
+    || {
+      echo "[syntax fail]";
+      failed=1;
+    }
+done <<< "$(find_bash_scripts)"
+# use herestring rather than pipe, so that while doesn't create a subshell,
+# so failed will still be set outside the loop.
+
+## Ansible Checks ------------------------------------------------------------
 
 # Install the development requirements.
 if [[ -f "openstack-ansible/dev-requirements.txt" ]]; then
@@ -41,19 +65,19 @@ flake8 $(grep -rln -e '^#!/usr/bin/env python' -e '^#!/bin/python' -e '^#!/usr/b
 
 # Perform our simple sanity checks.
 pushd rpcd/playbooks
-  # Put local inventory in a var so we're not polluting the file system too much
-  LOCAL_INVENTORY='[all]\nlocalhost ansible_connection=local'
 
   # Do a basic syntax check on all playbooks and roles.
-  echo "Running Syntax Check"
-  ansible-playbook -i <(echo $LOCAL_INVENTORY) --syntax-check *.yml --list-tasks || failed=1
+  echo "Running Ansible Syntax Check"
+  # Most versions of ansible will create an implicit localhost
+  # entry from an empty inventory. If not, update ansible.
+  ansible-playbook -i /dev/null --syntax-check *.yml --list-tasks || failed=1
 
   # Remove the third-party Ceph roles because they fail ansible-lint
   rm -r roles/ceph-common
   rm -r roles/ceph-mon
   rm -r roles/ceph-osd
   # Perform a lint check on all playbooks and roles.
-  echo "Running Lint Check"
+  echo "Running Ansible Lint Check"
   ansible-lint --version || failed=1
   ansible-lint *.yml || failed=1
 popd
