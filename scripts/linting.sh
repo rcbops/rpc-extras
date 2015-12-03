@@ -16,11 +16,6 @@
 ## Shell Opts ----------------------------------------------------------------
 set -euo pipefail
 
-trap "exit -1" ERR
-
-# Track whether linting failed; we don't want to bail on lint failures
-failed=0
-
 ## Main ----------------------------------------------------------------------
 echo "Running Basic Ansible Lint Check"
 
@@ -37,7 +32,7 @@ fi
 #     F403 'from ansible.module_utils.basic import *' used; unable to detect undefined names
 #     H303  No wildcard (*) import.
 # Excluding our upstream submodule, and our vendored f5 configuration script.
-flake8 $(grep -rln -e '^#!/usr/bin/env python' -e '^#!/bin/python' -e '^#!/usr/bin/python' * ) || failed=1
+flake8 $(grep -rln -e '^#!/usr/bin/env python' -e '^#!/bin/python' -e '^#!/usr/bin/python' * )
 
 # Perform our simple sanity checks.
 pushd rpcd/playbooks
@@ -46,7 +41,7 @@ pushd rpcd/playbooks
 
   # Do a basic syntax check on all playbooks and roles.
   echo "Running Syntax Check"
-  ansible-playbook -i <(echo $LOCAL_INVENTORY) --syntax-check *.yml --list-tasks || failed=1
+  ansible-playbook -i <(echo $LOCAL_INVENTORY) --syntax-check *.yml --list-tasks
 
   # Remove the third-party Ceph roles because they fail ansible-lint
   rm -r roles/ceph-common
@@ -54,11 +49,7 @@ pushd rpcd/playbooks
   rm -r roles/ceph-osd
   # Perform a lint check on all playbooks and roles.
   echo "Running Lint Check"
-  ansible-lint --version || failed=1
-  ansible-lint *.yml || failed=1
+  ansible-lint --version
+  ansible-lint *.yml
 popd
 
-if [[ $failed -eq 1 ]]; then
-  echo "Failed linting"
-  exit -1
-fi
