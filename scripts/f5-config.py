@@ -256,7 +256,7 @@ POOL_PARTS = {
         'port': 6082,
         'backend_port': 6082,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE',
-        'group': 'nova_console',
+        'group': 'nova_spice_console',
         'hosts': [],
         'ssl_impossible': True,
         'make_public': True,
@@ -541,9 +541,9 @@ def main():
 
     commands.extend([
         '### CREATE SECURITY iRULE ###',
-        'create ltm rule /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL',
-        '   --> Copy and Paste the following between pre-included curly brackets <--',
-        'when CLIENT_ACCEPTED { discard }\n',
+        'run util bash',
+        'tmsh create ltm rule /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL when CLIENT_ACCEPTED { discard }',
+        'exit',
         '### CREATE EXTERNAL MONITOR ###',
         '   --> Upload External monitor file to disk <--',
         '       run util bash',
