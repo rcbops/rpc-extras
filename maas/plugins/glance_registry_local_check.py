@@ -17,7 +17,6 @@
 import argparse
 
 import ipaddr
-from maas_common import get_auth_ref
 from maas_common import get_keystone_client
 from maas_common import metric
 from maas_common import metric_bool
@@ -28,10 +27,10 @@ import requests
 from requests import exceptions as exc
 
 
-def check(auth_ref, args):
+def check(args):
     # We call get_keystone_client here as there is some logic within to get a
     # new token if previous one is bad.
-    keystone = get_keystone_client(auth_ref)
+    keystone = get_keystone_client()
     auth_token = keystone.auth_token
     registry_endpoint = 'http://{ip}:9191'.format(ip=args.ip)
 
@@ -60,8 +59,7 @@ def check(auth_ref, args):
 
 
 def main(args):
-    auth_ref = get_auth_ref()
-    check(auth_ref, args)
+    check(args)
 
 
 if __name__ == "__main__":
