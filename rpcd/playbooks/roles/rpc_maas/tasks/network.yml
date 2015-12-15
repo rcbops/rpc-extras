@@ -13,6 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Test that network interfaces exist
+  fail:
+    msg: "The specified network interfaces {{ item.name }} doesn't exist, consider setting the 'network_checks_list' variable to override these interfaces"
+  with_items:
+    - "{{ network_checks_list }}"
+  when:
+    - hostvars[inventory_hostname]["{{'ansible_' + item.name | replace('-', '_')}}"] is not defined
+
 - name: Discover NIC speed
   command: "cat /sys/class/net/{{ item.name }}/speed"
   ignore_errors: true
@@ -31,8 +39,7 @@
     - discover_nic_speed.results
   when:
     - inventory_hostname in groups["{{ item.0.group }}"]
-    - item.name not in maas_excluded_checks
-  delegate_to: "{{ physical_host }}"
+    - "'network_throughput-{{ item.0.name }}' not in maas_excluded_checks"
 
 - name: Remove checks that are excluded
   file:
@@ -40,5 +47,4 @@
     state: absent
   with_items: network_checks_list
   when:
-    - item.name in maas_excluded_checks
-  delegate_to: "{{ physical_host }}"
+    - "'network_throughput-{{ item.name }}' in maas_excluded_checks"
