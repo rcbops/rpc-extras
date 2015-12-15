@@ -20,7 +20,6 @@ import collections
 import ipaddr
 # Technically maas_common isn't third-party but our own thing but hacking
 # consideres it third-party
-from maas_common import get_auth_ref
 from maas_common import get_keystone_client
 from maas_common import metric
 from maas_common import metric_bool
@@ -37,9 +36,9 @@ VOLUME_STATUSES = ['available', 'in-use', 'error']
 # cinderclient. Only way to test local is direct http. :sadface:
 
 
-def check(auth_ref, args):
+def check(args):
 
-    keystone = get_keystone_client(auth_ref)
+    keystone = get_keystone_client()
     auth_token = keystone.auth_token
     VOLUME_ENDPOINT = ('http://{ip}:8776/v1/{tenant}'.format
                        (ip=args.ip, tenant=keystone.tenant_id))
@@ -96,8 +95,7 @@ def check(auth_ref, args):
 
 
 def main(args):
-    auth_ref = get_auth_ref()
-    check(auth_ref, args)
+    check(args)
 
 if __name__ == "__main__":
     with print_output():

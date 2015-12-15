@@ -17,7 +17,6 @@
 import argparse
 
 import ipaddr
-from maas_common import get_auth_ref
 from maas_common import get_keystone_client
 from maas_common import metric
 from maas_common import metric_bool
@@ -31,8 +30,7 @@ def check(args):
     headers = {'Content-type': 'application/json'}
     path_options = {}
     if args.auth:
-        auth_ref = get_auth_ref()
-        keystone = get_keystone_client(auth_ref)
+        keystone = get_keystone_client()
         auth_token = keystone.auth_token
         project_id = keystone.project_id
         headers['auth_token'] = auth_token

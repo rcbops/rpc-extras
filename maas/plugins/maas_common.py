@@ -32,6 +32,7 @@ AUTH_DETAILS = {'OS_USERNAME': None,
 
 OPENRC = '/root/openrc-maas'
 TOKEN_FILE = '/root/.auth_ref.json'
+AUTH_REF = None
 
 
 try:
@@ -82,16 +83,10 @@ else:
         if previous_tries > 3:
             return None
 
-        # first try to use auth details from auth_ref so we
-        # don't need to auth with keystone every time
-        auth_ref = get_auth_ref()
-
         if not token:
-            token = auth_ref['auth_token']
+            token = get_auth_token()
         if not endpoint:
-            endpoint = get_endpoint_url_for_service(
-                'image',
-                auth_ref['catalog'])
+            endpoint = get_endpoint_url_for_service('image', get_catalog())
 
         glance = g_client.Client('1', endpoint=endpoint, token=token)
 
@@ -102,8 +97,7 @@ else:
             # Exceptions are only thrown when we iterate over image
             [i.id for i in image]
         except g_exc.HTTPUnauthorized:
-            auth_ref = force_reauth()
-            token = auth_ref['auth_token']
+            token = get_auth_token(reauth=True)
 
             glance = get_glance_client(token, endpoint, previous_tries + 1)
         # we only want to pass HTTPException back to the calling poller
@@ -128,16 +122,10 @@ else:
         if previous_tries > 3:
             return None
 
-        # first try to use auth details from auth_ref so we
-        # don't need to auth with keystone every time
-        auth_ref = get_auth_ref()
-
         if not auth_token:
-            auth_token = auth_ref['auth_token']
+            auth_token = get_auth_token()
         if not bypass_url:
-            bypass_url = get_endpoint_url_for_service(
-                'compute',
-                auth_ref['catalog'])
+            bypass_url = get_endpoint_url_for_service('compute', get_catalog())
 
         nova = nova_client.Client('2', auth_token=auth_token,
                                   bypass_url=bypass_url)
@@ -154,8 +142,7 @@ else:
         # Attribute error. This is a bug, to be filed...
 
         except AttributeError:
-            auth_ref = force_reauth()
-            auth_token = auth_ref['auth_token']
+            auth_token = get_auth_token(reauth=True)
 
             nova = get_nova_client(auth_token, bypass_url, previous_tries + 1)
 
@@ -204,19 +191,16 @@ else:
 
         return keystone.auth_ref
 
-    def get_keystone_client(auth_ref=None, endpoint=None, previous_tries=0):
+    def get_keystone_client(reauth=False, endpoint=None, previous_tries=0):
         if previous_tries > 3:
             return None
 
-        # first try to use auth details from auth_ref so we
-        # don't need to auth with keystone every time
-        if not auth_ref:
-            auth_ref = get_auth_ref()
+        auth_ref = get_auth_ref(reauth=reauth)
 
-        auth_version = auth_ref['version']
+        auth_version = get_auth_version()
         if not endpoint:
             endpoint = get_endpoint_url_for_service('identity',
-                                                    auth_ref['catalog'],
+                                                    get_catalog(),
                                                     'admin',
                                                     version=auth_version)
         if auth_version == 'v3':
@@ -231,10 +215,9 @@ else:
             keystone.services.list()
         except (k_exc.AuthorizationFailure, k_exc.Unauthorized):
             # Force an update of auth_ref
-            auth_ref = force_reauth()
-            keystone = get_keystone_client(auth_ref,
-                                           endpoint,
-                                           previous_tries + 1)
+            keystone = get_keystone_client(reauth=True,
+                                           endpoint=endpoint,
+                                           previous_tries=(previous_tries + 1))
         except (k_exc.HttpServerError, k_exc.ClientException):
             raise
         except Exception as e:
@@ -254,16 +237,11 @@ else:
         if previous_tries > 3:
             return None
 
-        # first try to use auth details from auth_ref so we
-        # don't need to auth with keystone every time
-        auth_ref = get_auth_ref()
-
         if not token:
-            token = auth_ref['auth_token']
+            token = get_auth_token()
         if not endpoint_url:
-            endpoint_url = get_endpoint_url_for_service(
-                'network',
-                auth_ref['catalog'])
+            endpoint_url = get_endpoint_url_for_service('network',
+                                                        get_catalog())
 
         neutron = n_client.Client('2.0',
                                   token=token,
@@ -280,8 +258,7 @@ else:
         # jazz. Since we want to auth again ourselves (so we can update our
         # local token) we'll just catch the exception it throws and move on
         except n_exc.NoAuthURLProvided:
-            auth_ref = force_reauth()
-            token = auth_ref['auth_token']
+            token = get_auth_token(reauth=True)
 
             neutron = get_neutron_client(token, endpoint_url,
                                          previous_tries + 1)
@@ -309,23 +286,18 @@ else:
         if previous_tries > 3:
             return None
 
-        # first try to use auth details from auth_ref so we
-        # don't need to auth with keystone every time
-        auth_ref = get_auth_ref()
-
         if not token:
-            token = auth_ref['auth_token']
+            token = get_auth_token()
         if not endpoint:
             endpoint = get_endpoint_url_for_service(
                 'orchestration',
-                auth_ref['catalog'])
+                get_catalog())
 
         heat = heat_client.Client('1', endpoint=endpoint, token=token)
         try:
             heat.build_info.build_info()
         except h_exc.HTTPUnauthorized:
-            auth_ref = force_reauth()
-            token = auth_ref['auth_token']
+            token = get_auth_token(reauth=True)
             heat = get_heat_client(token, endpoint, previous_tries + 1)
         except h_exc.HTTPException:
             raise
@@ -351,10 +323,10 @@ def is_token_expired(token):
     return datetime.datetime.now() >= expires
 
 
-def get_auth_ref():
+def get_auth_ref(reauth=False):
     auth_details = get_auth_details()
     auth_ref = get_auth_from_file()
-    if auth_ref is None:
+    if reauth or auth_ref is None:
         auth_ref = keystone_auth(auth_details)
 
     if is_token_expired(auth_ref):
@@ -364,15 +336,18 @@ def get_auth_ref():
 
 
 def get_auth_from_file():
-    try:
-        with open(TOKEN_FILE) as token_file:
-            auth_ref = json.load(token_file)
-
-        return auth_ref
-    except IOError as e:
-        if e.errno == errno.ENOENT:
-            return None
-        status_err(e)
+    global AUTH_REF
+    if not AUTH_REF:
+        try:
+            with open(TOKEN_FILE) as token_file:
+                auth_ref = json.load(token_file)
+        except IOError as e:
+            if e.errno == errno.ENOENT:
+                return None
+            status_err(e)
+        else:
+            AUTH_REF = auth_ref
+    return AUTH_REF
 
 
 def get_auth_details(openrc_file=OPENRC):
@@ -423,9 +398,39 @@ def get_endpoint_url_for_service(service_type, service_catalog,
                         return endpoint['url']
 
 
-def force_reauth():
-    auth_details = get_auth_details()
-    return keystone_auth(auth_details)
+def get_auth_token(reauth=False):
+    auth_ref = get_auth_ref(reauth=reauth)
+
+    version = get_auth_version()
+    if version == 'v3':
+        token = auth_ref['auth_token']
+    elif version == 'v2.0':
+        token = auth_ref['token']['id']
+    else:
+        status_err('Unable to extract token, auth_ref version is unknown.')
+    return token
+
+
+def get_catalog(reauth=False):
+    auth_ref = get_auth_ref(reauth=reauth)
+
+    version = get_auth_version()
+    if version == 'v3':
+        catalog = auth_ref['catalog']
+    elif version == 'v2.0':
+        catalog = auth_ref['serviceCatalog']
+    else:
+        status_err('Unable to extract catalog, auth_ref version is unknown.')
+    return catalog
+
+
+def get_auth_version():
+    auth_ref = get_auth_ref()
+
+    try:
+        return auth_ref['version']
+    except KeyError:
+        status_err('Unable to extract version from auth_ref, unknown format.')
 
 
 STATUS = ''
