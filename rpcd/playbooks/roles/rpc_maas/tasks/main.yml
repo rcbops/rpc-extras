@@ -64,4 +64,6 @@
     inventory_hostname in groups['ceph_all'] and
     groups['ceph_all'] is defined
 
+- include: maas_exclude.yml
+
 - include: restart_raxmon.yml

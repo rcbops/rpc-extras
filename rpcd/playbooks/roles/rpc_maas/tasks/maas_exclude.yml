@@ -13,16 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Install local checks
-  template:
-    src: "{{ item.name }}.yaml.j2"
-    dest: "/etc/rackspace-monitoring-agent.conf.d/{{ item.name }}--{{ inventory_hostname }}.yaml"
-    owner: "root"
-    group: "root"
-    mode: "0644"
+- name: Ensure local checks are removed
+  file:
+    path: "/etc/rackspace-monitoring-agent.conf.d/{{ item }}-{{ inventory_hostname }}.yaml"
+    state: absent
   with_items:
-    - "{{ checks }}"
-  when:
-    - inventory_hostname in groups["{{ item.group }}"]
-    - item.name not in maas_excluded_checks
+    - "{{ maas_excluded_checks }}"
+  delegate_to: "{{ physical_host }}"
+
+- name: Ensure remote checks are removed
+  file:
+    path: "/etc/rackspace-monitoring-agent.conf.d/{{ item }}.yaml"
+    state: absent
+  with_items:
+    - "{{ maas_excluded_checks }}"
   delegate_to: "{{ physical_host }}"

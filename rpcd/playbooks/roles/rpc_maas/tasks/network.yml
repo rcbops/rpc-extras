@@ -33,12 +33,3 @@
     - inventory_hostname in groups["{{ item.0.group }}"]
     - item.name not in maas_excluded_checks
   delegate_to: "{{ physical_host }}"
-
-- name: Remove checks that are excluded
-  file:
-    path: "/etc/rackspace-monitoring-agent.conf.d/network_throughput-{{ item.name }}-{{ inventory_hostname }}.yaml"
-    state: absent
-  with_items: network_checks_list
-  when:
-    - item.name in maas_excluded_checks
-  delegate_to: "{{ physical_host }}"
