@@ -9,6 +9,8 @@ export DEPLOY_HAPROXY=${DEPLOY_HAPROXY:-"no"}
 export DEPLOY_OA=${DEPLOY_OA:-"yes"}
 export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
 export DEPLOY_MAAS=${DEPLOY_MAAS:-"no"}
+export VERIFY_MAAS=${VERIFY_MAAS:-"yes"}
+export VERIFY_MAAS_DELAY=${VERIFY_MAAS_DELAY:-"30"}
 export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER=${DEPLOY_CEILOMETER:-"no"}
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
@@ -153,8 +155,10 @@ run_ansible horizon_extensions.yml
 # deploy and configure RAX MaaS
 if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
   run_ansible setup-maas.yml
-  sleep 30
-  run_ansible verify-maas.yml
+  if [[ "${VERIFY_MAAS}" == "yes" ]]; then
+      sleep $VERIFY_MAAS_DELAY
+      run_ansible verify-maas.yml
+  fi
 fi
 
 # deploy and configure the ELK stack
