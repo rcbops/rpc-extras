@@ -97,13 +97,21 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     rm -f /etc/openstack_deploy/env.d/{elasticsearch,logstash,kibana}.yml
   fi
 
-  # setup the haproxy load balancer
-  if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
-    run_ansible haproxy-install.yml
-  fi
+  # Run playbooks is called twice as we need to setup hosts before deploying
+  # ceph, but we need to deploy ceph before deploying openstack. Env vars are
+  # used to ensure that parts are not repeated.
 
-  # setup the hosts and build the basic containers
-  run_ansible setup-hosts.yml
+  cd $OA_DIR
+  # Deploy HOST & LB? only.
+  DEPLOY_LB=${DEPLOY_HAPROXY}\
+    ADD_NEUTRON_AGENT_CHECKSUM_RULE=${DEPLOY_AIO}\
+    DEPLOY_INFRASTRUCTURE=no\
+    DEPLOY_LOGGING=no\
+    DEPLOY_OPENSTACK=no\
+    DEPLOY_SWIFT=no\
+    DEPLOY_CEILOMETER=no\
+    DEPLOY_TEMPEST=no\
+    scripts/run-playbooks.sh
 
   if [[ "$DEPLOY_CEPH" == "yes" ]]; then
     pushd ${RPCD_DIR}/playbooks/
@@ -111,29 +119,10 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     popd
   fi
 
-  # setup the infrastructure
-  run_ansible setup-infrastructure.yml
-
-  # This section is duplicated from OSA/run-playbooks as RPC doesn't currently
-  # make use of run-playbooks. (TODO: hughsaunders)
-  # When running in an AIO, we need to drop the following iptables rule in any neutron_agent containers
-  # to ensure that instances can communicate with the neutron metadata service.
-  # This is necessary because in an AIO environment there are no physical interfaces involved in
-  # instance -> metadata requests, and this results in the checksums being incorrect.
-  if [ "${DEPLOY_AIO}" == "yes" ]; then
-    ansible neutron_agent -m command \
-                          -a '/sbin/iptables -t mangle -A POSTROUTING -p tcp --sport 80 -j CHECKSUM --checksum-fill'
-    ansible neutron_agent -m shell \
-                          -a 'DEBIAN_FRONTEND=noninteractive apt-get install iptables-persistent'
-  fi
-
-  # setup openstack
-  run_ansible setup-openstack.yml
-
-  if [[ "${DEPLOY_TEMPEST}" == "yes" ]]; then
-    # Deploy tempest
-    run_ansible os-tempest-install.yml
-  fi
+  # Deploy Infrastructure, Logging, Openstack (inc swift, ceilometeer, tempest)
+  DEPLOY_LB=no\
+    DEPLOY_HOST=no\
+    scripts/run-playbooks.sh
 
 fi
 
