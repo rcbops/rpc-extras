@@ -242,6 +242,11 @@ rabbitmq_max_channels_per_con_threshold: 10
 rabbitmq_fd_used_threshold: 90
 rabbitmq_proc_used_threshold: 90
 rabbitmq_socket_used_threshold: 90
+rabbitmq_queued_messages_excluding_notifications_threshold: 100
+
+# queued messages per check period (default = 60s)
+rabbitmq_queue_growth_rate_threshold: 15
+
 
 # Set the threshold for the "Disk utilisation" MaaS alarms
 disk_utilisation_threshold: 90

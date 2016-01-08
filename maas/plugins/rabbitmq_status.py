@@ -28,6 +28,7 @@ import requests
 OVERVIEW_URL = "http://%s:%s/api/overview"
 NODES_URL = "http://%s:%s/api/nodes"
 CONNECTIONS_URL = "http://%s:%s/api/connections?columns=channels"
+QUEUES_URL = "http://%s:%s/api/queues"
 
 CLUSTERED = True
 CLUSTER_SIZE = 3
@@ -59,7 +60,16 @@ CONNECTIONS_METRICS = {"max_channels_per_conn": "channels"}
 
 def hostname():
     """Return the name of the current host/node."""
-    return subprocess.check_output(['hostname']).strip()
+    return subprocess.check_output(['hostname', '-s']).strip()
+
+
+def rabbit_version(node):
+    if ('applications' in node and 'rabbit' in node['applications']
+            and 'version' in node['applications']['rabbit']):
+        version_string = node['applications']['rabbit']['version']
+        return tuple(int(part) for part in version_string.split('.'))
+    else:
+        return tuple()
 
 
 def parse_args():
@@ -85,78 +95,102 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
-    (options, _) = parse_args()
-    metrics = {}
-    s = requests.Session()  # Make a Session to store the authenticate creds
-    s.auth = (options.username, options.password)
-
+def _get_rabbit_json(session, url):
     try:
-        r = s.get(CONNECTIONS_URL % (options.host, options.port))
+        response = session.get(url)
     except requests.exceptions.ConnectionError as e:
         status_err(str(e))
 
-    if r.ok:
-        resp_json = r.json()  # Parse the JSON once
-        if resp_json:
-            max_chans = max(connection['channels'] for connection in resp_json
-                            if 'channels' in connection)
-            for k in CONNECTIONS_METRICS:
-                metrics[k] = {'value': max_chans,
-                              'unit': CONNECTIONS_METRICS[k]}
+    if response.ok:
+        return response.json()
     else:
         status_err('Received status {0} from RabbitMQ API'.format(
-            r.status_code))
+            response.status_code))
 
-    try:
-        r = s.get(OVERVIEW_URL % (options.host, options.port))
-    except requests.exceptions.ConnectionError as e:
-        status_err(str(e))
 
-    if r.ok:
-        resp_json = r.json()  # Parse the JSON once
-        for k in OVERVIEW_METRICS:
-            if k in resp_json:
-                for a, b in OVERVIEW_METRICS[k].items():
-                    if a in resp_json[k]:
-                        metrics[a] = {'value': resp_json[k][a], 'unit': b}
-    else:
-        status_err('Received status {0} from RabbitMQ API'.format(
-            r.status_code))
+def _get_connection_metrics(session, metrics, host, port):
 
-    try:
-        r = s.get(NODES_URL % (options.host, options.port))
-    except requests.exceptions.ConnectionError as e:
-        status_err(str(e))
+    response = _get_rabbit_json(session, CONNECTIONS_URL % (host, port))
+
+    max_chans = max(connection['channels'] for connection in response
+                    if 'channels' in connection)
+    for k in CONNECTIONS_METRICS:
+        metrics[k] = {'value': max_chans, 'unit': CONNECTIONS_METRICS[k]}
+
+
+def _get_overview_metrics(session, metrics, host, port):
+    response = _get_rabbit_json(session, OVERVIEW_URL % (host, port))
+
+    for k in OVERVIEW_METRICS:
+        if k in response:
+            for a, b in OVERVIEW_METRICS[k].items():
+                if a in response[k]:
+                    metrics[a] = {'value': response[k][a], 'unit': b}
+
+
+def _get_node_metrics(session, metrics, host, port, name):
+    response = _get_rabbit_json(session, NODES_URL % (host, port))
 
     # Either use the option provided by the commandline flag or the current
     # hostname
-    name = '@' + (options.name or hostname())
+    name = '@' + (name or hostname())
     is_cluster_member = False
-    if r.ok:
-        resp_json = r.json()
-        for k, v in NODES_METRICS.items():
-            metrics[k] = {'value': resp_json[0][k], 'unit': v}
 
-        # Ensure this node is a member of the cluster
-        is_cluster_member = any(n['name'].endswith(name) for n in resp_json)
+    # Ensure this node is a member of the cluster
+    nodes_matching_name = [n for n in response
+                           if n['name'].endswith(name)]
+    is_cluster_member = any(nodes_matching_name)
+
+    if CLUSTERED:
+        if len(response) < CLUSTER_SIZE:
+            status_err('cluster too small')
+        if not is_cluster_member:
+            status_err('{0} not a member of the cluster'.format(name))
+
+    for k, v in NODES_METRICS.items():
+        metrics[k] = {'value': nodes_matching_name[0][k], 'unit': v}
+
+    # We don't know exactly which version introduces data for all
+    #   nodes in the cluster returned by the NODES_URL, but we know it is
+    #   in 3.5.x at least.
+    if rabbit_version(nodes_matching_name[0]) > (3, 5):
         # Gather the queue lengths for all nodes in the cluster
-        queues = [n['run_queue'] for n in resp_json]
+        queues = [n['run_queue'] for n in response
+                  if n.get('run_queue', None)]
         # Grab the first queue length
         first = queues.pop()
         # Check that all other queues are equal to it
         if not all(first == q for q in queues):
             # If they're not, the queues are not synchronized
             status_err('Cluster not replicated across all nodes')
-    else:
-        status_err('Received status {0} from RabbitMQ API'.format(
-            r.status_code))
 
-    if CLUSTERED:
-        if len(r.json()) < CLUSTER_SIZE:
-            status_err('cluster too small')
-        if not is_cluster_member:
-            status_err('{0} not a member of the cluster'.format(name))
+
+def _get_queue_metrics(session, metrics, host, port):
+    response = _get_rabbit_json(session, QUEUES_URL % (host, port))
+    notification_messages = sum([q['messages'] for q in response
+                                if q['name'].startswith('notifications.')])
+
+    metrics['notification_messages'] = {
+        'value': notification_messages,
+        'unit': 'messages'
+    }
+    metrics['msgs_excl_notifications'] = {
+        'value': metrics['messages']['value'] - notification_messages,
+        'unit': 'messages'
+    }
+
+
+def main():
+    (options, _) = parse_args()
+    metrics = {}
+    session = requests.Session()  # Make a Session to store the auth creds
+    session.auth = (options.username, options.password)
+
+    _get_connection_metrics(session, metrics, options.host, options.port)
+    _get_overview_metrics(session, metrics, options.host, options.port)
+    _get_node_metrics(session, metrics, options.host, options.port,
+                      options.name)
+    _get_queue_metrics(session, metrics, options.host, options.port)
 
     status_ok()
 

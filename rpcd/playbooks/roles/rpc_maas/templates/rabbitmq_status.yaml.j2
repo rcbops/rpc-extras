@@ -60,3 +60,19 @@ alarms      :
             if (percentage(metric["rabbitmq_sockets_used"],metric["rabbitmq_sockets_total"]) >= {{ rabbitmq_socket_used_threshold }}) {
                 return new AlarmStatus(CRITICAL, "RabbitMQ sockets is reaching configured limit. Currently above {{ rabbitmq_socket_used_threshold }} % used");
             }
+    rabbitmq_msgs_excl_notifications :
+        label                   : rabbitmq_msgs_excl_notifications--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["rabbitmq_msgs_excl_notifications"] > {{ rabbitmq_queued_messages_excluding_notifications_threshold }} ) {
+                return new AlarmStatus(CRITICAL, "RabbitMQ sum of queued messages excluding notifications queues is reaching configured limit. Currently above {{ rabbitmq_queued_messages_excluding_notifications_threshold }}");
+            }
+    rabbitmq_qgrowth_excl_notifications :
+        label                   : rabbitmq_qgrowth_excl_notifications--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (rate(metric["rabbitmq_msgs_excl_notifications"]) > {{rabbitmq_queue_growth_rate_threshold / maas_check_period}}) {
+                return new AlarmStatus(CRITICAL, "RabbitMQ Queue growth rate is above configured threshold. Currently above {{ rabbitmq_queue_growth_rate_threshold }}");
+            }
