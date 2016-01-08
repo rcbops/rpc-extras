@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: ensure_local_checks.yml
-  vars:
-    checks: "{{ network_checks_list }}"
+- name: Discover NIC speed
+  command: "cat /sys/class/net/{{ item.name }}/speed"
+  ignore_errors: true
+  register: discover_nic_speed
+  with_items: network_checks_list
+
+- name: Install network throughput checks
+  template:
+    src: "network_throughput.yaml.j2"
+    dest: "/etc/rackspace-monitoring-agent.conf.d/network_throughput-{{ item.0.name }}-{{ inventory_hostname }}.yaml"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  with_together:
+    - network_checks_list
+    - discover_nic_speed.results
+  when:
+    - inventory_hostname in groups["{{ item.0.group }}"]
+    - item.name not in maas_excluded_checks
+  delegate_to: "{{ physical_host }}"
+
+- name: Remove checks that are excluded
+  file:
+    path: "/etc/rackspace-monitoring-agent.conf.d/network_throughput-{{ item.name }}-{{ inventory_hostname }}.yaml"
+    state: absent
+  with_items: network_checks_list
+  when:
+    - item.name in maas_excluded_checks
+  delegate_to: "{{ physical_host }}"

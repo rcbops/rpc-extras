@@ -249,6 +249,13 @@ disk_utilisation_threshold: 90
 # nf_conntrack threshold
 nf_conntrack_threshold: 90
 
+# net_max_speed has units of Mb/s, set to null for auto discovery
+net_max_speed: null
+net_rx_pct_warn: 40
+net_rx_pct_crit: 60
+net_tx_pct_warn: 40
+net_tx_pct_crit: 60
+
 # Swift MaaS thresholds
 swift_object_quarantine_failed_percentage_threshold: 5.0
 swift_object_quarantine_average_threshold: 25.0
@@ -286,6 +293,12 @@ ceph_checks_list:
   - { name: "ceph_cluster_stats", group: "mons" }
 
 network_checks_list:
+  - { name: "eth0", group: "hosts", max_speed: "{{ net_max_speed }}", rx_pct_warn: "{{ net_rx_pct_warn }}", rx_pct_crit: "{{ net_rx_pct_crit }}", tx_pct_warn: "{{ net_tx_pct_warn }}", tx_pct_crit: "{{ net_tx_pct_crit }}"}
+  - { name: "eth1", group: "hosts", max_speed: "{{ net_max_speed }}", rx_pct_warn: "{{ net_rx_pct_warn }}", rx_pct_crit: "{{ net_rx_pct_crit }}", tx_pct_warn: "{{ net_tx_pct_warn }}", tx_pct_crit: "{{ net_tx_pct_crit }}"}
+  - { name: "eth2", group: "hosts", max_speed: "{{ net_max_speed }}", rx_pct_warn: "{{ net_rx_pct_warn }}", rx_pct_crit: "{{ net_rx_pct_crit }}", tx_pct_warn: "{{ net_tx_pct_warn }}", tx_pct_crit: "{{ net_tx_pct_crit }}"}
+  - { name: "eth3", group: "hosts", max_speed: "{{ net_max_speed }}", rx_pct_warn: "{{ net_rx_pct_warn }}", rx_pct_crit: "{{ net_rx_pct_crit }}", tx_pct_warn: "{{ net_tx_pct_warn }}", tx_pct_crit: "{{ net_tx_pct_crit }}"}
+
+kernel_checks_list:
   - { name: "conntrack_count", group: "hosts" }
 
 openstack_service_local_checks_list:
