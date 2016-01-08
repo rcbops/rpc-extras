@@ -23,7 +23,7 @@
 
 - include: rabbitmq_user.yml
   when: >
-    groups['rabbitmq_all']|length > 0 and inventory_hostname == groups['rabbitmq_all'][0]
+    groups['rabbitmq_all'] is defined and groups['rabbitmq_all']|length > 0 and inventory_hostname == groups['rabbitmq_all'][0]
 
 - include: create_my_cnf.yml
   when: >
