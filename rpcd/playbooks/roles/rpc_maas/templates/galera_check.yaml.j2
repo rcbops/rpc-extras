@@ -15,7 +15,6 @@ alarms      :
             if (metric["wsrep_cluster_size"] < {{ groups["galera"] | length }}) {
                 return new AlarmStatus(CRITICAL, "Galera cluster size less than expected");
             }
-
     wsrep_local_state :
         label                   : wsrep_local_state--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
@@ -23,4 +22,15 @@ alarms      :
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["wsrep_local_state_comment"] != "Synced" ) {
                 return new AlarmStatus(CRITICAL, "Galera cluster node not synced");
+            }
+    percentage_used_mysql_connections :
+        label                   : percentage_used_mysql_connections--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (percentage(metric["mysql_current_connections"], metric["mysql_max_configured_connections"]) > {{ mysql_connection_critical_threshold }} ) {
+                return new AlarmStatus(CRITICAL, "Mysql connectons has exceeded {{ mysql_connection_critical_threshold }}% of configured maximum");
+            }
+            if (percentage(metric["mysql_current_connections"], metric["mysql_max_configured_connections"]) > {{ mysql_connection_warning_threshold }} ) {
+                return new AlarmStatus(WARNING, "Mysql connectons has exceeded {{ mysql_connection_warning_threshold }}% of configured maximum");
             }
