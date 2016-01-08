@@ -1,0 +1,42 @@
+type: agent.plugin
+label: "nova_cloud_stats_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : nova_cloud_stats.py
+    args    : ["{{ ansible_ssh_host }}"]
+alarms      :
+    nova_cloud_memory_status :
+        label                   : nova_cloud_memory_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (percentage(metric["cloud_resource_used_memory"], metric["cloud_resource_total_memory"]) > {{ cloud_resource_critical_memory }}) {
+                return new AlarmStatus(CRITICAL, "Total cloud memory usage exceeds critical threshold of {{ cloud_resource_critical_memory }}%");
+            }
+            if (percentage(metric["cloud_resource_used_memory"], metric["cloud_resource_total_memory"]) > {{ cloud_resource_warning_memory }}) {
+                return new AlarmStatus(WARNING, "Total cloud memory usage exceeds warning threshold of {{ cloud_resource_warning_memory }}%");
+            }
+    nova_cloud_disk_status :
+        label                   : nova_cloud_disk_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (percentage(metric["cloud_resource_used_disk_space"], metric["cloud_resource_total_disk_space"]) > {{ cloud_resource_critical_disk_space }}) {
+                return new AlarmStatus(CRITICAL, "Total cloud disk_space usage exceeds critical threshold of {{ cloud_resource_critical_disk_space }}%");
+            }
+            if (percentage(metric["cloud_resource_used_disk_space"], metric["cloud_resource_total_disk_space"]) > {{ cloud_resource_warning_disk_space }}) {
+                return new AlarmStatus(WARNING, "Total cloud disk_space usage exceeds warning threshold of {{ cloud_resource_warning_disk_space }}%");
+            }
+    nova_cloud_vcpu_status :
+        label                   : nova_cloud_vcpu_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (percentage(metric["cloud_resource_used_vcpus"], metric["cloud_resource_total_vcpus"]) > {{ cloud_resource_critical_vcpus }}) {
+                return new AlarmStatus(CRITICAL, "Total cloud vcpus usage exceeds critical threshold of {{ cloud_resource_critical_vcpus }}%");
+            }
+            if (percentage(metric["cloud_resource_used_vcpus"], metric["cloud_resource_total_vcpus"]) > {{ cloud_resource_warning_vcpus }}) {
+                return new AlarmStatus(WARNING, "Total cloud vcpus usage exceeds warning threshold of {{ cloud_resource_warning_vcpus }}%");
+            }

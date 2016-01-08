@@ -262,6 +262,14 @@ swift_container_replication_failure_percentage_threshold: 5.0
 swift_async_pending_failure_percentage_threshold: 5.0
 swift_async_pending_average_threshold: 25.0
 
+# cloud level resource thresholds
+cloud_resource_warning_memory: 80.0
+cloud_resource_critical_memory: 90.0
+cloud_resource_warning_vcpus: 80.0
+cloud_resource_critical_vcpus: 90.0
+cloud_resource_warning_disk_space: 80.0
+cloud_resource_critical_disk_space: 90.0
+
 # List of checks, by type - variable:
 hp_checks_list:
   - { name: "hp-memory", group: "hosts" }
@@ -314,6 +322,7 @@ openstack_service_local_checks_list:
   - { name: "nova_scheduler_check", group: "nova_scheduler" }
   - { name: "nova_consoleauth_check", group: "nova_console" }
   - { name: "nova_spice_console_check", group: "nova_console" }
+  - { name: "nova_cloud_stats_check", group: "nova_api_os_compute" }
 
 swift_checks_list:
   - { name: "swift_object_server_check", group: "swift_obj" }
