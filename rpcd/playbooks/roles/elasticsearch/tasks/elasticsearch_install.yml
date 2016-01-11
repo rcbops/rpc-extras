@@ -85,3 +85,8 @@
   tags:
     - elasticsearch-plugins
     - elasticsearch-install
+
+- name: Enable ElasticSearch Service
+  service:
+    name: elasticsearch
+    enabled: yes
