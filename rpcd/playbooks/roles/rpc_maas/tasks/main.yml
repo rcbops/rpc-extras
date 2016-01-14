@@ -16,55 +16,77 @@
 - include: host_setup.yml
   when: >
     inventory_hostname in groups['hosts']
+  tags:
+    - maas-setup
 
 - include: keystone_user.yml
   when: >
     groups['utility']|length > 0 and inventory_hostname == groups['utility'][0]
+  tags:
+    - maas-setup
 
 - include: rabbitmq_user.yml
   when: >
     groups['rabbitmq_all']|length > 0 and inventory_hostname == groups['rabbitmq_all'][0]
+  tags:
+    - maas-setup
 
 - include: create_my_cnf.yml
   when: >
     inventory_hostname in groups['galera']
+  tags:
+    - maas-setup
 
 - include: host_monitoring.yml
   when: >
     inventory_hostname in groups['hosts']
+  tags:
+    - maas-cdm
 
 - include: network.yml
   when: >
     inventory_hostname in groups['hosts']
+  tags:
+    - maas-network
 
 - include: kernel.yml
 
 - include: local.yml
   vars:
     internal_vip_address: "{{ internal_lb_vip_address }}"
+  tags:
+    - maas-local
 
 - include: remote.yml
   vars:
     ip_address: "{{ external_lb_vip_address }}"
   when: >
     remote_check == true
+  tags:
+    - maas-remote
 
 - include: ensure_local_checks.yml
   vars:
     checks: "{{ cinder_vg_checks_list }}"
   when: >
     cinder_backends['lvm'] is defined
+  tags:
+    - maas-local
 
 - include: swift.yml
   vars:
     external_vip_address: "{{ external_lb_vip_address }}"
   when: >
     inventory_hostname in groups['swift_all']
+  tags:
+    - maas-swift
 
 - include: ceph.yml
   when: >
     inventory_hostname in groups['ceph_all'] and
     groups['ceph_all'] is defined
+  tags:
+     - maas-ceph
 
 - include: maas_exclude.yml
 
