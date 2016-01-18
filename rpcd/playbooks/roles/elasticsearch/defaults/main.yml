@@ -26,6 +26,7 @@ elasticsearch_apt_packages:
   - openjdk-7-jre-headless
 
 elasticsearch_pip_packages:
+  - elasticsearch<2.1.0
   - elasticsearch-curator
 
 # This sets the cluster name

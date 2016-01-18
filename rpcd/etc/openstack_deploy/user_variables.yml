@@ -50,3 +50,20 @@ ceph_mons: >
   {% endfor -%}
   {% endif -%}
   {{ _var }}
+
+# locations for the package builder to look for files that contain pip packages and git repos to build from
+pkg_locations:
+  - ../
+  - /etc/ansible/roles
+  - /etc/openstack_deploy
+  - /opt/rpc-openstack/rpcd
+
+#NOTE(mancdaz) there may be a better place to override this
+horizon_venv_tag: "{{ openstack_release }}"
+
+galera_pip_packages:
+  - MySQL-python
+  - python-memcached
+  - pycrypto
+  - setuptools==19.3
+
