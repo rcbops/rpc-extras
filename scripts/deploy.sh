@@ -14,6 +14,7 @@ export DEPLOY_CEILOMETER=${DEPLOY_CEILOMETER:-"no"}
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
+export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
 
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
 RPCD_DIR='/opt/rpc-openstack/rpcd'
@@ -29,9 +30,18 @@ cd ${OA_DIR}
 
 # bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
+  # Determine the largest secondary disk device available for repartitioning
+  DATA_DISK_DEVICE=$(lsblk -brndo NAME,TYPE,RO,SIZE | \
+                     awk '/d[b-z]+ disk 0/{ if ($4>m){m=$4; d=$1}}; END{print d}')
+
+  # Only set the secondary disk device option if there is one
+  if [ -n "${DATA_DISK_DEVICE}" ]; then
+    export BOOTSTRAP_OPTS="${BOOTSTRAP_OPTS} bootstrap_host_data_disk_device=${DATA_DISK_DEVICE}"
+  fi
   # force the deployment of haproxy for an AIO
   export DEPLOY_HAPROXY="yes"
   if [[ ! -d /etc/openstack_deploy/ ]]; then
+    ./scripts/bootstrap-ansible.sh
     ./scripts/bootstrap-aio.sh
     pushd ${RPCD_DIR}
       for filename in $(find etc/openstack_deploy/ -type f -iname '*.yml'); do
@@ -140,12 +150,6 @@ fi
 
 # begin the RPC installation
 cd ${RPCD_DIR}/playbooks/
-
-# build the RPC python package repository
-run_ansible repo-build.yml
-
-# configure all hosts and containers to use the RPC python packages
-run_ansible repo-pip-setup.yml
 
 # configure everything for RPC support access
 run_ansible rpc-support.yml

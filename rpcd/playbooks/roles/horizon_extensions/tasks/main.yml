@@ -72,6 +72,6 @@
   command: "{{ item }}"
   sudo: yes
   with_items:
-    - horizon-manage.py collectstatic --noinput
-    - horizon-manage.py compress --force
+    - "{{ horizon_venv_bin }}/horizon-manage.py collectstatic --noinput"
+    - "{{ horizon_venv_bin }}/horizon-manage.py compress --force"
   notify: Restart apache2
