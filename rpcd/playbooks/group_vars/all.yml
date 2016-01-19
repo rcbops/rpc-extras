@@ -25,3 +25,6 @@ openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}
 
 # Location to store a catalog of migrations completed
 migrations_dir: /etc/openstack_deploy/migrations
+
+# Ceph Conf Directory Mode
+conf_directory_mode: 755
