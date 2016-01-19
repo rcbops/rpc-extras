@@ -2,6 +2,11 @@ language: python
 
 before_script:
 - pip install tox
+- sed -i 's/\/opt/\/home\/travis\/build\/rcbops/g' ansible-role-requirements.yml
+- sed -i 's/\/opt/\/home\/travis\/build\/rcbops/g' rpcd/playbooks/repo-fetcher.yml
+- pip2 install --force-reinstall 'ansible===1.9.4'
+- ansible-playbook -s -i "localhost," -c local rpcd/playbooks/repo-fetcher.yml
+- ansible-galaxy install --role-file=ansible-role-requirements.yml --ignore-errors --force
 
 script: tox
 
@@ -15,4 +20,4 @@ matrix:
     - python: 2.7
       env: TOXENV=ansible-lint
 
-sudo: false
+sudo: true

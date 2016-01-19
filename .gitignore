@@ -52,3 +52,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# generated file
+rpcd/playbooks/ansible.cfg
+openstack-ansible
+rpcd/playbooks/roles/ceph-common
+rpcd/playbooks/roles/ceph-mon
+rpcd/playbooks/roles/ceph-osd

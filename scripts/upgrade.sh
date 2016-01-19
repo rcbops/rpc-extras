@@ -20,6 +20,13 @@ BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 OA_DIR="$BASE_DIR/openstack-ansible"
 RPCD_DIR="$BASE_DIR/rpcd"
 
+apt-get install python-dev -y
+curl https://raw.githubusercontent.com/pypa/pip/7.1.2/contrib/get-pip.py -o /opt/get-pip.py
+python2 /opt/get-pip.py || python /opt/get-pip.py
+pip install --force-reinstall 'ansible===1.9.4'
+ansible-playbook -i 'localhost,' /opt/rpc-openstack/rpcd/playbooks/repo-fetcher.yml
+ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --ignore-errors --force
+
 # Merge new overrides into existing user_variables before upgrade
 # contents of existing user_variables take precedence over new overrides
 cp ${RPCD_DIR}/etc/openstack_deploy/user_variables.yml /tmp/upgrade_user_variables.yml
@@ -32,7 +39,7 @@ ${OA_DIR}/scripts/bootstrap-ansible.sh
 
 # Apply any patched files.
 cd ${RPCD_DIR}/playbooks
-openstack-ansible -i "localhost," patcher.yml
+openstack-ansible -i 'localhost,' patcher.yml
 
 # Do the upgrade for openstack-ansible components
 cd ${OA_DIR}
