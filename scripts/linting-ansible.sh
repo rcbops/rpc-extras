@@ -21,13 +21,10 @@ if [[ -z "$VIRTUAL_ENV" ]] ; then
     echo "WARNING: Not running hacking inside a virtual environment."
 fi
 
-# Put local inventory in a var so we're not polluting the file system too much
-LOCAL_INVENTORY='[all]\nlocalhost ansible_connection=local'
-
 pushd rpcd/playbooks/
   echo "Running ansible-playbook syntax check"
   # Do a basic syntax check on all playbooks and roles.
-  ansible-playbook -i <(echo $LOCAL_INVENTORY) --syntax-check *.yml --list-tasks
+  ansible-playbook -i 'localhost,' --syntax-check *.yml --list-tasks
   # Perform a lint check on all playbooks and roles.
   ansible-lint --version
   # Skip ceph roles because they're submodules and not ours to lint
