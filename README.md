@@ -100,6 +100,31 @@ alarm configured for it.
      installed on your hosts. If it fails, manually retrying once after a 
      one minute delay is recommended.
 
+# Environment Variables for deploy.sh
+
+Use these environment variables to override aspects of `deploy.sh`'s behavior.
+
+Variable           | Default                            | Description                                          | Notes
+-------------------|------------------------------------|------------------------------------------------------|------------------------------------------------------------------
+ADMIN_PASSWORD     | secrete                            | Set Admin password for Kibana                        | Only used if DEPLOY_AIO=yes
+DEPLOY_AIO         | no                                 | Deploy All-In-One (AIO)                              | Overrides DEPLOY_HAPROXY=yes
+DEPLOY_HAPROXY     | no                                 | Deploy HAProxy                                       | Must set DEPLOY_HAPROXY=yes if not using a physical load balancer
+DEPLOY_OA          | yes                                | Deploy OpenStack-Ansible (OA)                        |
+DEPLOY_ELK         | yes                                | Deploy Logging Stack (ELK)                           | Only used if DEPLOY_OA=yes
+DEPLOY_MAAS        | no                                 | Deploy Monitoring (MaaS)                             |
+DEPLOY_TEMPEST     | no                                 | Deploy Tempest                                       | Only used if DEPLOY_OA=yes
+DEPLOY_CEILOMETER  | no                                 | Deploy Ceilometer                                    | Not used
+DEPLOY_CEPH        | no                                 | Deploy Ceph                                          | Only used if DEPLOY_OA=yes
+FORKS              | `grep -c ^processor /proc/cpuinfo` | Number of forks Ansible may use                      | May have issues if FORKS > SSHD's MaxSessions. Adjust accordingly
+ANSIBLE_PARAMETERS |                                    | Additional paramters passed to Ansible               |
+
+For instance to adjust the number of forks Ansible is able to use:
+
+```
+export FORKS=10
+./scripts/deploy.sh
+```
+
 # Upgrading
 
 To run an upgrade of an existing openstack-ansible installation:
