@@ -50,14 +50,23 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   fi
   # force the deployment of haproxy for an AIO
   export DEPLOY_HAPROXY="yes"
-  if [[ ! -d /etc/openstack_deploy/ ]]; then
+  if [[ ! -e /openstack ]]; then
     ./scripts/bootstrap-aio.sh
     pushd ${RPCD_DIR}
-      for filename in $(find etc/openstack_deploy/ -type f -iname '*.yml'); do
-        if [[ ! -a "/${filename}" ]]; then
-          cp "${filename}" "/${filename}";
+      for relative_path in $(find etc/openstack_deploy/ -type f -iname '*.yml'); do
+        # If relative_path exists in /etc/openstack_deploy then it is merged
+        # into then repo version overriding the repo value when there is a
+        # conflict.
+        if [[ -e "/${relative_path}" ]]; then
+          # Output is written to the base file
+          #                         Base                 Override
+          ../scripts/update-yaml.py "${relative_path}"   "/${relative_path}";
+          #                         repo/rpcd/etc        /etc/openstack_deploy
         fi
-        ../scripts/update-yaml.py "/${filename}" "${filename}";
+          # Copy (possibly updated) config files from repo to
+          # /etc/openstack_deploy
+          cp "${relative_path}" "/${relative_path}";
+          git checkout ${relative_path}
       done
     popd
     # ensure that the elasticsearch JVM heap size is limited
