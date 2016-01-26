@@ -62,3 +62,9 @@ ceph_mons: >
   {% endfor -%}
   {% endif -%}
   {{ _var }}
+
+galera_pip_packages:
+  - MySQL-python
+  - python-memcached
+  - pycrypto
+  - setuptools==19.3
