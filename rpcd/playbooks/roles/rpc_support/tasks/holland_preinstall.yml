@@ -43,7 +43,7 @@
 
 - name: Install service source
   pip:
-    name: "/opt/{{ holland_service_name }}_{{ holland_git_install_branch | replace('/', '_') }}"
+    name: "{{ holland_service_name }}"
     extra_args: "{{ pip_install_options|default('') }}"
   register: pip_install
   until: pip_install|success
@@ -54,10 +54,10 @@
 
 - name: Install pip repo plugins
   pip:
-    name: "{{ holland_git_dest }}/{{ item.path }}/{{ item.package }}"
+    name: "{{ item.package }}>={{ holland_plugin_version }}"
     extra_args: "{{ pip_install_options|default('') }}"
-  when: holland_git_dest is defined and holland_git_repo_plugins is defined
-  with_items: holland_git_repo_plugins
+  when: holland_git_dest is defined and holland_repo_plugins is defined
+  with_items: holland_repo_plugins
   register: pip_install
   until: pip_install|success
   retries: 5

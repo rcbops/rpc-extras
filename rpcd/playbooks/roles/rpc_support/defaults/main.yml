@@ -57,10 +57,12 @@ holland_git_repo: https://github.com/holland-backup/holland
 holland_git_install_branch: "v1.0.10"
 holland_git_dest: "/opt/{{ holland_repo_path }}"
 # git_repo_plugins are other installable packages contained within the same git repo
-holland_git_repo_plugins:
+holland_repo_plugins:
   - { path: "plugins", package: "holland.lib.common" }
   - { path: "plugins", package: "holland.lib.mysql" }
   - { path: "plugins", package: "holland.backup.xtrabackup" }
+# we have to set the version of the plugin so that pip knows what to install
+holland_plugin_version: "1.0.10dev-r0"
 
 holland_pip_wheel_name: holland
 
