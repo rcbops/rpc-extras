@@ -32,7 +32,11 @@ def check(args):
     NETWORK_ENDPOINT = 'http://{ip}:9696'.format(ip=args.ip)
 
     try:
-        neutron = get_neutron_client(endpoint_url=NETWORK_ENDPOINT)
+        if args.ip:
+            neutron = get_neutron_client(endpoint_url=NETWORK_ENDPOINT)
+        else:
+            neutron = get_neutron_client()
+
         is_up = True
     # if we get a NeutronClientException don't bother sending any other metric
     # The API IS DOWN
@@ -74,9 +78,10 @@ def main(args):
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check neutron API')
-        parser.add_argument('ip',
+        parser = argparse.ArgumentParser(
+            description='Check Neutron API against local or remote address')
+        parser.add_argument('ip', nargs='?',
                             type=ipaddr.IPv4Address,
-                            help='neutron API IP address')
+                            help='Optional Neutron API server address')
         args = parser.parse_args()
         main(args)

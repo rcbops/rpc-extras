@@ -38,9 +38,9 @@ VOLUME_STATUSES = ['available', 'in-use', 'error']
 
 
 def check(auth_ref, args):
-
     keystone = get_keystone_client(auth_ref)
     auth_token = keystone.auth_token
+
     VOLUME_ENDPOINT = ('http://{ip}:8776/v1/{tenant}'.format
                        (ip=args.ip, tenant=keystone.tenant_id))
 
@@ -101,9 +101,10 @@ def main(args):
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check cinder API')
+        parser = argparse.ArgumentParser(description="Check Cinder API against"
+                                         " local or remote address")
         parser.add_argument('ip',
                             type=ipaddr.IPv4Address,
-                            help='cinder API IP address')
+                            help='Cinder API server address')
         args = parser.parse_args()
         main(args)

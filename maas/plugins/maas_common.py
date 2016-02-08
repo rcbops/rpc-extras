@@ -39,6 +39,10 @@ AUTH_DETAILS = {'OS_USERNAME': None,
 # OS_API_INSECURE is currently hard coded to false until OSA fix
 # LP #1537117 is implemented
 
+# IMPORTANT:
+# v2 keystone auth is still necessary until RPCR switches over to v3 auth
+
+
 OPENRC = '/root/openrc-maas'
 TOKEN_FILE = '/root/.auth_ref.json'
 
@@ -98,9 +102,10 @@ else:
         # don't need to auth with keystone every time
         auth_ref = get_auth_ref()
         auth_details = get_auth_details()
+        keystone = get_keystone_client(auth_ref)
 
         if not token:
-            token = auth_ref['auth_token']
+            token = keystone.auth_token
         if not endpoint:
             endpoint = get_endpoint_url_for_service('image',
                                                     auth_ref,
@@ -117,7 +122,8 @@ else:
             [i.id for i in image]
         except g_exc.HTTPUnauthorized:
             auth_ref = force_reauth()
-            token = auth_ref['auth_token']
+            keystone = get_keystone_client(auth_ref)
+            token = keystone.auth_token
 
             glance = get_glance_client(token, endpoint, previous_tries + 1)
         # we only want to pass HTTPException back to the calling poller
@@ -146,9 +152,10 @@ else:
         # don't need to auth with keystone every time
         auth_ref = get_auth_ref()
         auth_details = get_auth_details()
+        keystone = get_keystone_client(auth_ref)
 
         if not auth_token:
-            auth_token = auth_ref['auth_token']
+            auth_token = keystone.auth_token
         if not bypass_url:
             bypass_url = get_endpoint_url_for_service('compute',
                                                       auth_ref,
@@ -171,7 +178,8 @@ else:
             # an auth_url, so it bombs out horribly with an error.
 
             auth_ref = force_reauth()
-            auth_token = auth_ref['auth_token']
+            keystone = get_keystone_client(auth_ref)
+            auth_token = keystone.auth_token
 
             nova = get_nova_client(auth_token, bypass_url, previous_tries + 1)
 
@@ -273,9 +281,10 @@ else:
         # don't need to auth with keystone every time
         auth_ref = get_auth_ref()
         auth_details = get_auth_details()
+        keystone = get_keystone_client(auth_ref)
 
         if not token:
-            token = auth_ref['auth_token']
+            token = keystone.auth_token
         if not endpoint_url:
             endpoint_url = get_endpoint_url_for_service('network',
                                                         auth_ref,
@@ -299,7 +308,8 @@ else:
         # local token) we'll just catch the exception it throws and move on
         except n_exc.NoAuthURLProvided:
             auth_ref = force_reauth()
-            token = auth_ref['auth_token']
+            keystone = get_keystone_client(auth_ref)
+            token = keystone.auth_token
 
             neutron = get_neutron_client(token, endpoint_url,
                                          previous_tries + 1)
@@ -331,9 +341,10 @@ else:
         # don't need to auth with keystone every time
         auth_ref = get_auth_ref()
         auth_details = get_auth_details()
+        keystone = get_keystone_client(auth_ref)
 
         if not token:
-            token = auth_ref['auth_token']
+            token = keystone.auth_token
         if not endpoint:
             endpoint = get_endpoint_url_for_service('orchestration',
                                                     auth_ref,
@@ -348,7 +359,9 @@ else:
             heat.build_info.build_info()
         except h_exc.HTTPUnauthorized:
             auth_ref = force_reauth()
-            token = auth_ref['auth_token']
+            keystone = get_keystone_client(auth_ref)
+
+            token = keystone.auth_token
             heat = get_heat_client(token, endpoint, previous_tries + 1)
         except h_exc.HTTPException:
             raise
@@ -368,7 +381,7 @@ def is_token_expired(token, auth_details):
             if auth_details['OS_AUTH_URL'].endswith('v3'):
                 expires_at = token.get('expires_at')
             else:
-                expires_at = token.get(token['token'].get('expires'))
+                expires_at = token['token'].get('expires')
 
             expires = datetime.datetime.strptime(expires_at, fmt)
             break

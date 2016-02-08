@@ -21,6 +21,7 @@ from heatclient import exc
 import ipaddr
 from maas_common import get_auth_ref
 from maas_common import get_heat_client
+from maas_common import get_keystone_client
 from maas_common import metric
 from maas_common import metric_bool
 from maas_common import print_output
@@ -28,13 +29,19 @@ from maas_common import status_err
 from maas_common import status_ok
 
 
-def check(args, tenant_id):
+def check(auth_ref, args):
+    keystone = get_keystone_client(auth_ref)
+    tenant_id = keystone.tenant_id
 
     HEAT_ENDPOINT = ('http://{ip}:8004/v1/{tenant}'.format
                      (ip=args.ip, tenant=tenant_id))
 
     try:
-        heat = get_heat_client(endpoint=HEAT_ENDPOINT)
+        if args.ip:
+            heat = get_heat_client(endpoint=HEAT_ENDPOINT)
+        else:
+            heat = get_heat_client()
+
         is_up = True
     except exc.HTTPException as e:
         is_up = False
@@ -60,15 +67,15 @@ def check(args, tenant_id):
 
 def main(args):
     auth_ref = get_auth_ref()
-    tenant_id = auth_ref['project']['id']
-    check(args, tenant_id)
+    check(auth_ref, args)
 
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check heat API')
-        parser.add_argument('ip',
-                            type=ipaddr.IPv4Address,
-                            help='heat API IP address')
+        parser = argparse.ArgumentParser(
+            description='Check Heat API against local or remote address')
+        parser.add_argument('ip', nargs='?', type=ipaddr.IPv4Address,
+                            help="Check Heat API against "
+                            " local or remote address")
         args = parser.parse_args()
         main(args)

@@ -20,6 +20,7 @@ import time
 
 import ipaddr
 from maas_common import get_auth_ref
+from maas_common import get_keystone_client
 from maas_common import get_nova_client
 from maas_common import metric
 from maas_common import metric_bool
@@ -31,10 +32,9 @@ from novaclient.client import exceptions as exc
 SERVER_STATUSES = ['ACTIVE', 'STOPPED', 'ERROR']
 
 
-def check(args):
-    auth_ref = get_auth_ref()
-    auth_token = auth_ref['auth_token']
-    tenant_id = auth_ref['project']['id']
+def check(auth_ref, args):
+    keystone = get_keystone_client(auth_ref)
+    tenant_id = keystone.tenant_id
 
     COMPUTE_ENDPOINT = (
         'http://{ip}:8774/v2/{tenant_id}'.format(ip=args.ip,
@@ -42,8 +42,11 @@ def check(args):
     )
 
     try:
-        nova = get_nova_client(auth_token=auth_token,
-                               bypass_url=COMPUTE_ENDPOINT)
+        if args.ip:
+            nova = get_nova_client(bypass_url=COMPUTE_ENDPOINT)
+        else:
+            nova = get_nova_client()
+
         is_up = True
     except exc.ClientException:
         is_up = False
@@ -76,14 +79,16 @@ def check(args):
 
 
 def main(args):
-    check(args)
+    auth_ref = get_auth_ref()
+    check(auth_ref, args)
 
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check nova API')
-        parser.add_argument('ip',
+        parser = argparse.ArgumentParser(
+            description='Check Nova API against local or remote address')
+        parser.add_argument('ip', nargs='?',
                             type=ipaddr.IPv4Address,
-                            help='nova API IP address')
+                            help='Optional Nova API server address')
         args = parser.parse_args()
         main(args)

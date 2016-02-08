@@ -17,6 +17,7 @@
 import argparse
 
 from maas_common import get_auth_ref
+from maas_common import get_keystone_client
 from maas_common import get_nova_client
 from maas_common import metric_bool
 from maas_common import print_output
@@ -24,10 +25,10 @@ from maas_common import status_err
 from maas_common import status_ok
 
 
-def check(args):
-    auth_ref = get_auth_ref()
-    auth_token = auth_ref['auth_token']
-    tenant_id = auth_ref['project']['id']
+def check(auth_ref, args):
+    keystone = get_keystone_client(auth_ref)
+    auth_token = keystone.auth_token
+    tenant_id = keystone.tenant_id
 
     COMPUTE_ENDPOINT = (
         'http://{hostname}:8774/v2/{tenant_id}'.format(hostname=args.hostname,
@@ -67,7 +68,8 @@ def check(args):
 
 
 def main(args):
-    check(args)
+    auth_ref = get_auth_ref()
+    check(auth_ref, args)
 
 
 if __name__ == "__main__":

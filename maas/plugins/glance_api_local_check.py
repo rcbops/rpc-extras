@@ -16,55 +16,48 @@
 
 import argparse
 import collections
-
 import ipaddr
+import time
+
+from glanceclient import exc as exc
 from maas_common import get_auth_ref
-from maas_common import get_keystone_client
+from maas_common import get_glance_client
 from maas_common import metric
 from maas_common import metric_bool
 from maas_common import print_output
 from maas_common import status_err
 from maas_common import status_ok
-import requests
-from requests import exceptions as exc
+
 
 IMAGE_STATUSES = ['active', 'queued', 'killed']
 
 
 def check(auth_ref, args):
-    # We call get_keystone_client here as there is some logic within to get a
-    # new token if previous one is bad.
-    keystone = get_keystone_client(auth_ref)
-    auth_token = keystone.auth_token
-    api_endpoint = 'http://{ip}:9292/v1'.format(ip=args.ip)
-
-    s = requests.Session()
-
-    s.headers.update(
-        {'Content-type': 'application/json',
-         'x-auth-token': auth_token})
+    GLANCE_ENDPOINT = (
+        'http://{ip}:9292/v1'.format(ip=args.ip)
+    )
 
     try:
-        # Hit something that isn't querying the glance-registry, since we
-        # query glance-registry in separate checks
-        r = s.get('%s/' % api_endpoint, verify=False,
-                  timeout=10)
-        milliseconds = r.elapsed.total_seconds() * 1000
-        is_up = r.ok
-    except (exc.ConnectionError, exc.HTTPError, exc.Timeout):
+        if args.ip:
+            glance = get_glance_client(endpoint=GLANCE_ENDPOINT)
+        else:
+            glance = get_glance_client()
+
+        is_up = True
+    except exc.HTTPException:
         is_up = False
+    # Any other exception presumably isn't an API error
     except Exception as e:
         status_err(str(e))
     else:
-        # gather some metrics to report
-        try:
-            r = s.get('%s/images/detail' % api_endpoint, verify=False,
-                      timeout=10)
-        except Exception as e:
-            status_err(str(e))
-        else:
-            image_statuses = [i['status'] for i in r.json()['images']]
-            status_count = collections.Counter(image_statuses)
+        # time something arbitrary
+        start = time.time()
+        glance.images.list(search_opts={'all_tenants': 1})
+        end = time.time()
+        milliseconds = (end - start) * 1000
+        # gather some metrics
+        images = glance.images.list(search_opts={'all_tenants': 1})
+        status_count = collections.Counter([s.status for s in images])
 
     status_ok()
     metric_bool('glance_api_local_status', is_up)
@@ -89,9 +82,10 @@ def main(args):
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check glance API')
-        parser.add_argument('ip',
+        parser = argparse.ArgumentParser(description="Check Glance API against"
+                                         " local or remote address")
+        parser.add_argument('ip', nargs='?',
                             type=ipaddr.IPv4Address,
-                            help='glance API IP address')
+                            help='Optional Glance API server address')
         args = parser.parse_args()
         main(args)
