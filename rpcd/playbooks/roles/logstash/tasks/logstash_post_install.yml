@@ -19,7 +19,7 @@
     content: "manual\n"
     owner: "root"
     group: "root"
-    mode: 644
+    mode: 0644
   tags:
     - logstash-web-disable
     - logstash-post-install
