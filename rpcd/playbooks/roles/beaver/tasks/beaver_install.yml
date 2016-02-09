@@ -44,7 +44,7 @@
     dest: "/etc/init.d/beaver"
     owner: "root"
     group: "root"
-    mode: 755
+    mode: 0755
   notify: Restart beaver
   tags:
     - beaver-install
@@ -56,7 +56,7 @@
     dest: "/etc/logrotate.d/beaver"
     owner: "root"
     group: "root"
-    mode: 644
+    mode: 0644
   tags:
     - beaver-install
     - beaver-logrotate
