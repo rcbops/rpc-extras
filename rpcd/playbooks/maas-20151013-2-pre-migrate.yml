@@ -19,7 +19,7 @@
   user: root
   tasks:
     - name: Inspect existing checks - all entities
-      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py --tab True checks"
+      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py list-checks"
       register: maas_prior_checks
       changed_when: False
     - name: Record report of existing checks - all entities

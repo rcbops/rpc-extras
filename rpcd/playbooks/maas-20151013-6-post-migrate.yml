@@ -19,7 +19,7 @@
   user: root
   tasks:
     - name: Inspect existing checks - all entities
-      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py --tab True checks"
+      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py list-checks"
       when: inventory_hostname == groups['hosts'][0]
       register: maas_post_checks
       changed_when: False

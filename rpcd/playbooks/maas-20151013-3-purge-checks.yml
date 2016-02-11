@@ -19,18 +19,8 @@
   pre_tasks:
     - meta: flush_handlers
   tasks:
-    - name: Lookup Entity ID for physical_host
-      shell: raxmon-entities-list | grep "label={{ physical_host|quote }}{{ maas_fqdn_extension }} " | sed -e 's/^.* id=\(.*\) label=.*$/\1/g'
-      register: entity_id
-      changed_when: False
-    - name: Identify checks to purge
-      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py --prefix {{ inventory_hostname }} --tab True checks"
-      register: checks_purge_list
-      changed_when: False
-    - name: Delete existing checks and alarms
-      shell: raxmon-checks-delete --entity-id={{ entity_id.stdout }} --id=$(echo '{{ item }}'| awk '{print $3}') --why="MaaS Migration 20151013"
-      when: inventory_hostname in "{{ item }}"
-      with_items: checks_purge_list.stdout_lines
+    - name: Delete existing checks
+      script: "{{ maas_rpc_scripts_dir }}/rpc-maas-tool.py delete --entity {{ inventory_hostname }} --force"
   post_tasks:
     - name: Record migration in index
       local_action: file path={{ migrations_dir }}/maas-20151013 state=touch
