@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+# F5 External monitor script for Kilo deployments
 
-# Copy stdout to fd 3 and redirect stdout/stderr to /var/log/f5-monitor.log
-exec 3>&1 &> /var/log/f5-monitor.log #/dev/null
+# Copy stdout to fd 3 and discard stdout/stderr 
+exec 3>&1 &> /dev/null
 #/var/log/f5-monitor.log - replace null with this file to enable logging when executing the script
 
 # Auth connection
@@ -47,7 +48,7 @@ EOF
     fi
 
     # Set token variable
-    token=$(sed -nr '/\{"access": \{"token": \{"issued_at": "([-0-9TZ.:]*)", "expires": "([-0-9TZ.:]*)", "id": "([0-9a-z]*)", .*?$/ s//\3/p' <<< "${resp[@]}")
+    token=$(sed -nr '/\{"access": \{"token": \{"issued_at": "([-0-9TZ.:]*)", "expires": "([-0-9TZ.:]*)", "id": "([-0-9a-zA-Z_%]*)", .*?$/ s//\3/p' <<< "${resp[@]}")
 
     # Might need to parse tenant ID
     #tenant=...
