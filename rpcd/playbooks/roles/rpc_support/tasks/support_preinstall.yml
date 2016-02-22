@@ -33,3 +33,19 @@
   when: inventory_hostname in groups['hosts']
   tags:
     - support_packages
+
+- name: Remove host packages from containers
+  apt:
+    pkg: "{{ item }}"
+    state: absent
+    update_cache: yes
+    cache_valid_time: 600
+  with_items:
+    - linux-crashdump
+    - ntp
+    - ntpdate
+    - linux-headers*
+  when: inventory_hostname in groups['all_containers']
+  tags:
+    - support_packages
+    - remove_host_packages_from_containers
