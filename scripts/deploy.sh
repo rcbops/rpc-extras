@@ -16,7 +16,11 @@ export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
 export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
-export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
+
+# Use location that doesn't rely on or interfere with future bootstrapping
+BOOTSTRAP_VARS_FILE='/tmp/rpc_bootstrap_vars.yml'
+# add any bootstrap vars passed in via env to the vars file.
+echo ${BOOTSTRAP_OPTS:-} |sed 's/=/: /' >> $BOOTSTRAP_VARS_FILE
 
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
 RPCD_DIR='/opt/rpc-openstack/rpcd'
@@ -46,12 +50,32 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
 
   # Only set the secondary disk device option if there is one
   if [ -n "${DATA_DISK_DEVICE}" ]; then
-    export BOOTSTRAP_OPTS="${BOOTSTRAP_OPTS} bootstrap_host_data_disk_device=${DATA_DISK_DEVICE}"
+    echo "bootstrap_host_data_disk_device: ${DATA_DISK_DEVICE}" >> $BOOTSTRAP_VARS_FILE
   fi
+
+  # Override container affinities
+  cat >> $BOOTSTRAP_VARS_FILE << EOVARS
+openstack_user_config_overrides:
+  os-infra_hosts:
+    aio1:
+      affinity:
+        horizon_container: 1
+  repo-infra_hosts:
+    aio1:
+      affinity:
+        repo_container: 1
+  identity_hosts:
+    aio1:
+      affinity:
+        keystone_container: 1
+EOVARS
+
   # force the deployment of haproxy for an AIO
   export DEPLOY_HAPROXY="yes"
   if [[ ! -d /etc/openstack_deploy/ ]]; then
-    ./scripts/bootstrap-aio.sh
+    # Structured vars can't be passed on the command line, so reference
+    # a vars file instead
+    BOOTSTRAP_OPTS="@${BOOTSTRAP_VARS_FILE}" ./scripts/bootstrap-aio.sh
     pushd ${RPCD_DIR}
       for filename in $(find etc/openstack_deploy/ -type f -iname '*.yml'); do
         if [[ ! -a "/${filename}" ]]; then
