@@ -33,9 +33,9 @@ from requests import exceptions as exc
 
 
 def check(auth_ref, args):
-
     keystone = get_keystone_client(auth_ref)
     auth_token = keystone.auth_token
+
     VOLUME_ENDPOINT = (
         'http://{hostname}:8776/v1/{tenant}'.format(hostname=args.hostname,
                                                     tenant=keystone.tenant_id)
@@ -57,7 +57,7 @@ def check(auth_ref, args):
         status_err(str(e))
 
     if not r.ok:
-        status_err('could not get response from cinder api')
+        status_err('Could not get response from Cinder API')
 
     services = r.json()['services']
 
@@ -91,7 +91,8 @@ def main(args):
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check cinder services')
+        parser = argparse.ArgumentParser(description="Check Cinder API against"
+                                         " local or remote address")
         parser.add_argument('hostname',
                             type=str,
                             help='Cinder API hostname or IP address')

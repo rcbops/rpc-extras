@@ -66,9 +66,9 @@ def main(args):
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check glance registry')
-        parser.add_argument('ip',
-                            type=ipaddr.IPv4Address,
-                            help='glance registry IP address')
+        parser = argparse.ArgumentParser(description="Check Glance Registry "
+                                         " against local or remote address")
+        parser.add_argument('ip', type=ipaddr.IPv4Address,
+                            help='Glance Registry IP address')
         args = parser.parse_args()
         main(args)

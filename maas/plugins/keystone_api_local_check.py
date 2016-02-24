@@ -19,6 +19,7 @@ import time
 
 import ipaddr
 from keystoneclient.openstack.common.apiclient import exceptions as exc
+from maas_common import get_auth_details
 from maas_common import get_keystone_client
 from maas_common import metric
 from maas_common import metric_bool
@@ -27,12 +28,19 @@ from maas_common import status_err
 from maas_common import status_ok
 
 
-def check(args):
+def check(args, auth_details):
 
-    IDENTITY_ENDPOINT = 'http://{ip}:35357/v3'.format(ip=args.ip)
+    if auth_details['OS_AUTH_VERSION'] == '2':
+        IDENTITY_ENDPOINT = 'http://{ip}:35357/v2.0'.format(ip=args.ip)
+    else:
+        IDENTITY_ENDPOINT = 'http://{ip}:35357/v3'.format(ip=args.ip)
 
     try:
-        keystone = get_keystone_client(endpoint=IDENTITY_ENDPOINT)
+        if args.ip:
+            keystone = get_keystone_client(endpoint=IDENTITY_ENDPOINT)
+        else:
+            keystone = get_keystone_client()
+
         is_up = True
     except (exc.HttpServerError, exc.ClientException):
         is_up = False
@@ -47,8 +55,12 @@ def check(args):
         milliseconds = (end - start) * 1000
 
         # gather some vaguely interesting metrics to return
-        project_count = len(keystone.projects.list())
-        user_count = len(keystone.users.list(domain='Default'))
+        if auth_details['OS_AUTH_VERSION'] == '2':
+            project_count = len(keystone.tenants.list())
+            user_count = len(keystone.users.list())
+        else:
+            project_count = len(keystone.projects.list())
+            user_count = len(keystone.users.list(domain='Default'))
 
     status_ok()
     metric_bool('keystone_api_local_status', is_up)
@@ -60,18 +72,21 @@ def check(args):
                'ms')
         metric('keystone_user_count', 'uint32', user_count, 'users')
         metric('keystone_tenant_count', 'uint32', project_count, 'tenants')
-        metric('keystone_tenant_count', 'uint32', project_count, 'tenants')
 
 
 def main(args):
-    check(args)
+    auth_details = get_auth_details()
+    check(args, auth_details)
 
 
 if __name__ == "__main__":
     with print_output():
-        parser = argparse.ArgumentParser(description='Check keystone API')
-        parser.add_argument('ip',
-                            type=ipaddr.IPv4Address,
-                            help='keystone API IP address')
+        parser = argparse.ArgumentParser(
+            description='Check Keystone API against local or remote address')
+        parser.add_argument(
+            'ip',
+            nargs='?',
+            type=ipaddr.IPv4Address,
+            help='Check Keystone API against local or remote address')
         args = parser.parse_args()
         main(args)
