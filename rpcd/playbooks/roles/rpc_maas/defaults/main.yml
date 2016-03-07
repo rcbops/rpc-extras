@@ -352,6 +352,7 @@ openstack_service_local_checks_list:
   - { name: "nova_scheduler_check", group: "nova_scheduler" }
   - { name: "nova_consoleauth_check", group: "nova_console" }
   - { name: "nova_spice_console_check", group: "nova_console" }
+  - { name: "nova_novnc_console_check", group: "nova_console" }
   - { name: "nova_cloud_stats_check", group: "nova_api_os_compute" }
 
 cinder_vg_checks_list:

@@ -56,6 +56,9 @@ MONITORS = [
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE {'
     r' defaults-from http destination *:6082 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_VNC_CONSOLE {'
+    r' defaults-from http destination *:6080 recv "200 OK" send "GET /vnc_auto.html'
+    r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
     r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_HORIZON_SSL { defaults-from'
     r' https destination *:443 recv "302 FOUND" send "HEAD / HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
@@ -252,10 +255,20 @@ POOL_PARTS = {
         'make_public': True,
         'hosts': []
     },
-    'nova_console': {
+    'nova_spice_console': {
         'port': 6082,
         'backend_port': 6082,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE',
+        'group': 'nova_console',
+        'hosts': [],
+        'ssl_impossible': True,
+        'make_public': True,
+        'persist': True
+    },
+    'nova_vnc_console': {
+        'port': 6080,
+        'backend_port': 6080,
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_VNC_CONSOLE',
         'group': 'nova_console',
         'hosts': [],
         'ssl_impossible': True,
