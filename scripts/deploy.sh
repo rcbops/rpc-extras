@@ -122,8 +122,14 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     popd
   fi
 
-  # setup the infrastructure
-  run_ansible setup-infrastructure.yml
+  # setup the infrastructure, run repo build to build untagged release
+  run_ansible memcached-install.yml
+  run_ansible repo-server.yml
+  run_ansible repo-clone-mirror.yml
+  run_ansible galera-install.yml
+  run_ansible rabbitmq-install.yml
+  run_ansible utility-install.yml
+  run_ansible rsyslog-install.yml
 
   # This section is duplicated from OSA/run-playbooks as RPC doesn't currently
   # make use of run-playbooks. (TODO: hughsaunders)
