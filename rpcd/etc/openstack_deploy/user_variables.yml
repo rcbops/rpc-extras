@@ -82,3 +82,8 @@ nova_ceilometer_enabled: False
 swift_ceilometer_enabled: False
 keystone_ceilometer_enabled: False
 tempest_service_available_ceilometer: False
+
+neutron_git_repo: "https://git.openstack.org/openstack/neutron"
+neutron_git_install_branch: "b80fa23ac0b292db84df84855141eb16a4e0fec0"
+neutron_git_dest: "/opt/neutron_{{ neutron_git_install_branch | replace('/', '_') }}"
+neutron_neutron_conf_overrides: {"nova": {"endpoint_type": "internal"}}
