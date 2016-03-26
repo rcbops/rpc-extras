@@ -361,7 +361,7 @@ def recursive_host_get(inventory, group_name, host_dict=None):
 
 
 def build_pool_parts(inventory):
-    for key, value in POOL_PARTS.iteritems():
+    for key, value in POOL_PARTS.items():
         recursive_host_get(
             inventory, group_name=value['group'], host_dict=value
         )
@@ -567,29 +567,29 @@ def main():
             'cd /Common\n',
             '### CREATE SSL PROFILES ###',
             ('create ltm profile client-ssl'
-            ' /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s'
-            ' { cert /' + PART + '/%(ssl_domain_name)s.crt key'
-            ' /' + PART + '/%(ssl_domain_name)s.key defaults-from clientssl }')
+                ' /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s'
+                ' { cert /' + PART + '/%(ssl_domain_name)s.crt key'
+                ' /' + PART + '/%(ssl_domain_name)s.key defaults-from clientssl }')
             % user_args,
             'create ltm profile server-ssl /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_SERVER { defaults-from /Common/serverssl }\n'
             % user_args,
         ])
     if user_args['Superman']:
-        print "       **************************       "
-        print "    .*##*:*####***:::**###*:######*.    "
-        print "   *##: .###*            *######:,##*   "
-        print " *##:  :####:             *####*.  :##: "
-        print "  *##,:########**********:,       :##:  "
-        print "   .#########################*,  *#*    "
-        print "     *#########################*##:     "
-        print "       *##,        ..,,::**#####:       "
-        print "        ,##*,*****,        *##*         "
-        print "          *#########*########:          "
-        print "            *##*:*******###*            "
-        print "             .##*.    ,##*              "
-        print "               :##*  *##,               "
-        print "                 *####:                 "
-        print "                   :,                   "
+        print("       **************************       ")
+        print("    .*##*:*####***:::**###*:######*.    ")
+        print("   *##: .###*            *######:,##*   ")
+        print(" *##:  :####:             *####*.  :##: ")
+        print("  *##,:########**********:,       :##:  ")
+        print("   .#########################*,  *#*    ")
+        print("     *#########################*##:     ")
+        print("       *##,        ..,,::**#####:       ")
+        print("        ,##*,*****,        *##*         ")
+        print("          *#########*########:          ")
+        print("            *##*:*******###*            ")
+        print("             .##*.    ,##*              ")
+        print("               :##*  *##,               ")
+        print("                 *####:                 ")
+        print("                   :,                   ")
 #       Kal-El
 #       SUPERMAN
 #       JNA
@@ -597,7 +597,7 @@ def main():
     pool_parts = build_pool_parts(inventory=inventory_json)
     lb_vip_address = inventory_json['all']['vars']['internal_lb_vip_address']
 
-    for key, value in pool_parts.iteritems():
+    for key, value in pool_parts.items():
         value['group_name'] = key.upper()
         value['vs_name'] = '%s_VS_%s' % (
             PREFIX_NAME, value['group_name']
