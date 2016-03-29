@@ -110,9 +110,9 @@ def parse_results(results, project):
     """parse results of the ansible run"""
     shas = set()
     output = dict()
-    for status in results.iterkeys():
+    for status in results.keys():
         if status == 'contacted':
-            for (hostname, result) in results['contacted'].iteritems():
+            for (hostname, result) in results['contacted'].items():
                 if 'not installed' in result['stdout'] or not result['stdout']:
                     output[hostname] = '%s is not installed' % project
                 else:
@@ -120,7 +120,7 @@ def parse_results(results, project):
                     shas.add(sh)
                     output[hostname] = sh
         elif status == 'dark':
-            for hostname in results['dark'].iterkeys():
+            for hostname in results['dark'].keys():
                 output[hostname] = 'uncontactable'
     # bail if multiple or no shas found
     if len(shas) == 0:
@@ -141,7 +141,7 @@ def print_output(output):
     longest = 45 if longest < 45 else longest
     print ('{:<%d} {:<10} ' % longest).format('Hostname', 'SHA')
     print ('{:<%d} {:<10} ' % longest).format('--------', '---')
-    for host, sha in sorted(output.iteritems()):
+    for host, sha in sorted(output.items()):
         print ('{:<%d} {:<10} ' % longest).format(host, sha)
     print('')
 

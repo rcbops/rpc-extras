@@ -30,7 +30,7 @@ SNAT_POOL = (
     ' %(snat_pool_addresses)s } }'
 )
 
-#Persistance Profile:
+# Persistance Profile:
 PERSISTANCE = [
     r'create ltm persistence source-addr /' + PART + '/' + PREFIX_NAME + '_PROF_PERSIST_IP {'
     r' app-service none defaults-from /Common/source_addr'
@@ -361,7 +361,7 @@ def recursive_host_get(inventory, group_name, host_dict=None):
 
 
 def build_pool_parts(inventory):
-    for key, value in POOL_PARTS.iteritems():
+    for key, value in POOL_PARTS.items():
         recursive_host_get(
             inventory, group_name=value['group'], host_dict=value
         )
@@ -379,7 +379,8 @@ def file_find(filename, user_file=None, pass_exception=False):
       $(pwd)/openstack_deploy/
 
     :param filename: ``str``  Name of the file to find
-    :param user_file: ``str`` Additional localtion to look in FIRST for a file
+    :param user_file: ``str`` Additional location to look in FIRST for a file
+    :param pass_exception: ``bool`` Allows us to ignore exceptions if set
     """
     file_check = [
         os.path.join(
@@ -400,10 +401,10 @@ def file_find(filename, user_file=None, pass_exception=False):
         if os.path.isfile(f):
             return f
     else:
-        if pass_exception is False:
-            raise SystemExit('No file found at: %s' % file_check)
-        else:
+        if pass_exception:
             return False
+        else:
+            raise SystemExit('No file found at: %s' % file_check)
 
 
 def args():
@@ -518,7 +519,6 @@ def args():
         action='store_true'
     )
 
-
     return vars(parser.parse_args())
 
 
@@ -567,29 +567,29 @@ def main():
             'cd /Common\n',
             '### CREATE SSL PROFILES ###',
             ('create ltm profile client-ssl'
-            ' /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s'
-            ' { cert /' + PART + '/%(ssl_domain_name)s.crt key'
-            ' /' + PART + '/%(ssl_domain_name)s.key defaults-from clientssl }')
+                ' /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s'
+                ' { cert /' + PART + '/%(ssl_domain_name)s.crt key'
+                ' /' + PART + '/%(ssl_domain_name)s.key defaults-from clientssl }')
             % user_args,
             'create ltm profile server-ssl /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_SERVER { defaults-from /Common/serverssl }\n'
             % user_args,
         ])
     if user_args['Superman']:
-        print "       **************************       "
-        print "    .*##*:*####***:::**###*:######*.    "
-        print "   *##: .###*            *######:,##*   "
-        print " *##:  :####:             *####*.  :##: "
-        print "  *##,:########**********:,       :##:  "
-        print "   .#########################*,  *#*    "
-        print "     *#########################*##:     "
-        print "       *##,        ..,,::**#####:       "
-        print "        ,##*,*****,        *##*         "
-        print "          *#########*########:          "
-        print "            *##*:*******###*            "
-        print "             .##*.    ,##*              "
-        print "               :##*  *##,               "
-        print "                 *####:                 "
-        print "                   :,                   "
+        print("       **************************       ")
+        print("    .*##*:*####***:::**###*:######*.    ")
+        print("   *##: .###*            *######:,##*   ")
+        print(" *##:  :####:             *####*.  :##: ")
+        print("  *##,:########**********:,       :##:  ")
+        print("   .#########################*,  *#*    ")
+        print("     *#########################*##:     ")
+        print("       *##,        ..,,::**#####:       ")
+        print("        ,##*,*****,        *##*         ")
+        print("          *#########*########:          ")
+        print("            *##*:*******###*            ")
+        print("             .##*.    ,##*              ")
+        print("               :##*  *##,               ")
+        print("                 *####:                 ")
+        print("                   :,                   ")
 #       Kal-El
 #       SUPERMAN
 #       JNA
@@ -597,7 +597,7 @@ def main():
     pool_parts = build_pool_parts(inventory=inventory_json)
     lb_vip_address = inventory_json['all']['vars']['internal_lb_vip_address']
 
-    for key, value in pool_parts.iteritems():
+    for key, value in pool_parts.items():
         value['group_name'] = key.upper()
         value['vs_name'] = '%s_VS_%s' % (
             PREFIX_NAME, value['group_name']
@@ -635,9 +635,12 @@ def main():
                         '/' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s { context clientside }'
                     ) % user_args
                 else:
-                    virtual_dict['ssl_profiles'] = '/' + PART + '/' + PREFIX_NAME + '_PROF_SSL_SERVER { context serverside } /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s { context clientside }'% user_args
+                    virtual_dict['ssl_profiles'] = '/' + PART + '/' + PREFIX_NAME + \
+                                                   '_PROF_SSL_SERVER { context serverside } /' + PART + '/' + \
+                                                   PREFIX_NAME + \
+                                                   '_PROF_SSL_%(ssl_domain_name)s { context clientside }' % user_args
                 if value.get('make_public'):
-                    if value.get ('ssl_impossible'):
+                    if value.get('ssl_impossible'):
                         virtual_dict['vs_name'] = '%s_VS_%s' % (
                             'RPC_PUB', value['group_name']
                         )
@@ -648,8 +651,7 @@ def main():
                             pubvirts.append(pubvirt)
                     else:
                         virtual_dict['vs_name'] = '%s_VS_%s' % (
-                        'RPC_PUB_SSL', value['group_name']
-                        )
+                                'RPC_PUB_SSL', value['group_name'])
                         sslvirt = '%s' % PUB_SSL_VIRTUAL_ENTRIES % virtual_dict
                         if sslvirt not in sslvirts:
                             sslvirts.append(sslvirt)

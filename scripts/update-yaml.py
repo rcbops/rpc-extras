@@ -51,5 +51,5 @@ if __name__ == '__main__':
     overrides = get_config(args.overrides)
     config = dict(base.items() + overrides.items())
     if config:
-        with open(args.base, 'w') as f:
-            f.write(str(yaml.safe_dump(config, default_flow_style=False)))
+        with open(args.base, 'w') as c_f:
+            c_f.write(str(yaml.safe_dump(config, default_flow_style=False)))
