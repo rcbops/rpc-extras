@@ -1,8 +1,10 @@
+{% set nova_cloud_stats_timeout = maas_check_timeout * 4 %}
+{% set nova_cloud_stats_period = maas_check_period * 2 %}
 type: agent.plugin
 label: "nova_cloud_stats_check--{{ ansible_hostname }}"
 disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+period      : "{{ nova_cloud_stats_period }}"
+timeout     : "{{ nova_cloud_stats_timeout }}"
 details     :
     file    : nova_cloud_stats.py
     args    : ["{{ ansible_ssh_host }}"]
