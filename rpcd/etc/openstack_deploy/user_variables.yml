@@ -89,3 +89,7 @@ tempest_service_available_ceilometer: False
 neutron_neutron_conf_overrides:
   nova:
     endpoint_type: internal
+
+beaver_git_repo: https://github.com/python-beaver/python-beaver
+beaver_git_install_branch: 0198c6c9849e0cb320750a5627add16770e6a190 # HEAD of "master" as of 12.04.2016
+beaver_git_dest: "/opt/beaver_{{ beaver_git_install_branch | replace('/', '_') }}"
