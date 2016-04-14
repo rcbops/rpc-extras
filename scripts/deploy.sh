@@ -13,6 +13,7 @@ export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER="no"
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
+export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"no"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
 export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
@@ -125,6 +126,14 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   # setup the haproxy load balancer
   if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
     run_ansible haproxy-install.yml
+  fi
+
+  # Apply host security hardening with openstack-ansible-security
+  if [[ "$DEPLOY_HARDENING" == "yes" ]]
+  then
+    echo "apply_security_hardening: true" >> $RPCD_VARS
+  else
+    echo "apply_security_hardening: false" >> $RPCD_VARS
   fi
 
   # setup the hosts and build the basic containers
