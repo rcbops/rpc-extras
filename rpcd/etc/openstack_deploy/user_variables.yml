@@ -29,6 +29,9 @@ neutron_db_max_overflow: 60
 neutron_db_max_pool_size: 120
 neutron_db_pool_timeout: 60
 
+# Enable l2pop as the default changed upstream https://github.com/rcbops/rpc-openstack/issues/973
+neutron_l2_population: "True"
+
 nova_rpc_conn_pool_size: "{{ rpc_conn_pool_size }}"
 nova_rpc_response_timeout: "{{ rpc_response_timeout }}"
 nova_rpc_thread_pool_size: "{{ rpc_thread_pool_size }}"
