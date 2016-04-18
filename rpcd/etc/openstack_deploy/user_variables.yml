@@ -55,6 +55,7 @@ keystone_token_driver: "keystone.token.persistence.backends.sql.Token"
 
 # Galera overrides
 galera_cluster_name: rpc_galera_cluster
+galera_wait_timeout: 3600
 
 # Ceph overrides
 ceph_mons: >
