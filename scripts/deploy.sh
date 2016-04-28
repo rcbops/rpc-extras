@@ -133,6 +133,13 @@ openstack-ansible -i "localhost," patcher.yml
 
 # begin the openstack installation
 if [[ "${DEPLOY_OA}" == "yes" ]]; then
+
+  # This deploy script is also used for minor upgrades (within an openstack release)
+  # Some versions of liberty deploy pip lockdown to the repo server, in order for an
+  # upgrade to suceed the pip config must be removed so that repo builds
+  # have access to external repos.
+  ansible repo_all -m file -a 'name=/root/.pip state=absent' 2>/dev/null ||:
+
   cd ${OA_DIR}/playbooks/
 
   # ensure that the ELK containers aren't created if they're not
