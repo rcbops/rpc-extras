@@ -94,7 +94,13 @@ neutron_neutron_conf_overrides:
   nova:
     endpoint_type: internal
 
-# Diasble port security binding for liberty. See https://bugs.launchpad.net/neutron/+bug/1509312
+# Disable port security binding for liberty. See https://bugs.launchpad.net/neutron/+bug/1509312
 neutron_ml2_conf_ini_overrides:
     ml2:
         extension_drivers: ''
+
+# Enable handle_internal_only_routers based on expected behavior since Juno
+# See https://bugs.launchpad.net/openstack-ansible/+bug/1577868
+neutron_l3_agent_ini_overrides:
+  DEFAULT:
+    handle_internal_only_routers: True
