@@ -1,0 +1,8 @@
+{
+    "contentIDBase": "https://github.com/rcbops/rpc-openstack/v13”,
+    "githubUrl": "https://github.com/rackerlabs/docs-rackspace/",
+    "githubBranch": “v13”,
+    "meta": {
+        "preferGithubIssues": true
+    }
+}

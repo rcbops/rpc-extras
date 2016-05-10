@@ -54,6 +54,10 @@ docs/_build/
 target/
 
 # generated files
+
 rpcd/playbooks/roles/ceph.ceph-common
 rpcd/playbooks/roles/ceph.ceph-mon
 rpcd/playbooks/roles/ceph.ceph-osd
+
+# Files created by releasenotes build
+releasenotes/build
