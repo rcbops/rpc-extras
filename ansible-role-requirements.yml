@@ -1,9 +1,9 @@
-- name: ceph-common
+- name: ceph.ceph-common
   src: https://github.com/ceph/ansible-ceph-common.git
   version: 1c623611a1d43b4c9116d1a0c21f0bdbdd87a0e7
-- name: ceph-mon
+- name: ceph.ceph-mon
   src: https://github.com/ceph/ansible-ceph-mon.git
   version: 01d3d6f0b06125b33b1e25745c06fa1d7137f7e9
-- name: ceph-osd
+- name: ceph.ceph-osd
   src: https://github.com/ceph/ansible-ceph-osd.git
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8

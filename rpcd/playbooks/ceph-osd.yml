@@ -42,6 +42,6 @@
       tags:
         - ceph-logs
   roles:
-    - ceph-osd
+    - ceph.ceph-osd
   vars:
     is_metal: "{{ properties.is_metal|default(false) }}"

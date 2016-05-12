@@ -18,7 +18,7 @@
   user: root
   max_fail_percentage: 0
   roles:
-    - ceph-mon
+    - ceph.ceph-mon
   tasks:
     - name: Check if rbd pool exists and is empty
       shell: rados -p rbd df | egrep '^rbd( +0){9}$'
