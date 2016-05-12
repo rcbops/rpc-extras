@@ -16,5 +16,7 @@ matrix:
       env: TOXENV=flake8
     - python: 2.7
       env: TOXENV=ansible-lint
+    - python: 2.7
+      env: TOXENV=releasenotes
 
 sudo: false
