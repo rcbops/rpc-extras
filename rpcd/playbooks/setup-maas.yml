@@ -19,7 +19,7 @@
 - name: Install Ceph dependencies
   hosts: osds_all:mons_all:&hosts
   roles:
-    - role: ceph-common
+    - role: ceph.ceph-common
 
 - name: Install MaaS
   hosts: hosts:all_containers
