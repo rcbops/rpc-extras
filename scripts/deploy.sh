@@ -32,6 +32,9 @@ cd ${OA_DIR}
 
 # bootstrap ansible and install galaxy roles (needed whether AIO or multinode)
 ./scripts/bootstrap-ansible.sh
+# This removes Ceph roles downloaded using their pre-Ansible-Galaxy names
+ansible-galaxy remove --roles-path /opt/rpc-openstack/rpcd/playbooks/roles/ ceph-common ceph-mon ceph-osd
+
 ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --force \
                            --roles-path=/opt/rpc-openstack/rpcd/playbooks/roles
 

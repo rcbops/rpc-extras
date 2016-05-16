@@ -31,7 +31,7 @@ pushd rpcd/playbooks/
   # Lint playbooks and roles while skipping the ceph-* roles. They are not
   # ours and so we do not wish to lint them and receive errors about code we
   # do not maintain.
-  ansible-lint *.yml --exclude roles/ceph-common \
-                     --exclude roles/ceph-mon \
-                     --exclude roles/ceph-osd
+  ansible-lint *.yml --exclude roles/ceph.ceph-common \
+                     --exclude roles/ceph.ceph-mon \
+                     --exclude roles/ceph.ceph-osd
 popd
