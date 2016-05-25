@@ -136,6 +136,11 @@ secure_cluster: true
 # List of secure flags to set on for a pool (options for the list are nodelete, nopgchange, nosizechange - prevents deletion, pg from changing and size from changing respectively).
 secure_cluster_flags:
   - nodelete
+# This is necessary if we want to bootstrap MONs serially, failing to set this
+# will result in additional MONs failing to bootstrap due to lack of quorum.
+ceph_conf_overrides:
+  mon:
+    mon initial members: "{{ hostvars[groups['mons'][0]]['ansible_hostname'] }}"
 
 # We need to override the OpenStack upper constraint for Mitaka which is version 1.9.0, We should be able to remove this in Newton as the upper constraint moves to 2.3.0
 repo_build_upper_constraints_overrides:

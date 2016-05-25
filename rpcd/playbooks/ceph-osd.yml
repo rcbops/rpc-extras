@@ -19,6 +19,8 @@
 - name: Deploy osds
   hosts: osds
   user: root
+  max_fail_percentage: 0
+  serial: 1
   pre_tasks:
     - name: Create log dir
       file:
