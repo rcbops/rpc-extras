@@ -1,6 +1,6 @@
-==========================================================
-Rackspace Private Cloud Powered By OpenStack Release Notes
-==========================================================
+============================================================
+Rackspace Private Cloud Powered By OpenStack - Release Notes
+============================================================
 
 Rackspace Private Cloud Powered By OpenStack uses OpenStack Ansible (OSA)
 playbooks to deploy an OpenStack private cloud. For details
