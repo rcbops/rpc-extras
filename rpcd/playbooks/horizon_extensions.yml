@@ -19,4 +19,4 @@
     - horizon_extensions
   vars_files:
     #- group_vars/all.yml
-    - "{{ rpc_repo_path }}/playbooks/roles/os_horizon/defaults/main.yml"
+    - "/etc/ansible/roles/os_horizon/defaults/main.yml"

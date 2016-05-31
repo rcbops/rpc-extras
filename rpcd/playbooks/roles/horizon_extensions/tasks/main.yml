@@ -32,7 +32,7 @@
     version: "{{ horizon_extensions_git_install_branch }}"
 
 - name: Install Horizon plugin
-  command: "python setup.py install"
+  command: "source {{ horizon_venv_bin }}/activate; python setup.py install"
   args:
     chdir: '{{ horizon_extensions_dest_dir }}'
   become: true
