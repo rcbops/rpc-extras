@@ -76,6 +76,7 @@ pkg_locations:
   - /etc/ansible/roles
   - /etc/openstack_deploy
   - /opt/rpc-openstack/rpcd
+  - /opt/rpc-openstack/rpcd/playbooks/roles
 
 # NOTE(mancdaz) there may be a better place to override this
 horizon_venv_tag: "{{ openstack_release }}"
