@@ -13,18 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: RPC branding for Horizon
-  copy:
-    src: "{{ item }}"
-    dest: "{{ horizon_lib_dir }}/openstack_dashboard/static/dashboard/img/{{ item }}"
-    mode: "0644"
-    owner: root
-    group: root
-  with_items:
-    - logo-splash.png
-    - logo.png
-    - favicon.ico
-
 - name: Install pip packages
   pip:
     name: "{{ item }}"
@@ -69,6 +57,7 @@
 - name: Collect and compress static files
   command: "{{ item }}"
   become: true
+  become_user: "{{ horizon_system_user_name }}"
   with_items:
     - "{{ horizon_venv_bin }}/horizon-manage.py collectstatic --noinput"
     - "{{ horizon_venv_bin }}/horizon-manage.py compress --force"
