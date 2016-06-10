@@ -127,3 +127,9 @@ repo_build_pip_extra_indexes:
 # variable to 'true'.
 # Docs: http://docs.openstack.org/developer/openstack-ansible-security/
 # apply_security_hardening: true
+
+# Based on https://bugs.launchpad.net/neutron/+bug/1591386
+# L3HA has to be disabled until all major issues are fixed
+neutron_neutron_conf_overrides:
+  DEFAULT:
+      l3_ha: False
