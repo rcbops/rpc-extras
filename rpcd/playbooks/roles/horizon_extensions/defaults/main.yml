@@ -14,7 +14,7 @@
 # limitations under the License.
 
 horizon_extensions_git_repo: https://github.com/rcbops/horizon-extensions
-horizon_extensions_git_install_branch: master
+horizon_extensions_git_install_branch: fb690bc528499bbf9aebba3ab0cce0b4dffd9e35
 horizon_extensions_dest_dir: /opt/rackspace/horizon-extensions
 horizon_extensions_pip_packages:
-   - "markdown"
+   - horizon_extensions
