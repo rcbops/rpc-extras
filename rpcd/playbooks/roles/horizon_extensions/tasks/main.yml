@@ -13,19 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Clone Horizon Extensions repo
-  git:
-    repo: "{{ horizon_extensions_git_repo }}"
-    dest: "{{ horizon_extensions_dest_dir }}"
-    version: "{{ horizon_extensions_git_install_branch }}"
-
-- name: Install Horizon plugin
-  command: "python setup.py install"
-  args:
-    chdir: '{{ horizon_extensions_dest_dir }}'
-  become: true
-  notify: Restart apache2
-
 - name: Install pip packages
   pip:
     name: "{{ item }}"
@@ -35,7 +22,7 @@
   until: install_pip_packages|success
   retries: 5
   delay: 2
-  with_items: horizon_extensions_pip_packages
+  with_items: "{{ horizon_extensions_pip_packages }}"
   tags:
     - horizon-extensions-install
     - horizon-extensions-pip-packages
