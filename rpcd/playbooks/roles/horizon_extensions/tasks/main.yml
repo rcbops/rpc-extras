@@ -13,18 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: RPC branding for Horizon
-  copy:
-    src: "{{ item }}"
-    dest: "{{ horizon_lib_dir }}/openstack_dashboard/static/dashboard/img/{{ item }}"
-    mode: "0644"
-    owner: root
-    group: root
-  with_items:
-    - logo-splash.png
-    - logo.png
-    - favicon.ico
-
 - name: Clone Horizon Extensions repo
   git:
     repo: "{{ horizon_extensions_git_repo }}"
