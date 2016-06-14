@@ -27,7 +27,7 @@
       failed_when: verify_maas.rc != 0
       changed_when: False
       until: verify_maas.rc == 0
-      retries: 10
+      retries: 8
       delay: 60
 
     - name: "Allow MAAS time to run checks before verifying their status"
@@ -42,7 +42,7 @@
       failed_when: verify_status.rc != 0
       changed_when: False
       until: verify_status.rc == 0
-      retries: 10
+      retries: 8
       delay: 60
 
   vars_files:

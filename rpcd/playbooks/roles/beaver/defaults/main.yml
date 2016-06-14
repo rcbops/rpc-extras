@@ -15,7 +15,7 @@
 
 # the pip packages to install
 beaver_pip_packages:
-  - "beaver==33.3.0"
+  - "beaver==36.2.0"
 
 # the beaver daemon settings
 beaver_daemon_log: "/var/log/beaver/beaver.log"

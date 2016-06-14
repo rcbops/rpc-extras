@@ -96,6 +96,9 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
     fi
     # set the ansible inventory hostname to the host's name
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/openstack_user_config.yml
+    # set the affinity to 3 for infra cluster (necessary for maas testing)
+    sed -i "s/rabbit_mq_container: 1/rabbit_mq_container: 3/" /etc/openstack_deploy/openstack_user_config.yml
+    sed -i "s/galera_container: 1/galera_container: 3/" /etc/openstack_deploy/openstack_user_config.yml
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/conf.d/*.yml
   fi
   # remove swift config if not deploying swift.

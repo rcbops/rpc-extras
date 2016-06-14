@@ -5,7 +5,7 @@ period      : "{{ maas_check_period }}"
 timeout     : "{{ maas_check_timeout }}"
 details     :
     file    : rabbitmq_status.py
-    args    : ["-H", "{{ ansible_ssh_host }}", "-n", "{{ inventory_hostname.split('.')[0] }}", "-U", "{{ maas_rabbitmq_user }}", "-p", "{{ maas_rabbitmq_password }}"]
+    args    : ["-H", "{{ ansible_ssh_host }}", "-n", "{{ ansible_hostname.split('.')[0] }}", "-U", "{{ maas_rabbitmq_user }}", "-p", "{{ maas_rabbitmq_password }}"]
 alarms      :
     rabbitmq_disk_free_alarm_status :
         label                   : rabbitmq_disk_free_alarm_status--{{ ansible_hostname }}

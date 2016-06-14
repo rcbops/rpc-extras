@@ -13,16 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Install pip packages
+- name: Install pip packages (venv)
   pip:
     name: "{{ item }}"
     state: present
     extra_args: "{{ pip_install_options | default('') }}"
+    virtualenv: "{{ horizon_venv_bin | dirname }}"
+    virtualenv_site_packages: "no"
   register: install_pip_packages
   until: install_pip_packages|success
   retries: 5
   delay: 2
   with_items: "{{ horizon_extensions_pip_packages }}"
+  when:
+    horizon_venv_enabled | bool
   tags:
     - horizon-extensions-install
     - horizon-extensions-pip-packages
