@@ -17,6 +17,6 @@ alarms            :
         label               : lb_api_alarm_cinder
         criteria            : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
-            if (metric['code'] != '200') {
+            if (metric['code'] != '200' && metric['code'] != '300') {
                 return new AlarmStatus(CRITICAL, 'API unavailable.');
             }
