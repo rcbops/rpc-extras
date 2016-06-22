@@ -3,6 +3,7 @@
 set -e -u -x
 set -o pipefail
 
+export PYTHONUNBUFFERED=1
 export ADMIN_PASSWORD=${ADMIN_PASSWORD:-"secrete"}
 export DEPLOY_AIO=${DEPLOY_AIO:-"no"}
 export DEPLOY_HAPROXY=${DEPLOY_HAPROXY:-"no"}
