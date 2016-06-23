@@ -16,5 +16,7 @@ matrix:
       env: TOXENV=ansible-lint
     - python: 2.7
       env: TOXENV=releasenotes
+    - python: 2.7
+      env: TOXENV=bashate
 
 sudo: false
