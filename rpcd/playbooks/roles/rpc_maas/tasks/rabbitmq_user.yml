@@ -23,6 +23,7 @@
     write_priv: ".*"
     tags: "administrator"
     state: "present"
+    force: "yes"
   tags:
     - rabbitmq-user
 
