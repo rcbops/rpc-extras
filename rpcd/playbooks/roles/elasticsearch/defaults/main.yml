@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+elasticsearch_venv_enabled: False
+elasticsearch_venv_tag: untagged
+elasticsearch_venv_bin: "/openstack/venvs/elasticsearch-{{ elasticsearch_venv_tag }}/bin"
+elasticsearch_non_venv_bin: '/usr/local/bin'
+
+elasticsearch_bin: "/usr/share/elasticsearch/bin"
+
 elasticsearch_apt_repo_url: "http://packages.elasticsearch.org/elasticsearch/1.5/debian"
 
 elasticsearch_apt_repos:

@@ -69,7 +69,7 @@
     minute: 0
     hour: 0
     user: "root"
-    job: "/usr/local/bin/curator --host {{ hostvars[inventory_hostname]['container_address'] }} delete indices --older-than {{ elasticsearch_prune_days }} --time-unit 'days' --timestring '%Y.%m.%d' --prefix 'logstash'"
+    job: "{{ elasticsearch_venv_enabled | bool | ternary(elasticsearch_venv_bin,elasticsearch_non_venv_bin) }}/curator --host {{ hostvars[inventory_hostname]['container_address'] }} delete indices --older-than {{ elasticsearch_prune_days }} --time-unit 'days' --timestring '%Y.%m.%d' --prefix 'logstash'"
     cron_file: "elasticsearch_curator"
   tags:
     - elasticsearch-post-install

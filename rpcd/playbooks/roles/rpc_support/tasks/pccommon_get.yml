@@ -26,7 +26,9 @@
 - name: Install pccommon pip dependencies
   pip:
     name: "{{ item }}"
-    state: present
+    state: latest
+    virtualenv: "{{ pccommon_venv_enabled | bool | ternary(pccommon_venv_bin|dirname, omit) }}"
+    virtualenv_site_packages: "{{ pccommon_venv_enabled | bool | ternary('no', omit) }}"
     extra_args: "{{ pip_install_options | default('') }}"
   register: install_pip_packages
   until: install_pip_packages|success

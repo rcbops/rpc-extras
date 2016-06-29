@@ -15,7 +15,11 @@ PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 export PATH
 
 BEAVER_NAME="beaver"
+{% if beaver_venv_enabled | bool %}
+BEAVER_BIN={{ beaver_venv_bin }}/beaver
+{% else %}
 BEAVER_BIN="$(which "${BEAVER_NAME}")"
+{% endif %}
 BEAVER_LOG="{{ beaver_daemon_log }}"
 BEAVER_PID="{{ beaver_daemon_pid }}"
 BEAVER_OPTS="{{ beaver_daemon_opts }}"

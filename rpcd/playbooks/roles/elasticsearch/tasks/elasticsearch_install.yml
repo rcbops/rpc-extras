@@ -31,7 +31,9 @@
 - name: Install pip packages
   pip:
     name: "{{ item }}"
-    state: present
+    state: latest
+    virtualenv: "{{ elasticsearch_venv_enabled | bool | ternary(elasticsearch_venv_bin|dirname, omit) }}"
+    virtualenv_site_packages: "{{ elasticsearch_venv_enabled | bool | ternary('no', omit) }}"
     extra_args: "{{ pip_install_options | default('') }}"
   register: install_pip_packages
   until: install_pip_packages|success
@@ -42,46 +44,16 @@
     - elasticsearch-pip-packages
     - elasticsearch-install
 
-- name: Install ElasticHQ Plugin
-  command: ./plugin -install {{ item }}
+- name: Install Plugins
+  command: ./plugin -install {{ item.src }}
   args:
-    chdir: /usr/share/elasticsearch/bin
-    creates: /usr/share/elasticsearch/plugins/HQ
+    chdir: "{{ elasticsearch_bin }}"
+    creates: "{{ elasticsearch_bin|dirname }}/plugins/{{ item.dest }}"
   with_items:
-    - royrusso/elasticsearch-HQ
-  tags:
-    - elasticsearch-plugins
-    - elasticsearch-install
-
-- name: Install Kopf Plugin
-  command: ./plugin -install {{ item }}
-  args:
-    chdir: /usr/share/elasticsearch/bin
-    creates: /usr/share/elasticsearch/plugins/kopf
-  with_items:
-    - lmenezes/elasticsearch-kopf
-  tags:
-    - elasticsearch-plugins
-    - elasticsearch-install
-
-- name: Install Head Plugin
-  command: ./plugin -install {{ item }}
-  args:
-    chdir: /usr/share/elasticsearch/bin
-    creates: /usr/share/elasticsearch/plugins/head
-  with_items:
-    - mobz/elasticsearch-head
-  tags:
-    - elasticsearch-plugins
-    - elasticsearch-install
-
-- name: Install BigDesk Plugin
-  command: ./plugin -install {{ item }}
-  args:
-    chdir: /usr/share/elasticsearch/bin
-    creates: /usr/share/elasticsearch/plugins/bigdesk
-  with_items:
-    - lukas-vlcek/bigdesk/2.4.0
+    - { src: "royrusso/elasticsearch-HQ", dest: "HQ" }
+    - { src: "lmenezes/elasticsearch-kopf", dest: "kopf" }
+    - { src: "mobz/elasticsearch-head", dest: "head" }
+    - { src: "lukas-vlcek/bigdesk/2.4.0", dest: "BigDesk" }
   tags:
     - elasticsearch-plugins
     - elasticsearch-install

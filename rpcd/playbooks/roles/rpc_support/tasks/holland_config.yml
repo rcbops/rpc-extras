@@ -56,7 +56,7 @@
     minute: "{{ (ansible_eth0['ipv4']['address']|replace('.', '')|int)%60}}"
     hour: 23
     state: present
-    job: "/usr/local/bin/holland bk"
+    job: "{{ holland_venv_enabled | bool | ternary(holland_venv_bin,holland_non_venv_bin) }}/holland bk"
     user: root
     cron_file: holland_backups
   tags:

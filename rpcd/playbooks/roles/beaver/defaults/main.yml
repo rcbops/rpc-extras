@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+beaver_venv_enabled: False
+beaver_venv_tag: untagged
+beaver_venv_bin: "/openstack/venvs/beaver-{{ beaver_venv_tag }}/bin"
+beaver_non_venv_bin: '/usr/local/bin'
+
 # the pip packages to install
 beaver_pip_packages:
   - "beaver==36.2.0"

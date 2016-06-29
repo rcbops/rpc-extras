@@ -24,6 +24,8 @@
 - name: Install pip packages
   pip:
     name: "{{ item }}"
-    state: present
+    state: latest
+    virtualenv: "{{ rpc_maas_venv_enabled | bool | ternary(rpc_maas_venv_bin|dirname, omit) }}"
+    virtualenv_site_packages: "{{ rpc_maas_venv_enabled | bool | ternary('no', omit) }}"
     extra_args: "{{ pip_install_options | default('') }}"
   with_items: maas_pip_packages + maas_pip_dependencies

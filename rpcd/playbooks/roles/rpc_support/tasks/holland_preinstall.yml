@@ -24,6 +24,9 @@
 - name: Install pip dependencies
   pip:
     name: "{{ item }}"
+    state: latest
+    virtualenv: "{{ holland_venv_enabled | bool | ternary(holland_venv_bin|dirname, omit) }}"
+    virtualenv_site_packages: "{{ holland_venv_enabled | bool | ternary('no', omit) }}"
     extra_args: "{{ pip_install_options|default('') }}"
   with_items: holland_pip_dependencies
   when: holland_pip_dependencies is defined
@@ -44,6 +47,9 @@
 - name: Install service source
   pip:
     name: "/opt/{{ holland_service_name }}_{{ holland_git_install_branch | replace('/', '_') }}"
+    state: latest
+    virtualenv: "{{ holland_venv_enabled | bool | ternary(holland_venv_bin|dirname, omit) }}"
+    virtualenv_site_packages: "{{ holland_venv_enabled | bool | ternary('no', omit) }}"
     extra_args: "{{ pip_install_options|default('') }}"
   register: pip_install
   until: pip_install|success
@@ -55,6 +61,9 @@
 - name: Install pip repo plugins
   pip:
     name: "{{ holland_git_dest }}/{{ item.path }}/{{ item.package }}"
+    state: latest
+    virtualenv: "{{ holland_venv_enabled | bool | ternary(holland_venv_bin|dirname, omit) }}"
+    virtualenv_site_packages: "{{ holland_venv_enabled | bool | ternary('no', omit) }}"
     extra_args: "{{ pip_install_options|default('') }}"
   when: holland_git_dest is defined and holland_git_repo_plugins is defined
   with_items: holland_git_repo_plugins
