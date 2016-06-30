@@ -104,3 +104,15 @@ neutron_ml2_conf_ini_overrides:
 neutron_l3_agent_ini_overrides:
   DEFAULT:
     handle_internal_only_routers: True
+# List of files to override using the OSA horizon role
+rackspace_static_files_folder: "/opt/rpc-openstack/rpcd/playbooks/roles/horizon_extensions/files"
+horizon_custom_uploads:
+  logo-splash:
+    src: "{{ rackspace_static_files_folder }}/logo-splash.png"
+    dest: img/logo-splash.png
+  logo:
+    src: "{{ rackspace_static_files_folder }}/logo.png"
+    dest: img/logo.png
+  favicon:
+    src: "{{ rackspace_static_files_folder }}/favicon.ico"
+    dest: img/favicon.ico

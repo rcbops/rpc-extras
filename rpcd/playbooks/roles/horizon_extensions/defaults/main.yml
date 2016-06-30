@@ -17,4 +17,4 @@ horizon_extensions_git_repo: https://github.com/rcbops/horizon-extensions
 horizon_extensions_git_install_branch: master
 horizon_extensions_dest_dir: /opt/rackspace/horizon-extensions
 horizon_extensions_pip_packages:
-   - "markdown"
+   - horizon_extensions
