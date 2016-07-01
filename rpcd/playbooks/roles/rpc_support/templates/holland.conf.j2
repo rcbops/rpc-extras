@@ -16,7 +16,7 @@ backupsets = rpc_support
 umask = 0007
 
 # Define a path for holland and its spawned processes
-path = /usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin
+path = {% if holland_venv_enabled | bool %}{{holland_venv_bin}}:{% endif %}/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin
 
 [logging]
 ## where to write the log

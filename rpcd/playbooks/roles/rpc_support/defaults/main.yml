@@ -70,6 +70,15 @@ holland_packages:
   - mariadb-client
   - xtrabackup
 
+holland_venv_enabled: False
+holland_venv_tag: untagged
+holland_venv_bin: "/openstack/venvs/holland-{{ holland_venv_tag }}/bin"
+holland_non_venv_bin: '/usr/local/bin'
+pccommon_venv_enabled: False
+pccommon_venv_tag: untagged
+pccommon_venv_bin: "/openstack/venvs/pccommon-{{ pccommon_venv_tag }}/bin"
+pccommon_non_venv_bin: '/usr/local/bin'
+
 holland_pip_dependencies:
   - MySQL-python
 

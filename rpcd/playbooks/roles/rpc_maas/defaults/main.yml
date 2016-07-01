@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+rpc_maas_venv_enabled: False
+rpc_maas_venv_tag: untagged
+rpc_maas_venv_bin: "/openstack/venvs/rpc_maas-{{ rpc_maas_venv_tag }}/bin"
+rpc_maas_non_venv_bin: '/usr/local/bin'
+
 ## MaaS Options
 #
 # maas_auth_method: Specifies how to authenticate against Rackspace Cloud Monitoring.
