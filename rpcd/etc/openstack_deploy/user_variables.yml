@@ -38,6 +38,10 @@ nova_db_pool_timeout: 60
 nova_cpu_allocation_ratio: 2.0
 nova_ram_allocation_ratio: 1.0
 
+nova_nova_conf_overrides:
+  DEFAULT:
+    config_drive_format: "vfat"
+
 # Nova config overrides
 nova_cross_az_attach: False
 
