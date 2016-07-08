@@ -37,12 +37,13 @@ def get_config(path):
             data = None
         else:
             raise e
+    else:
+        data = yaml.safe_load(data)
 
     if data is None:
         return {}
     else:
-        # assume config is a dict
-        return yaml.safe_load(data)
+        return data
 
 
 if __name__ == '__main__':

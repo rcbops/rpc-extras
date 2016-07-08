@@ -1,0 +1,13 @@
+---
+security:
+  - |
+    The `openstack-ansible-security role <http://docs.openstack.org/developer/openstack-ansible-security/>`_
+    is now applied to all environments by default. It provides enhanced host
+    security hardening without disrupting an existing OpenStack environment.
+
+    To opt-out of host security hardening, set the ``DEPLOY_HARDENING``
+    environment variable to ``no`` before running ``deploy.sh``.
+
+    The security role documentation explains which
+    `security configurations are applied <http://docs.openstack.org/developer/openstack-ansible-security/controls.html>`_
+    and `how to apply custom configurations <http://docs.openstack.org/developer/openstack-ansible-security/configuration.html>`_.

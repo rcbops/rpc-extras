@@ -1,0 +1,5 @@
+---
+other:
+  - A new user variable (list type) named
+    ``repo_build_pip_extra_indexes`` was introduced
+    to fetch pip packages from rpc repository.

@@ -531,8 +531,8 @@ METRICS = []
 
 def metric(name, metric_type, value, unit=None):
     global METRICS
-    if len(METRICS) > 29:
-        status_err('Maximum of 30 metrics per check')
+    if len(METRICS) > 49:
+        status_err('Maximum of 50 metrics per check')
     metric_line = 'metric %s %s %s' % (name, metric_type, value)
     if unit is not None:
         metric_line = ' '.join((metric_line, unit))

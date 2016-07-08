@@ -1,0 +1,21 @@
+---
+features:
+  - Variables and secrets are now managed in a manner that
+    allows downstream deployers to not have to worry about
+    their settings being overwritten.  They are provided
+    with overrides files that they alone manage after we
+    lay them down.  We have also taken this time to rename
+    our user_* files to separate out what specifically the
+    variables override, whether it be upstream splitting
+    the OSA relevant changed of the local RPC-O changes or
+    local RPCO changes.
+deprecations:
+  - We are deprecating the use of user_variables and
+    user_secrets files other than the ones found below.
+
+    user_osa_secrets.yml
+    user_osa_variables_defaults.yml
+    user_osa_variables_overrides.yml
+    user_rpco_secrets.yml
+    user_rpco_variables_defaults.yml
+    user_rpco_variables_overrides.yml

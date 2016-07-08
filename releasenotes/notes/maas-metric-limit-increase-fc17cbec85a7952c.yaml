@@ -1,0 +1,5 @@
+---
+other:
+  - The number of metrics that maas plugins can emit has
+    been increased from 30 to 50, in line with new
+    limits in the maas API.

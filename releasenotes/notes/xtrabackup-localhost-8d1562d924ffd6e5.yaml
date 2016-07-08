@@ -1,0 +1,3 @@
+---
+other:
+  - The holland configuration for xtrabackup (the tool for performing mariadb database backups) is now set to perform backups against localhost in each container, as opposed to the load balanced IP address. This ensures that each of the containers is actually backing up it's own copy of the databases, which can be helpful if there are inconsistencies discovered between cluster members. 

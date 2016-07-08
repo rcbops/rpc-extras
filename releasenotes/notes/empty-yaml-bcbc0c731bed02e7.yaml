@@ -1,0 +1,4 @@
+---
+fixes:
+  - The script update-yaml.py will now handle empty yaml
+    files

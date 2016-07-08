@@ -39,10 +39,10 @@ as well as adding a Rackspace tab and a Solutions tab, which provides
 Heat templates for commonly deployed applications.
 * `kibana.yml` - Setup Kibana on the Kibana hosts for the logging dashboard.
 * `logstash.yml` - deploys a logstash host. If this play is used, be sure to
-uncomment the related block in user_extra_variables.yml before this play is
-run and then rerun the appropriate plays in openstack-ansible after this
-play to ensure that rsyslog ships logs to logstash. See steps 11 - 13 below
-for more.
+copy the related block in user_rpco_variables_defaults.yml to
+user_rpco_variables_overrides before this play is run and then rerun the
+appropriate plays in openstack-ansible after this play to ensure that rsyslog
+ships logs to logstash. See steps 2-4 and 3-2 below for more.
 * `repo-build.yml` - scans throug the YAML files in the source tree and builds
 any packages or git sources into wheels and deploys them to the local repo
 server(s).
@@ -70,13 +70,14 @@ alarm configured for it.
 2. Unless doing an AIO build, prepare the openstack-ansible configuration.
   1. recursively copy the openstack-ansible-deployment configuration files:
      `cp -R openstack-ansible/etc/openstack_deploy /etc/openstack_deploy`
-  2. merge /etc/openstack_deploy/user_variables.yml with rpcd/etc/openstack_deploy/user_variables.yml:
+  2. move OSA variables to the correct locations.
 
      ```
-     scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/openstack_deploy/user_variables.yml
+     rm /etc/openstack_deploy/user_variables.yml  # unused, nothing set
+     mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml
      ```
   3. copy the RPC configuration files:
-     1. `cp rpcd/etc/openstack_deploy/user_extras_*.yml /etc/openstack_deploy`
+     1. `cp rpcd/etc/openstack_deploy/user_*_defaults.yml /etc/openstack_deploy`
      2. `cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d`
   4. If the ELK stack is not going to be used, remove the container
      configurations from the environment:
@@ -90,7 +91,8 @@ alarm configured for it.
   1. If building AIO, set `DEPLOY_AIO=yes` before running
   2. If building without the ELK stack, set `DEPLOY_ELK=no` before running
 4. If you want MaaS working with AIO, do the following:
-  1. edit `/etc/openstack_deploy/user_extras_variables.yml` to add credentials
+  1. edit `/etc/openstack_deploy/user_rpco_variables_overrides.yml` to add
+     credentials
   2. run the MaaS setup plays:
      `cd /opt/rpc-openstack/rpcd/playbooks && openstack-ansible setup-maas.yml`
   3. run the MaaS verify play:

@@ -26,7 +26,7 @@
 - name: Install pccommon pip dependencies
   pip:
     name: "{{ item }}"
-    state: present
+    state: latest
     extra_args: "{{ pip_install_options | default('') }}"
   register: install_pip_packages
   until: install_pip_packages|success

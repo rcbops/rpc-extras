@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2016, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-maas_keystone_password:
-rpc_support_holland_password:
-kibana_password:
-maas_rabbitmq_password:
-fsid_uuid:
+## Using this file
+#
+# This file is laid down only once and is used for overriding variables based on the file name.
+# This file will not be overwritten by upgrades.
+
+# this variable is here because vars files need to have at least ONE variable defined.
+this_file_is_reserved_for_support: True

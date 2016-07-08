@@ -25,6 +25,7 @@
   pip:
     name: "{{ item }}"
     extra_args: "{{ pip_install_options|default('') }}"
+    state: latest
   with_items: holland_pip_dependencies
   when: holland_pip_dependencies is defined
   register: pip_install
@@ -45,6 +46,7 @@
   pip:
     name: "/opt/{{ holland_service_name }}_{{ holland_git_install_branch | replace('/', '_') }}"
     extra_args: "{{ pip_install_options|default('') }}"
+    state: latest
   register: pip_install
   until: pip_install|success
   retries: 5
@@ -56,6 +58,7 @@
   pip:
     name: "{{ holland_git_dest }}/{{ item.path }}/{{ item.package }}"
     extra_args: "{{ pip_install_options|default('') }}"
+    state: latest
   when: holland_git_dest is defined and holland_git_repo_plugins is defined
   with_items: holland_git_repo_plugins
   register: pip_install

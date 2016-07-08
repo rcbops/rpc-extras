@@ -82,8 +82,13 @@ def check(auth_ref, args):
         stats = nova.hypervisor_stats.statistics()
         cloud_stats = collections.defaultdict(dict)
         for metric_name, vals in stats_mapping.iteritems():
+            multiplier = 1
+            if metric_name == 'total_vcpus':
+                multiplier = args.cpu_allocation_ratio
+            elif metric_name == 'total_memory':
+                multiplier = args.mem_allocation_ratio
             cloud_stats[metric_name]['value'] = \
-                getattr(stats, vals['stat_name'])
+                (getattr(stats, vals['stat_name']) * multiplier)
             cloud_stats[metric_name]['unit'] = \
                 vals['unit']
             cloud_stats[metric_name]['type'] = \
@@ -106,6 +111,20 @@ if __name__ == "__main__":
     with print_output():
         parser = argparse.ArgumentParser(
             description='Check Nova hypervisor stats')
+        parser.add_argument('--cpu',
+                            type=float,
+                            default=1.0,
+                            required=False,
+                            action='store',
+                            dest='cpu_allocation_ratio',
+                            help='cpu allocation ratio')
+        parser.add_argument('--mem',
+                            type=float,
+                            default=1.0,
+                            required=False,
+                            action='store',
+                            dest='mem_allocation_ratio',
+                            help='mem allocation ratio')
         parser.add_argument('ip', nargs='?',
                             type=ipaddr.IPv4Address,
                             help='Nova API IP address')

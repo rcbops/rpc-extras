@@ -13,7 +13,7 @@ export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER="no"
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
-export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"no"}
+export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"yes"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
 export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
@@ -21,8 +21,8 @@ export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
 
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
 RPCD_DIR='/opt/rpc-openstack/rpcd'
-RPCD_VARS='/etc/openstack_deploy/user_extras_variables.yml'
-RPCD_SECRETS='/etc/openstack_deploy/user_extras_secrets.yml'
+RPCD_VARS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
+RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
 
 function run_ansible {
   openstack-ansible ${ANSIBLE_PARAMETERS} --forks ${FORKS} $@
@@ -56,12 +56,13 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   export DEPLOY_HAPROXY="yes"
   if [[ ! -d /etc/openstack_deploy/ ]]; then
     ./scripts/bootstrap-aio.sh
+    # move OSA variables file to AIO location.
+    mv /etc/openstack_deploy/user_variables.yml /etc/openstack_deploy/user_osa_aio_variables.yml
     pushd ${RPCD_DIR}
       for filename in $(find etc/openstack_deploy/ -type f -iname '*.yml'); do
         if [[ ! -a "/${filename}" ]]; then
           cp "${filename}" "/${filename}";
         fi
-        ../scripts/update-yaml.py "/${filename}" "${filename}";
       done
     popd
     # ensure that the elasticsearch JVM heap size is limited
@@ -90,9 +91,14 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
       echo "osd_directory: true" | tee -a $RPCD_VARS
       echo "osd_directories:" | tee -a $RPCD_VARS
       echo "  - /var/lib/ceph/osd/mydir1" | tee -a $RPCD_VARS
-      sed -i "s/glance_default_store:.*/glance_default_store: rbd/" /etc/openstack_deploy/user_variables.yml
-      echo "nova_libvirt_images_rbd_pool: vms" | tee -a /etc/openstack_deploy/user_variables.yml
-      echo "cinder_ceph_client_uuid:"  | tee -a /etc/openstack_deploy/user_secrets.yml
+      echo "glance_default_store: rbd" | tee -a /etc/openstack_deploy/user_osa_variables_defaults.yml
+      echo "nova_libvirt_images_rbd_pool: vms" | tee -a $RPCD_VARS
+    else
+      if [[ "$DEPLOY_SWIFT" == "yes" ]]; then
+        echo "glance_default_store: swift" | tee -a /etc/openstack_deploy/user_osa_variables_defaults.yml
+      else
+        echo "glance_default_store: file" | tee -a /etc/openstack_deploy/user_osa_variables_defaults.yml
+      fi
     fi
     # set the ansible inventory hostname to the host's name
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/openstack_user_config.yml
@@ -109,31 +115,41 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   rm -f /etc/openstack_deploy/conf.d/ceilometer.yml
 fi
 
+# move OSA secrets to correct locations
+mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml
+
 # Apply host security hardening with openstack-ansible-security
 # The is applied as part of setup-hosts.yml
 if [[ "$DEPLOY_HARDENING" == "yes" ]]; then
-  if grep -q '^apply_security_hardening:' /etc/openstack_deploy/user_variables.yml
-  then
-    sed -i "s/^apply_security_hardening:.*/apply_security_hardening: true/" /etc/openstack_deploy/user_variables.yml
+  if grep -q '^apply_security_hardening:' /etc/openstack_deploy/user_osa_variables_defaults.yml; then
+    sed -i "s/^apply_security_hardening:.*/apply_security_hardening: true/" /etc/openstack_deploy/user_osa_variables_defaults.yml
   else
-    echo "apply_security_hardening: true" >> /etc/openstack_deploy/user_variables.yml
+    echo "apply_security_hardening: true" >> /etc/openstack_deploy/user_osa_variables_defaults.yml
   fi
 else
-  if grep -q '^apply_security_hardening:' /etc/openstack_deploy/user_variables.yml
-  then
-    sed -i "s/^apply_security_hardening:.*/apply_security_hardening: false/" /etc/openstack_deploy/user_variables.yml
+  if grep -q '^apply_security_hardening:' /etc/openstack_deploy/user_osa_variables_defaults.yml; then
+    sed -i "s/^apply_security_hardening:.*/apply_security_hardening: false/" /etc/openstack_deploy/user_osa_variables_defaults.yml
   else
-    echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_variables.yml
+    echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_osa_variables_defaults.yml
   fi
 fi
 
 # ensure all needed passwords and tokens are generated
-./scripts/pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml
+./scripts/pw-token-gen.py --file /etc/openstack_deploy/user_osa_secrets.yml
 ./scripts/pw-token-gen.py --file $RPCD_SECRETS
 
 # Apply any patched files.
 cd ${RPCD_DIR}/playbooks
 openstack-ansible -i "localhost," patcher.yml
+
+# set permissions and lay down overrides files
+chmod 0440 /etc/openstack_deploy/user_*_defaults.yml
+if [[ ! -f /etc/openstack_deploy/user_osa_variables_overrides.yml ]]; then
+  cp "${RPCD_DIR}"/etc/openstack_deploy/user_osa_variables_overrides.yml /etc/openstack_deploy/user_osa_variables_overrides.yml
+fi
+if [[ ! -f /etc/openstack_deploy/user_rpco_variables_overrides.yml ]]; then
+  cp "${RPCD_DIR}"/etc/openstack_deploy/user_rpco_variables_overrides.yml /etc/openstack_deploy/user_rpco_variables_overrides.yml
+fi
 
 # begin the openstack installation
 if [[ "${DEPLOY_OA}" == "yes" ]]; then
@@ -185,6 +201,8 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   if [ "${DEPLOY_AIO}" == "yes" ]; then
     ansible neutron_agent -m command \
                           -a '/sbin/iptables -t mangle -A POSTROUTING -p tcp --sport 80 -j CHECKSUM --checksum-fill'
+    ansible neutron_agent -m command \
+                          -a '/sbin/iptables -t mangle -A POSTROUTING -p tcp --sport 8000 -j CHECKSUM --checksum-fill'
     ansible neutron_agent -m shell \
                           -a 'DEBIAN_FRONTEND=noninteractive apt-get install iptables-persistent'
   fi

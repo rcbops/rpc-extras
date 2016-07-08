@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# Copyright 2015, Rackspace US, Inc.
+---
+# Copyright 2016, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
+## Using this file
+#
+# This file is laid down only once and is used for overriding variables based on the file name.
+# This file will not be overwritten by upgrades.
 
-args = sys.argv[1:]
-
-if args == ['-s', 'show server']:
-    print('Status Ok')
-elif args == ['-s', 'show dimm']:
-    print('Status Ok')
-elif args == ['ctrl', 'all', 'show', 'config']:
-    print('logicaldrive OK')
-else:
-    sys.exit('fake_hp_monitoring.py has received the following '
-             'unexpected arguments - "%s".' % str(args))
+# this variable is here because vars files need to have at least ONE variable defined.
+this_file_is_reserved_for_support: True

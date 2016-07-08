@@ -21,7 +21,6 @@
 ###### Remove branches (lines) you do not wish to target.
 - [ ] Master
 - [ ] liberty-12.2
-- [ ] liberty-12.1
 - [ ] kilo
 
 ##### DocImpact: This section is to be completed by the issue owner as part of the issue's resolution.

@@ -1,0 +1,10 @@
+---
+fixes:
+  - Previously, the nova_cloud_stats maas plugin was
+    incorrectly reporting total cpu and total memory
+    amounts available across all hypervisors, as it was
+    not taking into account the allocation_ratios that
+    are set at the hypervisor level. Now, it attempts
+    to correctly scale those values by passing in a
+    multiplier based on the allocation ratios set in
+    the config

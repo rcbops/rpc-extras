@@ -1,5 +1,5 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
+# Copyright 2016, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+## Warning
+#
+# This file is controlled by the devs and will be overwritten on upgrade
+# If you wish to override the variables set here, use /etc/openstack_deploy/user_osa_variables_overrides.yml
 
 # SQLAlchemy/Olso Thread Pool Settings
 rpc_conn_pool_size: 180
@@ -35,6 +40,8 @@ nova_rpc_thread_pool_size: "{{ rpc_thread_pool_size }}"
 nova_db_max_overflow: 60
 nova_db_max_pool_size: 120
 nova_db_pool_timeout: 60
+nova_cpu_allocation_ratio: 2.0
+nova_ram_allocation_ratio: 1.0
 
 # Nova config overrides
 nova_cross_az_attach: False
@@ -116,3 +123,15 @@ horizon_custom_uploads:
   favicon:
     src: "{{ rackspace_static_files_folder }}/favicon.ico"
     dest: img/favicon.ico
+
+# Use RPC python package index
+repo_build_pip_extra_indexes:
+  - "https://rpc-repo.rackspace.com/pools"
+
+## Host security hardening
+# The openstack-ansible-security role provides security hardening for hosts
+# by applying security configurations from the STIG. Hardening is disabled by
+# default, but an option to opt-in is available by setting the following
+# variable to 'true'.
+# Docs: http://docs.openstack.org/developer/openstack-ansible-security/
+# apply_security_hardening: true

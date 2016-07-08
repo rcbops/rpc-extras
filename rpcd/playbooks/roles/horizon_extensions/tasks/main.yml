@@ -16,7 +16,7 @@
 - name: Install pip packages (venv)
   pip:
     name: "{{ item }}"
-    state: present
+    state: latest
     extra_args: "{{ pip_install_options | default('') }}"
     virtualenv: "{{ horizon_venv_bin | dirname }}"
     virtualenv_site_packages: "no"

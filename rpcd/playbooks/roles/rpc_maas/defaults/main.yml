@@ -301,6 +301,8 @@ cloud_resource_warning_vcpus: 80.0
 cloud_resource_critical_vcpus: 90.0
 cloud_resource_warning_disk_space: 80.0
 cloud_resource_critical_disk_space: 90.0
+cloud_resource_cpu_allocation_ratio: 2.0
+cloud_resource_mem_allocation_ratio: 1.0
 
 # List of checks, by type - variable:
 hp_checks_list:
