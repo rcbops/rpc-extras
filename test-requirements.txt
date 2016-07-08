@@ -11,3 +11,4 @@ bashate>=0.2 # Apache-2.0
 sphinx>=1.3.4
 oslosphinx>=2.5.0 # Apache-2.0
 reno>=0.1.1 #Apache-2.0
+sphinx_rtd_theme>=0.1.9
