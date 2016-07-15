@@ -86,18 +86,25 @@ def check(auth_ref, args):
             if '@' in service['host']:
                 [host, backend] = service['host'].split('@')
                 name = '%s-%s_status' % (service['binary'], backend)
-                metric_bool(name, service_is_up)
+            else:
+                name = '%s_status' % service['binary']
 
-        name = '%s_status' % service['binary']
-        metric_bool(name, all_services_are_up)
+            metric_bool(name, service_is_up)
+
+        metric_bool('cinder-volume_status', all_services_are_up)
     else:
+        all_services_are_up = True
+
         for service in services:
             service_is_up = True
             if service['status'] == 'enabled' and service['state'] != 'up':
                 service_is_up = False
+                all_services_are_up = False
 
             name = '%s_on_host_%s' % (service['binary'], service['host'])
             metric_bool(name, service_is_up)
+
+        metric_bool('cinder-volume_status', all_services_are_up)
 
 
 def main(args):
