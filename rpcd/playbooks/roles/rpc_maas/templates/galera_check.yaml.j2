@@ -34,3 +34,11 @@ alarms      :
             if (percentage(metric["mysql_current_connections"], metric["mysql_max_configured_connections"]) > {{ mysql_connection_warning_threshold }} ) {
                 return new AlarmStatus(WARNING, "Mysql connectons has exceeded {{ mysql_connection_warning_threshold }}% of configured maximum");
             }
+    open_file_size_limit_reached :
+        label                   : open_file_size_limit_reached--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["num_of_open_files"] > metric["open_files_limit"]) {
+                return new AlarmStatus(CRITICAL, "Mysql open files has exceeded open files limit");
+            }

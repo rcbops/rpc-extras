@@ -90,6 +90,16 @@ def print_metrics(replica_status):
            replica_status['Threads_connected'], 'connections')
     metric('mysql_max_seen_connections', 'int64',
            replica_status['Max_used_connections'], 'connections')
+    # ALEX's work begins here
+    metric('num_of_open_files', 'int64',
+           replica_status['Open_files'], 'files')
+    # TODO: Add open_files metric, also add set_fact task that dynamically
+    # retrieves the open file limit. Add alarm for this in yaml config file
+    # TODO: Add metric for Innodb_row_lock_time_avg, add default variable for threshold(study what is a good threshold for this)
+    # TODO: Add metric for Innodb_deadlocks, make sure it's always 0, create alarm in config file
+    # TODO: Add metric for Aborted_clients, add default variable for threshold (< 1/s), create alarm
+    # TODO: Add metric for Aborted_connects, add default variable for threshold (< 1/s), create alarm
+    # TODO: Add metric for Access_denied_errors, make sure it's always 0, create alarm for this
 
 
 def main():
