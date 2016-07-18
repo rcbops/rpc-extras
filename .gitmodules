@@ -1,3 +1,3 @@
 [submodule "openstack-ansible"]
 	path = openstack-ansible
-	url = https://git.openstack.org/openstack/openstack-ansible
+	url = https://github.com/mancdaz/openstack-ansible
