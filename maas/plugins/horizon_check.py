@@ -59,7 +59,7 @@ def check(args):
         is_up = False
     else:
         if not (r.ok and
-                re.search('openstack dashboard', r.content, re.IGNORECASE)):
+                re.search(args.site_name_regexp, r.content, re.IGNORECASE)):
             status_err('could not load login page')
 
         splash_status_code = r.status_code
@@ -111,5 +111,8 @@ if __name__ == "__main__":
         parser.add_argument('ip',
                             type=ipaddr.IPv4Address,
                             help='horizon dashboard IP address')
+        parser.add_argument('site_name_regexp',
+                            type=str,
+                            help='Horizon Site Name')
         args = parser.parse_args()
         main(args)
