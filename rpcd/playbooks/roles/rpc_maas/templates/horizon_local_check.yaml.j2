@@ -5,7 +5,7 @@ period      : "{{ maas_check_period }}"
 timeout     : "{{ maas_check_timeout }}"
 details     :
     file    : run_plugin_in_venv.sh
-    args    : ["{{ maas_plugin_dir }}horizon_check.py", "{{ ansible_ssh_host }}"]
+    args    : ["{{ maas_plugin_dir }}horizon_check.py", "{{ ansible_ssh_host }}", "'{{ horizon_site_name }}'"]
 alarms      :
     horizon_local_status :
         label                   : "horizon_local_status--{{ ansible_hostname }}"

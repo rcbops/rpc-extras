@@ -454,3 +454,7 @@ maas_venv_bin: "{{ maas_venv }}/bin"
 # Set this to enable or disable installing in a venv
 maas_venv_enabled: true
 
+#
+# Default horizon site name
+#
+horizon_site_name: "openstack dashboard"
