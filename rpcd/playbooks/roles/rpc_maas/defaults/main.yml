@@ -352,6 +352,20 @@ cpu_memory_checks_list:
 disk_utilisation_checks_list:
   - { name: "disk_utilisation", group: "hosts" }
 
+rsyslogd_process_names:
+  - rsyslogd
+
+elasticsearch_process_names:
+  - elasticsearch
+
+filebeat_process_names:
+  - filebeat
+
+process_checks_list:
+  - { name: "rsyslogd_process_check", group: "rsyslog_all" }
+  - { name: "elasticsearch_process_check", group: "elasticsearch_all" }
+  - { name: "filebeat_process_check", group: "all" }
+
 ceph_checks_list:
   - { name: "ceph_osd_stats", group: "osds" }
   - { name: "ceph_mon_stats", group: "mons" }
@@ -490,8 +504,6 @@ maas_rpc_scripts_dir: /opt/rpc-openstack/scripts
 #
 maas_excluded_checks: []
 
-
-#
 # openrc definitions from OSA
 # This is necessary until LP #1537117 is implemented
 openrc_os_endpoint_type: internalURL

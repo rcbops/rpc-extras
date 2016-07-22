@@ -39,6 +39,8 @@
 
 - include: kernel.yml
 
+- include: process.yml
+
 - include: local.yml
   vars:
     internal_vip_address: "{{ internal_lb_vip_address }}"
