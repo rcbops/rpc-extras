@@ -122,3 +122,5 @@ horizon_custom_uploads:
   favicon:
     src: "{{ rackspace_static_files_folder }}/favicon.ico"
     dest: img/favicon.ico
+
+cinder_service_backup_program_enabled: false

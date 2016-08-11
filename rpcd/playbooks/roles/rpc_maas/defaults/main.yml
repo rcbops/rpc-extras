@@ -362,7 +362,6 @@ kernel_checks_list:
 openstack_service_local_checks_list:
   - { name: "cinder_api_local_check", group: "cinder_api" }
   - { name: "cinder_scheduler_check", group: "cinder_scheduler" }
-  - { name: "cinder_backup_check", group: "cinder_backup" }
   - { name: "glance_api_local_check", group: "glance_api" }
   - { name: "glance_registry_local_check", group: "glance_registry" }
   - { name: "heat_api_local_check", group: "heat_api" }
@@ -388,6 +387,17 @@ openstack_service_local_checks_list:
 
 cinder_vg_checks_list:
   - { name: "cinder_vg_check", group: "cinder_volume", cinder_vg_name: "{{ cinder_vg_name }}" }
+
+#
+# cinder_backup_checks_list: A list of checks for the cinder-backup service
+#
+#   This check was originally part of openstack_service_local_checks_list, but
+#   as cinder-backup is enabled/disabled via
+#   cinder_service_backup_program_enabled in the os_cinder role we have pulled
+#   it out so we can make a separate task conditional on that variable.
+#
+cinder_backup_checks_list:
+  - { name: "cinder_backup_check", group: "cinder_backup" }
 
 swift_checks_list:
   - { name: "swift_object_server_check", group: "swift_obj" }
@@ -479,3 +489,9 @@ openrc_insecure: "{{ (keystone_service_adminuri_insecure | bool or keystone_serv
 # Default horizon site name
 #
 horizon_site_name: "openstack dashboard"
+
+#
+# maas_monitor_cinder_backup: This variable determines if the check for the
+#                             cinder-backup service should be deployed
+#
+maas_monitor_cinder_backup: false
