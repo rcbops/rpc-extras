@@ -23,4 +23,11 @@
 
 - include: ensure_local_checks.yml
   vars:
+    checks: "{{ cinder_backup_checks_list }}"
+  when:
+    - inventory_hostname in groups["cinder_backup"]
+    - maas_monitor_cinder_backup | bool
+
+- include: ensure_local_checks.yml
+  vars:
     checks: "{{ infra_service_local_checks_list }}"

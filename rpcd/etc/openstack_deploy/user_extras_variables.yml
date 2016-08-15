@@ -79,6 +79,8 @@ maas_filesystem_critical_threshold: 90.0
 #    warning_threshold: 80.0
 #    critical_threshold: 90.0
 
+maas_monitor_cinder_backup: "{{ cinder_service_backup_program_enabled }}"
+
 # overrides for the nova_cloud_stats  maas plugin
 cloud_resource_cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
 cloud_resource_mem_allocation_ratio: "{{ nova_ram_allocation_ratio }}"
