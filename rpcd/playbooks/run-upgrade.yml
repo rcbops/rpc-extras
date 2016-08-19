@@ -17,3 +17,21 @@
   hosts: all
   user: root
   tasks: []
+
+# Include RPC specific playbook runs to upgrade
+- include: rpc-support.yml
+
+- include: horizon_extensions.yml
+
+- include: setup-maas.yml
+
+- include: verify-maas.yml
+
+- include: setup-logging.yml
+
+- name: Post upgrade task
+  hosts: hosts
+  tasks:
+    file:
+      path: "/root/.auth_ref.json"
+      state: absent
