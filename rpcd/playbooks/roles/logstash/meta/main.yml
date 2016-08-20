@@ -26,3 +26,5 @@ galaxy_info:
   categories:
     - rackspace
     - logstash
+
+dependencies: []
