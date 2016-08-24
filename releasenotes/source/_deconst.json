@@ -1,7 +1,7 @@
 {
-    "contentIDBase": "https://github.com/rcbops/rpc-openstack/v13",
+    "contentIDBase": "https://github.com/rcbops/rpc-openstack/v13”,
     "githubUrl": "https://github.com/rcbops/rpc-openstack/",
-    "githubBranch": "master",
+    "githubBranch": “master”,
     "meta": {
         "preferGithubIssues": true
     }
