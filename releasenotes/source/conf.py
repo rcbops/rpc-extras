@@ -58,8 +58,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # The builder to use when running via the deconst preparer
-# builder = 'deconst-single'
-builder = 'deconst-serial'
+#builder = 'deconst-serial'
+builder = 'deconst-single'
 
 # General information about the project.
 project = u'Rackspace Private Cloud powered by OpenStack Release Notes'
