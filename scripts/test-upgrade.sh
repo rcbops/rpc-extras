@@ -20,6 +20,7 @@ set -eux -o pipefail
 BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 OA_DIR="$BASE_DIR/openstack-ansible"
 RPCD_DIR="$BASE_DIR/rpcd"
+OSA_VARS="/etc/openstack_deploy/user_osa_variables_defaults.yml"
 
 # TASK #1
 # Bug: https://github.com/rcbops/rpc-openstack/issues/1345
@@ -29,3 +30,15 @@ RPCD_DIR="$BASE_DIR/rpcd"
 #        to fail to run.
 cd ${RPCD_DIR}/playbooks
 ansible -m file -a "path=/var/www/repo/openstackgit/horizon-extensions state=absent" repo_all
+
+# TASK #2
+# Bug: https://github.com/rcbops/u-suk-dev/issues/215
+# issue: Enable the Horizon panels for LBaaSv2 if the environment has LBaaSv2
+#        enabled already. Check for anything matching "LoadBalancerPluginv2"
+#        in the OSA config and enable the Horizon panels via the RPC defaults
+#        config.
+if grep -q "LoadBalancerPluginv2" /etc/openstack_deploy/user_variables.yml ; then
+    if ! grep -q "^horizon_enable_neutron_lbaas" "${OSA_VARS}" ; then
+        echo "horizon_enable_neutron_lbaas: True" | tee -a "${OSA_VARS}"
+    fi
+fi
