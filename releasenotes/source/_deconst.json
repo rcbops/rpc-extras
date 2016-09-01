@@ -1,7 +1,7 @@
 {
-    "contentIDBase": "https://github.com/rcbops/rpc-openstack/v13",
+    "contentIDBase": "https://github.com/rcbops/rpc-openstack/mitaka-13.0/",
     "githubUrl": "https://github.com/rcbops/rpc-openstack/",
-    "githubBranch": "master",
+    "githubBranch": "mitaka-13.0",
     "meta": {
         "preferGithubIssues": true
     }
