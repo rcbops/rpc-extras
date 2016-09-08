@@ -1,0 +1,11 @@
+---
+features:
+  - A new environment variable, 'DEPLOY_IRONIC', was added so that the
+    ironic-api and ironic-conductor containers and services can be deployed
+    as part of an AIO deployment.  The varible defaults to 'no'.
+  - Two Ironic API health checks and alarms are added.  One checks that the 
+    API can successfully return a list of enrolled Ironic nodes.  The other
+    is a remote check that ensures the API returns a HTTP 200 status.
+upgrade:
+  - Two Ironic API health checks and alarms were added.  To add these
+    checks and alarms MaaS, you must run the setup-maas.yml playbook.

@@ -1,0 +1,17 @@
+type: agent.plugin
+label: "ironic_api_local_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : run_plugin_in_venv.sh
+    args    : ["{{ maas_plugin_dir }}ironic_api_local_check.py", "{{ ansible_ssh_host }}"]
+alarms      :
+    ironic_api_local_status :
+        label                   : ironic_api_local_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["ironic_api_local_status"] != 1) {
+                return new AlarmStatus(CRITICAL, "API (os-baremetal) unavailable");
+            }

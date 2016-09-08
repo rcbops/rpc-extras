@@ -138,6 +138,62 @@ else:
         return glance
 
 try:
+    from ironicclient import client as i_client
+    from ironicclient.client import exc as ironic_exc
+except ImportError:
+    def get_ironic_client(*args, **kwargs):
+        status_err('Cannot import ironicclient')
+else:
+    def get_ironic_client(auth_token=None, ironic_url=None, previous_tries=0):
+        if previous_tries > 3:
+            return None
+
+        # first try to use auth details from auth_ref so we
+        # don't need to auth with keystone every time
+        auth_ref = get_auth_ref()
+        auth_details = get_auth_details()
+        keystone = get_keystone_client(auth_ref)
+
+        if not auth_token:
+            auth_token = keystone.auth_token
+        if not ironic_url:
+            ironic_url = get_endpoint_url_for_service('baremetal',
+                                                      auth_ref,
+                                                      get_endpoint_type(
+                                                          auth_details))
+
+        ironic = i_client.get_client('1', os_auth_token=auth_token,
+                                     ironic_url=ironic_url,
+                                     insecure=auth_details['OS_API_INSECURE'])
+
+        try:
+            nodes = ironic.node.list()
+            # Exceptions are only thrown when we try and do something
+
+            [node.uuid for node in nodes]
+
+        except (ironic_exc.Unauthorized, ironic_exc.AuthorizationFailure,
+                AttributeError) as e:
+
+            auth_ref = force_reauth()
+            keystone = get_keystone_client(auth_ref)
+            auth_token = keystone.auth_token
+
+            ironic = get_ironic_client(auth_token, ironic_url,
+                                       previous_tries + 1)
+
+            # we only want to pass ClientException back to the calling poller
+            # since this encapsulates all of our actual API failures. Other
+            # exceptions will be treated as script/environmental issues and
+            # sent to status_err
+        except ironic_exc.ClientException:
+            raise
+        except Exception as e:
+            status_err(str(e))
+
+        return ironic
+
+try:
     from novaclient import client as nova_client
     from novaclient.client import exceptions as nova_exc
 except ImportError:

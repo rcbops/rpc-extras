@@ -1,0 +1,22 @@
+type              : remote.http
+label             : lb_api_check_ironic--{{ lb_name }}
+disabled          : "{{ check_disabled }}"
+period            : "{{ maas_check_period }}"
+timeout           : "{{ maas_check_timeout }}"
+target_resolver   : "IPv4"
+target_hostname   : "{{ ip_address }}"
+details           :
+    url           : "{{ maas_ironic_scheme | default(maas_scheme)}}://{{ ip_address }}:6385"
+monitoring_zones_poll:
+{% for zone in maas_monitoring_zones %}
+  - {{ zone }}
+{% endfor %}
+alarms            :
+    lb_api_alarm_ironic       :
+        notification_plan_id: "{{ maas_notification_plan }}"
+        label               : lb_api_alarm_ironic
+        criteria            : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric['code'] != '200') {
+                return new AlarmStatus(CRITICAL, 'API unavailable.');
+            }

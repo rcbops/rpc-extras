@@ -118,6 +118,7 @@ maas_scheme: http
 #
 # maas_cinder_scheme: https
 # maas_glance_scheme: https
+# maas_ironic_scheme: https
 # maas_keystone_scheme: https
 # maas_neutron_scheme: https
 # maas_nova_scheme: https
@@ -372,6 +373,7 @@ openstack_service_local_checks_list:
   - { name: "heat_cfn_api_check", group: "heat_api_cfn" }
   - { name: "heat_cw_api_check", group: "heat_api_cloudwatch" }
   - { name: "horizon_local_check", group: "horizon" }
+  - { name: "ironic_api_local_check", group: "ironic_api" }
   - { name: "keystone_api_local_check", group: "keystone" }
   - { name: "neutron_api_local_check", group: "neutron_server" }
   - { name: "neutron_dhcp_agent_check", group: "neutron_dhcp_agent" }
@@ -425,6 +427,7 @@ openstack_service_remote_checks_list:
   - { name: "lb_api_check_heat_api", group: "heat_api" }
   - { name: "lb_api_check_heat_cfn", group: "heat_api_cfn" }
   - { name: "lb_api_check_heat_cloudwatch", group: "heat_api_cloudwatch" }
+  - { name: "lb_api_check_ironic", group: "ironic_api" }
   - { name: "lb_api_check_swift_proxy", group: "swift_proxy" }
 
 ssl_cert_checks_list:
@@ -475,6 +478,7 @@ maas_pip_dependencies:
   - python-cinderclient
   - python-glanceclient
   - python-heatclient
+  - python-ironicclient
   - python-keystoneclient
   - python-neutronclient
   - python-novaclient

@@ -14,6 +14,7 @@ export DEPLOY_CEILOMETER="no"
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
 export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"yes"}
+export DEPLOY_IRONIC=${DEPLOY_IRONIC:-"no"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
 export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
@@ -81,6 +82,13 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
     # set network speed for vms
     echo "net_max_speed: 1000" >>$RPCD_VARS
 
+    # Copy ironic AIO config if ironic is enabled
+    if [[ "$DEPLOY_IRONIC" == "yes" ]]; then
+      cp -a ${OA_DIR}/etc/openstack_deploy/conf.d/ironic.yml.aio /etc/openstack_deploy/conf.d/ironic.yml
+      cp -a ${OA_DIR}/etc/openstack_deploy/env.d/ironic.yml /etc/openstack_deploy/env.d/
+      echo "nova_virt_type: ironic" >> $RPCD_VARS
+    fi
+
     # set the necessary bits for ceph
     if [[ "$DEPLOY_CEPH" == "yes" ]]; then
       cp -a ${RPCD_DIR}/etc/openstack_deploy/conf.d/ceph.yml.aio /etc/openstack_deploy/conf.d/ceph.yml
@@ -112,6 +120,7 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
     sed -i "s/galera_container: 1/galera_container: 3/" /etc/openstack_deploy/openstack_user_config.yml
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/conf.d/*.yml
   fi
+
   # remove swift config if not deploying swift.
   if [[ "$DEPLOY_SWIFT" != "yes" ]]; then
     rm /etc/openstack_deploy/conf.d/swift.yml

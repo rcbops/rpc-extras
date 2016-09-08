@@ -113,6 +113,7 @@ DEPLOY_AIO         | no                                 | Deploy All-In-One (AIO
 DEPLOY_HAPROXY     | no                                 | Deploy HAProxy                                       | Must set DEPLOY_HAPROXY=yes if not using a physical load balancer
 DEPLOY_OA          | yes                                | Deploy OpenStack-Ansible (OA)                        |
 DEPLOY_ELK         | yes                                | Deploy Logging Stack (ELK)                           | Only used if DEPLOY_OA=yes
+DEPLOY_IRONIC      | no                                 | Deploy Ironic                                        | Only used if DEPLOY_AIO=yes
 DEPLOY_MAAS        | no                                 | Deploy Monitoring (MaaS)                             |
 DEPLOY_TEMPEST     | no                                 | Deploy Tempest                                       | Only used if DEPLOY_OA=yes
 DEPLOY_CEILOMETER  | no                                 | Deploy Ceilometer                                    | Not used
