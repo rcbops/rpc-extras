@@ -16,6 +16,7 @@
 # Verify services are up and checking in
 - name: Grab relevant output of openstack compute service list
   shell: |
+    export OS_INTERFACE=internal
     . ~/openrc
     openstack compute service list -c Binary -c Host -c State -f value
   register: openstack_output
@@ -32,6 +33,7 @@
 
 - name: Grab relevant output of neutron agent-list
   shell: |
+    export OS_INTERFACE=internal
     . ~/openrc
     neutron agent-list -c agent_type -c host -c alive -f value
   register: neutron_output
