@@ -23,22 +23,25 @@ from maas_common import status_ok
 
 
 def get_process_name(pid):
-    process_path = os.path.join('/proc', pid, 'exe')
+    process_exe_path = os.path.join('/proc', pid, 'exe')
+    process_comm_path = os.path.join('/proc', pid, 'comm')
 
     try:
-        process_name = os.readlink(process_path)
+        process_exe = os.readlink(process_exe_path)
+        with open(process_comm_path, mode='r') as f:
+            comm = f.read().rstrip('\n')
     except OSError as ex:
         if ex.errno == os.errno.ENOENT:
             return set()
-        status_err('Could not read process executable link. {}'.format(ex))
+        status_err('Could not read process information.', exception=ex)
     except IOError as ex:
         # The path we are checking for a PID list does not exist.
         # This is probably caused by an invalid container name.
-        status_err('No such process exists. {}'.format(ex))
+        status_err('No such process exists. {}', exception=ex)
 
-    # Return both the fully qualified path, and the baesname of the process
-    # to make matching easier
-    return set([process_name, os.path.basename(process_name)])
+    # Return the "exe" path and the baesname of the "exe" path, and
+    # the value contained in comm to make matching easier
+    return set([comm, process_exe, os.path.basename(process_exe)])
 
 
 def get_processes(procs_path):
@@ -51,12 +54,13 @@ def get_processes(procs_path):
         # Could not read the PID list file, probably due to a permission
         # error. This is different from an IOError, so we handle the two
         # types differently.
-        status_err('Could not read PID list file. {}'.format(ex))
+        status_err('Could not read PID list file. {}', exception=ex)
     except IOError as ex:
         # The path we are checking for a PID list does not exist.
         # This is probably caused by an invalid container name.
-        status_err('No such container exists. {}'.format(ex))
+        status_err('No such container exists. {}', exception=ex)
 
+    # Return a set() of potential process names resolved from their PID
     return process_names
 
 
@@ -75,9 +79,11 @@ def check_process_running(process_names, container_name=None):
 
     procs = []
     if container_name is None:
+        # Checking for processes on a host, not inside a container
         procs_path = '/sys/fs/cgroup/cpu/cgroup.procs'
         procs = get_processes(procs_path)
     else:
+        # Checking for processes in a container, not the parent host
         procs_path = os.path.join('/sys/fs/cgroup/cpu/lxc', container_name,
                                   'cgroup.procs')
         procs = get_processes(procs_path)
@@ -89,7 +95,8 @@ def check_process_running(process_names, container_name=None):
     # Since we've fetched a process list, report status_ok.
     status_ok()
 
-    # Report the presence of each process in the running process list
+    # Report the presence of each process from the command line in the
+    # running process list for the host or specified container.
     for process_name in process_names:
         metric_bool('%s_process_status' % process_name,
                     process_name in procs)
@@ -97,6 +104,7 @@ def check_process_running(process_names, container_name=None):
 
 def main(args):
     if not args.processes:
+        # The command line does not have any process names specified
         status_err('No executable names supplied')
 
     check_process_running(container_name=args.container,
