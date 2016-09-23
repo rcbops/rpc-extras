@@ -200,27 +200,90 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
 fi
 
+function run_lock {
+  set +e
+  run_item="${RUN_TASKS[$1]}"
+  file_part="${run_item}"
+
+  for part in $run_item; do
+    if [[ "$part" == *.yml ]];then
+      file_part="$part"
+      break
+    fi
+  done
+
+  if [ ! -d  "/etc/openstack_deploy/upgrade-liberty" ]; then
+      mkdir -p "/etc/openstack_deploy/upgrade-liberty"
+  fi
+
+  upgrade_marker_file=$(basename ${file_part} .yml)
+  upgrade_marker="/etc/openstack_deploy/upgrade-liberty/$upgrade_marker_file.complete"
+
+  if [ ! -f "$upgrade_marker" ];then
+    # note(sigmavirus24): use eval so that we properly turn strings like
+    # "/tmp/fix_container_interfaces.yml || true"
+    # into a command, otherwise we'll get an error that there's no playbook
+    # named ||
+    eval "openstack-ansible $2"
+    playbook_status="$?"
+    echo "ran $run_item"
+
+    if [ "$playbook_status" == "0" ];then
+      RUN_TASKS=("${RUN_TASKS[@]/$run_item}")
+      touch "$upgrade_marker"
+      echo "$run_item has been marked as success"
+    else
+      echo "******************** failure ********************"
+      echo "The upgrade script has encountered a failure."
+      echo "Failed on task \"$run_item\""
+      echo "Re-run the deploy.sh script, or"
+      echo "execute the remaining tasks manually:"
+      # NOTE:
+      # List the remaining, incompleted tasks from the tasks array.
+      # Using seq to genertate a sequence which starts from the spot
+      # where previous exception or failures happened.
+      # run the tasks in order
+      for item in $(seq $1 $((${#RUN_TASKS[@]} - 1))); do
+        if [ -n "${RUN_TASKS[$item]}" ]; then
+          echo "openstack-ansible ${RUN_TASKS[$item]}"
+        fi
+      done
+      echo "******************** failure ********************"
+      exit 99
+    fi
+  else
+    RUN_TASKS=("${RUN_TASKS[@]/$run_item.*}")
+  fi
+  set -e
+}
+
+
 # begin the RPC installation
-cd ${RPCD_DIR}/playbooks/
+pushd  ${RPCD_DIR}/playbooks
 
 # configure everything for RPC support access
-run_ansible rpc-support.yml
+  RUN_TASKS+=("rpc-support.yml")
 
 # configure the horizon extensions
-run_ansible horizon_extensions.yml
+  RUN_TASKS+=("horizon_extensions.yml")
 
 # deploy and configure RAX MaaS
-if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
-  run_ansible setup-maas.yml
-  run_ansible verify-maas.yml
-fi
+  if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
+    RUN_TASKS+=("setup-maas.yml")
+    RUN_TASKS+=("verify-maas.yml")
+  fi
 
 # deploy and configure the ELK stack
-if [[ "${DEPLOY_ELK}" == "yes" ]]; then
-  run_ansible setup-logging.yml
+  if [[ "${DEPLOY_ELK}" == "yes" ]]; then
+    RUN_TASKS+=("setup-logging.yml")
 
   # deploy the LB required for the ELK stack
-  if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
-    run_ansible haproxy.yml
+    if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
+      RUN_TASKS+=(" haproxy.yml")
+    fi
   fi
-fi
+  for item in ${!RUN_TASKS[@]}; do
+     run_lock $item "${RUN_TASKS[$item]}"
+  done
+
+ popd
