@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Used for upgrades
+elasticsearch_legacy_apt_repo_url: "http://packages.elasticsearch.org/elasticsearch/1.7/debian"
+
+# Used for upgrades
+elasticsearch_legacy_apt_repos:
+  - { repo: "deb {{ elasticsearch_legacy_apt_repo_url }} stable main", state: "present" }
+
 elasticsearch_apt_repo_url: "http://packages.elastic.co/elasticsearch/2.x/debian"
 
 elasticsearch_apt_repos:

@@ -43,3 +43,6 @@ logstash_apt_packages:
 
 logstash_plugins:
   - logstash-input-beats
+
+# use -e 'logging_upgrade=true' to upgrade logging components
+logging_upgrade: false
