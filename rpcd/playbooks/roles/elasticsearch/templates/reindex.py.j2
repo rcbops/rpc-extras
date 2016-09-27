@@ -34,7 +34,7 @@ def reindex(es_host):
     """Create -liberty indices and start the reindex process."""
     for index in get_indices():
         reindex_params = 'http://' + es_host + \
-                     '/' + index + '/_reindex/' + index + '-liberty/'
+            '/' + index + '/_reindex/' + index + '-liberty/'
         requests.post(reindex_params)
 
 
@@ -55,23 +55,23 @@ def monitor_reindex(es):
         if '-liberty' not in index:
             slave_index = index + '-liberty'
             stats = get_stats(es)
-            master_count = stats['indices'][index]['primaries']['docs'] \
-                                ['count']
+            master_count = \
+                stats['indices'][index]['primaries']['docs']['count']
             try:
-                slave_count = stats['indices'][slave_index]['primaries'] \
-                                   ['docs']['count']
+                slave_count = \
+                    stats['indices'][slave_index]['primaries']['docs']['count']
             except KeyError:
                 slave_count = 0
                 pass
             reindex_pct = (float(slave_count) / float(master_count)) * 100
-            print("Master Index: {0:15s} " \
-                  "Slave Index: {1:15s} " \
-                  "Master Count: {2:10d} " \
-                  "Slave Count: {3:10d} " \
-                  "Percentage Complete: {4:3.2f}%").format(index, \
-                                                           slave_index, \
-                                                           master_count, \
-                                                           slave_count, \
+            print("Master Index: {0:15s} "
+                  "Slave Index: {1:15s} "
+                  "Master Count: {2:10d} "
+                  "Slave Count: {3:10d} "
+                  "Percentage Complete: {4:3.2f}%").format(index,
+                                                           slave_index,
+                                                           master_count,
+                                                           slave_count,
                                                            reindex_pct)
 
 
@@ -88,22 +88,22 @@ def drop_legacy(es, dry_run):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="localhost", \
-        help="Elasticsearch host to connect to (default: localhost)")
-    parser.add_argument("--port", default="9200", \
-        help="Elasticsearch port to connect to (default: 9200)")
-    parser.add_argument("--clean", action="store_true", \
-        help="Clean previous reindexed indices")
-    parser.add_argument("--reindex", action="store_true", \
-        help="Reindex legacy indexes")
-    parser.add_argument("--monitor", action="store_true", \
-        help="Progress of reindexing")
-    parser.add_argument("--continuous", action="store_true", \
-        help="Continuous monitoring")
-    parser.add_argument("--drop", action="store_true", \
-        help="Drop legacy indices")
-    parser.add_argument("--dry_run", action="store_true",\
-        help="Prints what will happen for drop and clean operations")
+    parser.add_argument("--host", default="localhost", help="Elasticsearch \
+                        host to connect to (default: localhost)")
+    parser.add_argument("--port", default="9200", help="Elasticsearch \
+                        port to connect to (default: 9200)")
+    parser.add_argument("--clean", action="store_true", help="Clean previousi \
+                        reindexed indices")
+    parser.add_argument("--reindex", action="store_true", help="Reindex \
+                        legacy indexes")
+    parser.add_argument("--monitor", action="store_true", help="Progress of \
+                        reindexing")
+    parser.add_argument("--continuous", action="store_true", help="Continuous \
+                        monitoring")
+    parser.add_argument("--drop", action="store_true", help="Drop legacy \
+                        indices")
+    parser.add_argument("--dry_run", action="store_true", help="Prints what \
+                        will happen for drop and clean operations")
     args = parser.parse_args()
 
     es_host = args.host + ":" + args.port
