@@ -13,19 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Backup database/repository/vars_files
-- include: backup.yml
+- name: Check if holland is installed outside venv
+  shell: pip show -q holland
+  register: is_holland_installed
+  failed_when: false
+  changed_when: false
 
-# Gather info on:
-# OpenStack service status
-# Rabbit/galera cluster status
-# Running instances
-# Volume mappings
-- include: gather_stats.yml
-
-# Gather swift-recon md5 output
-- include: gather_swift_stats.yml
-  when: groups['swift_proxy']|default([])|length > 0
-
-# Perform log rotation and cleanup
-- include: log_rotation.yml
+- name: Uninstall holland pip package from outside venv
+  pip:
+    name: "{{ item }}"
+    state: absent
+  when: is_holland_installed.rc == 0
+  with_items:
+    - holland
+    - holland.lib.common
+    - holland.lib.mysql
+    - holland.backup.xtrabackup

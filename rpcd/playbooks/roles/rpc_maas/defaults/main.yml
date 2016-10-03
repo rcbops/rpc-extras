@@ -358,7 +358,7 @@ ceph_checks_list:
   - { name: "ceph_cluster_stats", group: "mons" }
 
 network_checks_list:
-  - { name: "eth0", group: "hosts", max_speed: "{{ net_max_speed }}", rx_pct_warn: "{{ net_rx_pct_warn }}", rx_pct_crit: "{{ net_rx_pct_crit }}", tx_pct_warn: "{{ net_tx_pct_warn }}", tx_pct_crit: "{{ net_tx_pct_crit }}"}
+  - { name: "{{ ansible_default_ipv4.interface }}", group: "hosts", max_speed: "{{ net_max_speed }}", rx_pct_warn: "{{ net_rx_pct_warn }}", rx_pct_crit: "{{ net_rx_pct_crit }}", tx_pct_warn: "{{ net_tx_pct_warn }}", tx_pct_crit: "{{ net_tx_pct_crit }}"}
 
 kernel_checks_list:
   - { name: "conntrack_count", group: "hosts" }

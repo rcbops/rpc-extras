@@ -19,18 +19,63 @@
   roles:
     - { role: "rpc_pre_upgrade", tags: [ "rpc-pre-upgrades" ] }
 
-- name: restart beaver
+- name: remove beaver
   hosts: all
   tags:
     - rpc-pre-upgrades
+    - remove-beaver
   tasks:
     - name: Check if beaver is installed
       stat:
         path: /etc/init.d/beaver
       register: beaver_init_script
+      changed_when: false
 
-    - name: Restart beaver if installed
+    - name: Make sure beaver is stopped
       service:
         name: beaver
-        state: restarted
+        enabled: no
+        state: stopped
       when: beaver_init_script.stat.exists
+
+    - name: Remove beaver etc files
+      file:
+        path: /etc/beaver
+        state: absent
+
+    - name: Remove beaver init files
+      file:
+        path: /etc/init.d/beaver
+        state: absent
+
+    - name: Remove beaver logrotate files
+      file:
+        path: /etc/logrotate.d/beaver
+        state: absent
+
+    - name: Remove beaver log files
+      file:
+        path: /var/log/beaver
+        state: absent
+
+    - name: Check if beaver is installed
+      shell: pip show -q Beaver
+      register: is_beaver_installed
+      failed_when: false
+      changed_when: false
+
+    - name: Uninstall beaver pip package
+      pip:
+        name: beaver
+        state: absent
+      when: is_beaver_installed.rc == 0
+
+    - name: Remove beaver user
+      user:
+        name: beaver
+        state: absent
+
+    - name: Remove beaver group
+      group:
+        name: beaver
+        state: absent

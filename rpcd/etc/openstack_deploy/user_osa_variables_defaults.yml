@@ -122,11 +122,11 @@ repo_build_pip_extra_indexes:
 
 ## Host security hardening
 # The openstack-ansible-security role provides security hardening for hosts
-# by applying security configurations from the STIG. Hardening is disabled by
-# default, but an option to opt-in is available by setting the following
-# variable to 'true'.
+# by applying security configurations from the STIG. Hardening is enabled by
+# default, but an option to opt-out is available by setting the following
+# variable to 'false' in /etc/openstack_deploy/user_osa_variables_overrides.yml.
 # Docs: http://docs.openstack.org/developer/openstack-ansible-security/
-# apply_security_hardening: true
+apply_security_hardening: true
 
 ## Enable Neutron l2_population
 # We are overriding the default value for neutron_l2_population. Please see

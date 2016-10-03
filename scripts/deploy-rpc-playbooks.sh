@@ -17,7 +17,6 @@ run_ansible horizon_extensions.yml
 # deploy and configure RAX MaaS
 if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
   run_ansible setup-maas.yml
-  run_ansible verify-maas.yml
 fi
 
 # deploy and configure the ELK stack
@@ -28,4 +27,10 @@ if [[ "${DEPLOY_ELK}" == "yes" ]]; then
   if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
     run_ansible haproxy.yml
   fi
+fi
+
+# verify RAX MaaS is running after all necessary
+# playbooks have been run
+if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
+  run_ansible verify-maas.yml
 fi

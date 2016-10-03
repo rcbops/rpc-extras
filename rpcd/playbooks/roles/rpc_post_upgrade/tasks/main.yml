@@ -19,6 +19,11 @@
   tags:
     - galera
 
+- include: remove-holland.yml
+  when: inventory_hostname in groups['galera_all']
+  tags:
+    - galera
+
 # Run rabbitmq post upgrade tasks
 - include: post-upgrade-rabbitmq.yml
   when: inventory_hostname in groups['rabbitmq']
