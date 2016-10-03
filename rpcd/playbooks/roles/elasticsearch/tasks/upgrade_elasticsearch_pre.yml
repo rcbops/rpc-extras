@@ -176,23 +176,17 @@
     - elasticsearch-upgrade
     - elasticsearch-reindex
 
-- name: Monitor reindexing proccess
+- name: Monitor reindexing process
   shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --monitor --continuous
-  async: 1000
-  poll: 0
+  async: 259200
+  poll: 5
   delegate_to: "{{ groups['elasticsearch_all'][0] }}"
-  register: monitor_reindex
   when:
     - logging_upgrade | bool
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
     - elasticsearch-reindex
-
-- name: Poll reindexing status
-  async_status: jid={{ monitor_reindex.ansible_job_id }}
-  register: monitor_result
-  until: monitor_result.finished
 
 - name: Drop legacy elasticsearch indeices
   shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --drop
