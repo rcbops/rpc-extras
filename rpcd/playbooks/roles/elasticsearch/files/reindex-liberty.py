@@ -21,6 +21,20 @@ import requests
 import time
 
 
+def _get_count(stats, index):
+    """Return the document count for a given index."""
+    try:
+        return stats['indices'][index]['primaries']['docs']['count']
+    except KeyError:
+        return -1
+
+
+def _index_to_date(index):
+    """Converts and index name to a date object."""
+    (i_year, i_month, i_day) = index.split('-')[1].split('.')
+    return date(int(i_year), int(i_month), int(i_day))
+
+
 def get_indices(es, parsed_args):
     """Fetch a list of all of the elasticsearch indices."""
     indices = None
@@ -61,11 +75,6 @@ def clean_legacy(es, parsed_args):
             if not parsed_args.dry_run:
                 es.indices.delete(index)
             print ("Deleted: {}").format(index)
-
-
-def _get_count(stats, index):
-    """Return the document count for a given index."""
-    return stats['indices'][index]['primaries']['docs']['count']
 
 
 def monitor_reindex(es, parsed_args):
@@ -125,12 +134,6 @@ def drop_legacy(es, parsed_args):
 def list_indices(es):
     """List all indices."""
     print(es.cat.indices(v=True))
-
-
-def _index_to_date(index):
-    """Converts and index name to a date object."""
-    (i_year, i_month, i_day) = index.split('-')[1].split('.')
-    return date(int(i_year), int(i_month), int(i_day))
 
 
 def batch(es, es_host, parsed_args):

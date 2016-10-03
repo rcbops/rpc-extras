@@ -33,7 +33,6 @@
     state: latest
     update_cache: yes
     cache_valid_time: 600
-    upgrade: yes
     dpkg_options: "force-confold"
   register: install_apt_packages
   until: install_apt_packages|success
@@ -49,6 +48,19 @@
   service:
     name: elasticsearch
     state: restarted
+  when:
+    - logging_upgrade | bool
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Wait for elasticsearch to restart
+  wait_for:
+    host: "{{ hhostvars[groups['elasticsearch_container'][0]]['container_address'] }}"
+    port: 9200
+    state: started
+    timeout: 300
   when:
     - logging_upgrade | bool
   tags:
@@ -144,6 +156,22 @@
     - elasticsearch-reindex
 
 - name: Monitor reindexing proccess
+  shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --monitor --continuous
+  async: 1000
+  poll: 0
+  delegate_to: "{{ groups['elasticsearch_all'][0] }}"
+  register: monitor_reindex
+  when:
+    - logging_upgrade | bool
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - elasticsearch-reindex
+
+- name: Poll reindexing status
+  async_status: jid={{ monitor_reindex.ansible_job_id }}
+  register: monitor_result
+  until: monitor_result.finished
 
 - name: Drop legacy elasticsearch indeices
   shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --drop
