@@ -1,4 +1,18 @@
 ---
+# Copyright 2016, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 - name: Add legacy apt repositories
   apt_repository:
     repo: "{{ item.repo }}"
@@ -11,8 +25,9 @@
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
 
-- name: Upgrade logstash to stable 1.7.x version
+- name: Upgrade elasticsearch to stable 1.7.x version
   apt:
     pkg: "{{ item }}"
     state: latest
@@ -28,6 +43,18 @@
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Restart elasticsearch
+  service:
+    name: elasticsearch
+    state: restarted
+  when:
+    - logging_upgrade | bool
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
 
 - name: Drop log_test1 template
   shell: 'curl -sk -XDELETE {{ internal_lb_vip_address }}:{{ elasticsearch_http_port }}/_template/log_test1'
@@ -36,20 +63,22 @@
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
 
-- name: Place legacy liberty template
+- name: Place legacy liberty template script
   template:
     src: legacy-mapping.sh.j2
     dest: /opt/legacy-mapping.sh
     owner: root
     group: root
-    mode: 755
+    mode: 0755
   delegate_to: "{{ groups['elasticsearch_all'][0] }}"
   when:
     - logging_upgrade | bool
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
 
 - name: Install legacy liberty template
   shell: '/opt/legacy-mapping.sh'
@@ -60,8 +89,9 @@
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
 
-- name: Remove legacy liberty template
+- name: Remove legacy liberty template script
   file:
     name: '/opt/legacy-mapping.sh'
     state: absent
@@ -71,6 +101,7 @@
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
 
 - name: Install Reindexing Plugin
   command: ./plugin -install {{ item }}
@@ -84,14 +115,15 @@
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
+    - reindex-wrapper
 
 - name: Install reindexing wrapper script
-  template:
-    src: reindex-liberty.py.j2
+  copy:
+    src: reindex-liberty.py
     dest: /opt/reindex-liberty.py
     owner: root
     group: root
-    mode: 755
+    mode: 0755
   delegate_to: "{{ groups['elasticsearch_all'][0] }}"
   when:
     - logging_upgrade | bool
@@ -99,11 +131,10 @@
     - logging-upgrade
     - elasticsearch-upgrade
     - elasticsearch-reindex
+    - reindex-wrapper
 
 - name: Reindex legacy elasticsearch indices
-  command: reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --reindex
-  args:
-    chdir: /opt
+  shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --reindex
   delegate_to: "{{ groups['elasticsearch_all'][0] }}"
   when:
     - logging_upgrade | bool
@@ -112,10 +143,10 @@
     - elasticsearch-upgrade
     - elasticsearch-reindex
 
+- name: Monitor reindexing proccess
+
 - name: Drop legacy elasticsearch indeices
-  command: reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --drop
-  args:
-    chdir: /opt
+  shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --drop
   delegate_to: "{{ groups['elasticsearch_all'][0] }}"
   when:
     - logging_upgrade | bool
