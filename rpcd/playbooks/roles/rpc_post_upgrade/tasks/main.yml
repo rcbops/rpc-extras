@@ -19,7 +19,7 @@
   tags:
     - galera
 
-- include: post-upgrade-holland.yml
+- include: remove-holland.yml
   when: inventory_hostname in groups['galera_all']
   tags:
     - galera

@@ -28,3 +28,4 @@
     - holland
     - holland.lib.common
     - holland.lib.mysql
+    - holland.backup.xtrabackup
