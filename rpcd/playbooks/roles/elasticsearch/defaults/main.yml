@@ -20,6 +20,9 @@ elasticsearch_legacy_apt_repo_url: "http://packages.elasticsearch.org/elasticsea
 elasticsearch_legacy_apt_repos:
   - { repo: "deb {{ elasticsearch_legacy_apt_repo_url }} stable main", state: "present" }
 
+# use -e 'logging_upgrade=true' to upgrade logging components
+logging_upgrade: false
+
 elasticsearch_apt_repo_url: "http://packages.elastic.co/elasticsearch/2.x/debian"
 
 elasticsearch_apt_repos:
