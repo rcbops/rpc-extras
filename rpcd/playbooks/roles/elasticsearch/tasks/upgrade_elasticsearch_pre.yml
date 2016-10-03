@@ -142,7 +142,7 @@
     chdir: /usr/share/elasticsearch/bin
     creates: /usr/share/elasticsearch/plugins/reindexing
   with_items:
-    - org.codelibs/elasticsearch-reindexing/1.4.2
+    - org.codelibs/elasticsearch-reindexing/1.7.0
   when:
     - logging_upgrade | bool
   tags:

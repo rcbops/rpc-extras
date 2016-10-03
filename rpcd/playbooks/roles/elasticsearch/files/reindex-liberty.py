@@ -116,6 +116,8 @@ def monitor_reindex(es, parsed_args):
               "Percentage complete: {2:3.2f}%").format(total_count,
                                                        done_count,
                                                        pct_done)
+    else:
+        print("Percent complete: {0:3.2f}%").format(pct_done)
     if pct_done == 100:
         exit(code=0)
     else:
@@ -242,8 +244,8 @@ def main():
     if args.continuous:
         # TODO(d34dh0r53) I hate this, need to figure out a better way.
         while not monitor_reindex(es, args):
-            print("\n")
             time.sleep(2)
+        return 0
 
 if __name__ == "__main__":
     main()
