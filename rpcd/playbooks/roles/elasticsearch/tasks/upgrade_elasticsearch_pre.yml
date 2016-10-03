@@ -22,6 +22,8 @@
   until: add_repos|success
   retries: 5
   delay: 2
+  when:
+    - logging_upgrade | bool
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
@@ -39,6 +41,25 @@
   retries: 5
   delay: 2
   with_items: elasticsearch_apt_packages
+  when:
+    - logging_upgrade | bool
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Install pip packages for upgrade
+  pip:
+    name: "{{ item }}"
+    state: latest
+    extra_args: "{{ pip_install_options | default('') }}"
+  register: install_pip_packages
+  until: install_pip_packages|success
+  retries: 5
+  delay: 2
+  with_items: elasticsearch_upgrade_pip_packages
+  when:
+    - logging_upgrade | bool
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
