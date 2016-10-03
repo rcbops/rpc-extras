@@ -78,7 +78,7 @@
 
 - name: Wait for elasticsearch to restart
   wait_for:
-    host: "{{ hhostvars[groups['elasticsearch_container'][0]]['container_address'] }}"
+    host: "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}"
     port: 9200
     state: started
     timeout: 300
