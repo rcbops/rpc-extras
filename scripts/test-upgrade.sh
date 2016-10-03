@@ -164,3 +164,5 @@ bash scripts/deploy-rpc-playbooks.sh
 #              the rpc_post_upgrade role directory.
 cd ${RPCD_DIR}/playbooks
 openstack-ansible rpc-post-upgrades.yml
+openstack-ansible -e 'logging_upgrade=true' logstash.yml
+openstack-ansible -e 'logging_upgrade=true' elasticsearch.yml
