@@ -109,7 +109,10 @@ def monitor_reindex(es, parsed_args):
                                                            reindex_pct)
         total_count += master_count
         done_count += slave_count
-    pct_done = (float(done_count) / float(total_count)) * 100
+    try:
+        pct_done = (float(done_count) / float(total_count)) * 100
+    except ZeroDivisionError:
+        pct_done = float(0.00)
     if parsed_args.verbose:
         print("Total Docments: {0:20d} "
               "Reindexed Documents: {1:20d} "
