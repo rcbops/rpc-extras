@@ -15,7 +15,8 @@
 # limitations under the License.
 
 import argparse
-from datetime import date, timedelta
+from datetime import date
+from datetime import timedelta
 from elasticsearch import Elasticsearch
 import requests
 import time
@@ -143,7 +144,9 @@ def list_indices(es):
 
 def batch(es, es_host, parsed_args):
     """Batch processing, useful for performing re-indexing of old indices
-    prior to the actual upgrade."""
+    prior to the actual upgrade.
+    """
+
     today = date.today()
     one_day = timedelta(days=1)
     yesterday = today - one_day
