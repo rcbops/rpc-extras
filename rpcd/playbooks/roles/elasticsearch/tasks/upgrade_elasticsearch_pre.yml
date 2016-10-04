@@ -97,6 +97,7 @@
     - logging-upgrade
     - elasticsearch-upgrade
     - reindex-wrapper
+    - skip_ansible_lint
 
 - name: Place legacy liberty template script
   template:
