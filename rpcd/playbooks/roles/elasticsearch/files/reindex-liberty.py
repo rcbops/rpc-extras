@@ -143,7 +143,9 @@ def list_indices(es):
 
 
 def batch(es, es_host, parsed_args):
-    """Batch processing, useful for performing re-indexing of old indices
+    """Batch Processing.
+
+    Batch processing, useful for performing re-indexing of old indices
     prior to the actual upgrade.
     """
 
