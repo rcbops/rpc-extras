@@ -32,5 +32,7 @@ fi
 # verify RAX MaaS is running after all necessary
 # playbooks have been run
 if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
+  ansible hosts -m shell -a "rm /etc/rackspace-monitoring-agent.conf.d/*.yaml"
+  ansible hosts -m service -a "name=rackspace-monitoring-agent state=restarted"
   run_ansible verify-maas.yml
 fi
