@@ -131,4 +131,5 @@ bash scripts/deploy-rpc-playbooks.sh
 cd ${RPCD_DIR}/playbooks
 openstack-ansible -e 'logging_upgrade=true' logstash.yml
 openstack-ansible -e 'logging_upgrade=true' elasticsearch.yml
+openstack-ansible filebeat.yml
 openstack-ansible rpc-post-upgrades.yml
