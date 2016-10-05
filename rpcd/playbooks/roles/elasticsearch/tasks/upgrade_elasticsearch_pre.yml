@@ -68,7 +68,14 @@
     - elasticsearch-upgrade
     - reindex-wrapper
 
-- name: Restart elasticsearch
+- name: Make sure elasticsearch is stopped
+  shell: 'pkill -fl elasticsearch'
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Start elasticsearch
   service:
     name: elasticsearch
     state: started
