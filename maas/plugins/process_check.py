@@ -77,16 +77,12 @@ def check_process_running(process_names, container_name=None):
         # nothing to do. Return an error for the check.
         status_err('No process names provided')
 
-    procs = []
-    if container_name is None:
-        # Checking for processes on a host, not inside a container
-        procs_path = '/sys/fs/cgroup/cpu/cgroup.procs'
-        procs = get_processes(procs_path)
-    else:
+    procs_path = '/sys/fs/cgroup/cpu/cgroup.procs'
+    if container_name is not None:
         # Checking for processes in a container, not the parent host
         procs_path = os.path.join('/sys/fs/cgroup/cpu/lxc', container_name,
                                   'cgroup.procs')
-        procs = get_processes(procs_path)
+    procs = get_processes(procs_path)
 
     if not procs:
         # Unable to get a list of process names for the container or host.

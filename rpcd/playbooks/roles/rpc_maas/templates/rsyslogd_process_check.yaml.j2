@@ -5,7 +5,7 @@ period      : "{{ maas_check_period }}"
 timeout     : "{{ maas_check_timeout }}"
 details     :
     file    : run_plugin_in_venv.sh
-    args    : ["{{ maas_plugin_dir }}process_check.py", "{{ rsyslogd_process_names|join(",") }}" {% if inventory_hostname in groups['all_containers'] %}, "-c", "{{ inventory_hostname }}" {% else %} {% endif %}]
+    args    : ["{{ maas_plugin_dir }}process_check.py", {% if inventory_hostname in groups['all_containers'] %} "-c", "{{ inventory_hostname }}" {% else %}{% endif %}"{{ rsyslogd_process_names|join(",") }}"]
 alarms      :
 {% for process in rsyslogd_process_names %}
     {{ process }}_process_status:
