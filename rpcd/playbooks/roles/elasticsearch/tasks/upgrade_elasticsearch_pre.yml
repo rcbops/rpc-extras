@@ -59,14 +59,24 @@
     - elasticsearch-upgrade
     - reindex-wrapper
 
-- name: Restart elasticsearch
+- name: Stop elasticsearch
   service:
     name: elasticsearch
-    state: restarted
+    state: stopped
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
     - reindex-wrapper
+
+- name: Restart elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
 
 - name: Wait for elasticsearch to restart
   wait_for:
