@@ -21,6 +21,7 @@ set -eux -o pipefail
 export BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 export OA_DIR="$BASE_DIR/openstack-ansible"
 export RPCD_DIR="$BASE_DIR/rpcd"
+export UPGRADE_VARIABLES_FILE="/etc/openstack_deploy/user_upgrade_variables.yml"
 
 source ${BASE_DIR}/scripts/functions.sh
 
@@ -148,6 +149,17 @@ echo "YES" | ${OA_DIR}/scripts/run-upgrade.sh
 popd
 
 # TASK #8
+# Set upgrade variables for the RPCO playbooks
+# The variables are put into a temporary user_variables file, then deleted
+# at the end of this script.
+touch ${UPGRADE_VARIABLES_FILE}
+if grep -q 'logging_upgrade' ${UPGRADE_VARIABLES_FILE}; then
+  sed -i "s/logging_upgrade:.*/logging_upgrade: true/" ${UPGRADE_VARIABLES_FILE}
+else
+  echo "logging_upgrade: true" >> ${UPGRADE_VARIABLES_FILE}
+fi
+
+# TASK #9
 # https://github.com/rcbops/u-suk-dev/issues/393
 # Run deploy-rpc-playbooks.sh
 # Ultimitely, this will run the RPCO playbooks.
@@ -157,13 +169,12 @@ export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
 export DEPLOY_MAAS=${DEPLOY_MAAS:-"yes"}
 bash scripts/deploy-rpc-playbooks.sh
 
-# TASK #9
+# TASK #10
 # Bug: https://github.com/rcbops/u-suk-dev/issues/366
 # Description: Run post-upgrade tasks.
 #              For a detailed description, please see the README in
 #              the rpc_post_upgrade role directory.
 cd ${RPCD_DIR}/playbooks
-openstack-ansible -e 'logging_upgrade=true' logstash.yml
-openstack-ansible -e 'logging_upgrade=true' elasticsearch.yml
-openstack-ansible filebeat.yml
 openstack-ansible rpc-post-upgrades.yml
+
+rm ${UPGRADE_VARIABLES_FILE}
