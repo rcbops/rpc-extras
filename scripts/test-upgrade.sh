@@ -21,6 +21,7 @@ set -eux -o pipefail
 export BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 export OA_DIR="$BASE_DIR/openstack-ansible"
 export RPCD_DIR="$BASE_DIR/rpcd"
+export UPGRADE_VARIABLES_FILE="/etc/openstack_deploy/user_upgrade_variables.yml"
 
 source ${BASE_DIR}/scripts/functions.sh
 
@@ -106,6 +107,40 @@ ansible galera_all[0] -m shell -a "mysql --verbose -e \"${VLAN_FLAT}\" neutron"
 ansible galera_all[0] -m shell -a "mysql --verbose -e \"${VXLAN}\" neutron"
 
 # TASK #6
+# Bug:   https://github.com/rcbops/u-suk-dev/issues/383
+# Issue: The ceph-all.yml playbook will fail because of the hostname
+#        changes introduced in Mitaka. This section recreates the mons
+#        in a rolling fashion so quorum is maintained, and hostnames
+#        are properly referenced in the ceph datasets(i.e monmap)
+# NOTE:  Before running test-upgrade.sh on an AIO with ceph, variables
+#        in the overrides file will need to be generated manually by
+#        running migrate-yaml.py(similiar to TASK #0). The deployer
+#        must ensure that osd_directory and raw_mutli_journal are not
+#        both set to True in user_rpco_variables_overrides.yml. If this
+#        isn't done, this TASK will fail.
+#        In gating this is handled by gate-specific overrides set in
+#        the jenkins-rpc repository.
+
+# These are the instructions to give if there is a failure message on ceph-mon.yml
+mons=$(ansible mons --list-hosts)
+if [ $(echo ${mons} | wc -w) -gt 0 ]; then
+  #Gather facts about all the monitors first, even with bad names
+  #This shouldn't change a thing, it's a regular playbook run.
+  openstack-ansible ${RPCD_DIR}/playbooks/gen-facts.yml
+  for mon in ${mons}; do
+    ansible $mon -m command -a "stop ceph-mon id=$mon"
+    ansible $mon -m command -a "ceph mon remove $mon"
+    openstack-ansible lxc-containers-destroy.yml --skip-tags=container-directories --limit $mon
+    openstack-ansible lxc-containers-create.yml --limit $mon
+    # Destroy facts for the current mon, this way it's gonna be properly generated
+    rm -f /etc/openstack_deploy/ansible_facts/$mon
+    openstack-ansible ${RPCD_DIR}/playbooks/ceph-mon.yml --limit $mon
+  done
+  #all the facts are good, they are all part of the cluster. just reconfigure them all
+  openstack-ansible ${RPCD_DIR}/playbooks/ceph-all.yml
+fi
+
+# TASK #7
 # https://github.com/rcbops/u-suk-dev/issues/392
 # Upgrade openstack-ansible
 pushd ${OA_DIR}
@@ -113,7 +148,18 @@ export I_REALLY_KNOW_WHAT_I_AM_DOING=true
 echo "YES" | ${OA_DIR}/scripts/run-upgrade.sh
 popd
 
-# TASK #7
+# TASK #8
+# Set upgrade variables for the RPCO playbooks
+# The variables are put into a temporary user_variables file, then deleted
+# at the end of this script.
+touch ${UPGRADE_VARIABLES_FILE}
+if grep -q 'logging_upgrade' ${UPGRADE_VARIABLES_FILE}; then
+  sed -i "s/logging_upgrade:.*/logging_upgrade: true/" ${UPGRADE_VARIABLES_FILE}
+else
+  echo "logging_upgrade: true" >> ${UPGRADE_VARIABLES_FILE}
+fi
+
+# TASK #9
 # https://github.com/rcbops/u-suk-dev/issues/393
 # Run deploy-rpc-playbooks.sh
 # Ultimitely, this will run the RPCO playbooks.
@@ -123,7 +169,7 @@ export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
 export DEPLOY_MAAS=${DEPLOY_MAAS:-"yes"}
 bash scripts/deploy-rpc-playbooks.sh
 
-# TASK #8
+# TASK #10
 # Bug: https://github.com/rcbops/u-suk-dev/issues/366
 # Description: Run post-upgrade tasks.
 #              For a detailed description, please see the README in
@@ -133,3 +179,5 @@ openstack-ansible -e 'logging_upgrade=true' logstash.yml
 openstack-ansible -e 'logging_upgrade=true' elasticsearch.yml
 openstack-ansible filebeat.yml
 openstack-ansible rpc-post-upgrades.yml
+
+rm ${UPGRADE_VARIABLES_FILE}

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Gather mons facts for ceph.conf template
-  hosts: mons
+  include: gen-facts.yml
 
 - name: Install Ceph dependencies
   hosts: osds_all:mons_all:&hosts
