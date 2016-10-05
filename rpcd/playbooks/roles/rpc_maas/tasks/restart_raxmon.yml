@@ -21,3 +21,23 @@
     - maas-setup
     - rackspace-monitoring-agent-setup
     - rackspace-monitoring-agent-restart
+
+# https://github.com/rcbops/u-suk-dev/issues/481
+# For Liberty to Mitaka upgrades the checks are not getting properly registered.
+# Restarting the agent seems to clear out the problematic checks.
+- name: Wait for checks to register
+  pause:
+    minutes: 1
+  tags:
+    - maas-setup
+    - rackspace-monitoring-agent-setup
+    - rackspace-monitoring-agent-restart
+
+- name: Restart rackspace-monitoring-agent service a second time
+  service:
+    name: rackspace-monitoring-agent
+    state: restarted
+  tags:
+    - maas-setup
+    - rackspace-monitoring-agent-setup
+    - rackspace-monitoring-agent-restart
