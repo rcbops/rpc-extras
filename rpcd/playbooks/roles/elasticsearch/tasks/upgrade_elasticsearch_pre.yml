@@ -69,7 +69,7 @@
     - reindex-wrapper
 
 - name: Make sure elasticsearch is stopped
-  shell: 'pkill -fl elasticsearch'
+  shell: 'pkill -f elasticsearch'
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
@@ -83,7 +83,6 @@
     - logging-upgrade
     - elasticsearch-upgrade
     - reindex-wrapper
-
 
 - name: Wait for elasticsearch to restart
   wait_for:
