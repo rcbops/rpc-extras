@@ -356,7 +356,7 @@ rsyslogd_process_names:
   - rsyslogd
 
 elasticsearch_process_names:
-  - elasticsearch
+  - java 
 
 filebeat_process_names:
   - filebeat
