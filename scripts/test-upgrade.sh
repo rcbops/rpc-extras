@@ -21,6 +21,8 @@ set -eux -o pipefail
 export BASE_DIR=$( cd "$( dirname ${0} )" && cd ../ && pwd )
 export OA_DIR="$BASE_DIR/openstack-ansible"
 export RPCD_DIR="$BASE_DIR/rpcd"
+# Something like this can go into the jenkins job
+export HOME=/root
 
 source ${BASE_DIR}/scripts/functions.sh
 
