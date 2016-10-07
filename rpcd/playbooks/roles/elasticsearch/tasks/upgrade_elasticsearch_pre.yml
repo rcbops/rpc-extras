@@ -188,7 +188,7 @@
     - elasticsearch-reindex
 
 - name: Remove Reindexing Plugin
-  command: ./plugin remove {{ item }}
+  command: ./plugin --remove {{ item }}
   args:
     chdir: /usr/share/elasticsearch/bin
     creates: /usr/share/elasticsearch/plugins/reindexing

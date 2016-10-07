@@ -22,6 +22,27 @@ import requests
 import time
 
 
+def _calc_pct(es, parsed_args, stats, master, slave):
+    """Calculate the percentage complete of a reindex."""
+    master_count = _get_count(stats, master)
+    slave_count = _get_count(stats, slave)
+    reindex_pct = (float(slave_count) / float(master_count)) * 100
+    out = []
+    out.append(master_count)
+    out.append(slave_count)
+    out.append(reindex_pct)
+    return out
+
+
+def _check_index(es, parsed_args, index, stats):
+    """Check on the reindexing status of an index."""
+    slave_index = _return_slave(index, parsed_args)
+    if slave_index in stats['indices']:
+        return True
+    else:
+        return False
+
+
 def _get_count(stats, index):
     """Return the document count for a given index."""
     try:
@@ -36,42 +57,63 @@ def _index_to_date(index):
     return date(int(i_year), int(i_month), int(i_day))
 
 
-def get_indices(es, parsed_args):
+def _return_slave(index, parsed_args):
+    """Gives the slave index name."""
+    return index + parsed_args.suffix
+
+
+def get_indices(es, parsed_args, slaves=False):
     """Fetch a list of all of the elasticsearch indices."""
     indices = None
     indices = []
 
-    full_indices = es.indices.get_aliases().keys()
+    full_indices = es.indices.get_aliases(request_timeout=30).keys()
     for index in full_indices:
-        if parsed_args.prefix or parsed_args.suffix in index:
-            indices.append(index)
+        if 'logstash' in index:
+            if parsed_args.suffix in index and slaves:
+                indices.append(index)
+            elif parsed_args.suffix not in index:
+                indices.append(index)
 
     return indices
 
 
 def get_stats(es):
     """Fetch the statistics for all of the elasticsearch indices."""
-    return es.indices.stats()
+    return es.indices.stats(request_timeout=30)
 
 
 def reindex(es, es_host, parsed_args):
     """Create -liberty indices and start the reindex process."""
+    stats = get_stats(es)
     if not parsed_args.index:
         for index in get_indices(es, parsed_args):
-            reindex_params = 'http://' + es_host + \
-                '/' + index + '/_reindex/' + index + '-liberty/'
-            requests.post(reindex_params)
+            if not _check_index(es, parsed_args, index, stats):
+                reindex_params = 'http://' + es_host + \
+                    '/' + index + '/_reindex/' + index + parsed_args.suffix + \
+                    '/'
+                print("Reindexing: {0} into: {1}").format(index, index +
+                                                          parsed_args.suffix)
+                if not parsed_args.dry_run:
+                    requests.post(reindex_params)
+            else:
+                print("Skipping: {} reindexing in progress").format(index)
+
     else:
         reindex_params = 'http://' + es_host + '/' + parsed_args.index + \
             '/_reindex/' + parsed_args.index + parsed_args.suffix
-        requests.post(reindex_params)
+        print("Reindexing Single Index: {0} into: {1}").format(
+            parsed_args.index,
+            parsed_args.index + parsed_args.suffix)
+        if not parsed_args.dry_run:
+            requests.post(reindex_params)
 
 
 def clean_legacy(es, parsed_args):
     """Drops the -liberty indices created by a previous reindex."""
     if parsed_args.dry_run:
         print("Dry run, no operations will be performed")
-    for index in get_indices(es, parsed_args):
+    for index in get_indices(es, parsed_args, True):
         if parsed_args.suffix in index:
             if not parsed_args.dry_run:
                 es.indices.delete(index)
@@ -83,21 +125,23 @@ def monitor_reindex(es, parsed_args):
     total_count = 0
     done_count = 0
     stats = get_stats(es)
-    indices = get_indices(es, parsed_args)
+    indices = get_indices(es, parsed_args, True)
     counts = None
     counts = {}
     for index in indices:
         if parsed_args.suffix in index:
             master_name = index.replace(parsed_args.suffix, "")
-            master_count = _get_count(stats, master_name)
-            slave_count = _get_count(stats, index)
-            counts[master_name] = [master_count, slave_count]
+            counts[master_name] = _calc_pct(es,
+                                            parsed_args,
+                                            stats,
+                                            master_name,
+                                            index)
 
     for master in counts.keys():
         slave_index = master + parsed_args.suffix
         master_count = counts[master][0]
         slave_count = counts[master][1]
-        reindex_pct = (float(slave_count) / float(master_count)) * 100
+        reindex_pct = counts[master][2]
         if parsed_args.verbose:
             print("Master Index: {0:15s} "
                   "Slave Index: {1:15s} "
@@ -130,11 +174,12 @@ def monitor_reindex(es, parsed_args):
 
 def drop_legacy(es, parsed_args):
     """Drop the legacy logstash-* indices."""
+    stats = get_stats(es)
     for index in get_indices(es, parsed_args):
-        if parsed_args.suffix not in index and parsed_args.prefix in index:
+        if not _check_index(es, parsed_args, index, stats):
+            print("Dropping Legacy Index: {}").format(index)
             if not parsed_args.dry_run:
                 es.indices.delete(index)
-            print("Dropping Legacy Index: {}").format(index)
 
 
 def list_indices(es):
@@ -153,11 +198,13 @@ def batch(es, es_host, parsed_args):
     one_day = timedelta(days=1)
     yesterday = today - one_day
     indices = get_indices(es, parsed_args)
+    stats = get_stats(es)
+
     if not parsed_args.start:
         d_start = None  # Date object for start date
         p_start = yesterday  # Previous first day for sort
         for index in indices:
-            if parsed_args.suffix not in index:
+            if 'logstash' in index:
                 s_date = _index_to_date(index)
                 if s_date < p_start:
                     p_start = s_date
@@ -173,16 +220,17 @@ def batch(es, es_host, parsed_args):
 
     numdays = d_end - d_start + one_day
     date_range = [d_end - timedelta(days=x) for x in range(0, numdays.days)]
-
     print("Start: {0}\tEnd: {1}\n").format(d_start, d_end)
 
     for index in indices:
         parsed_args.index = index
         i_date = _index_to_date(index)
         if i_date in date_range:
-            print("Re-indexing: {}").format(index)
-            if not parsed_args.dry_run:
+            if not _check_index(es, parsed_args, index, stats):
+                print("Batch Index: {}").format(index)
                 reindex(es, es_host, parsed_args)
+            else:
+                print("Skipping: {} reindexing in progress").format(index)
 
 
 def main():
@@ -191,8 +239,6 @@ def main():
                         host to connect to (default: localhost)")
     parser.add_argument("--port", default="9200", help="Elasticsearch \
                         port to connect to (default: 9200)")
-    parser.add_argument("--prefix", default="logstash", help="Prefix for \
-                        logstash indices. (default: logstash)")
     parser.add_argument("--suffix", default="liberty", help="Suffix for \
                         reindexed indices. (default: liberty)")
     parser.add_argument("--clean", action="store_true", help="Clean previousi \
@@ -214,6 +260,8 @@ def main():
                         reindexing")
     parser.add_argument("--continuous", action="store_true", help="Continuous \
                         monitoring")
+    parser.add_argument("--delay", default=10, type=int, help="Refresh delay \
+                        for continuous monitoring. (default: 10)")
     parser.add_argument("--verbose", action="store_true", help="Verbose \
                         output from monitoring functions")
     parser.add_argument("--drop", action="store_true", help="Drop legacy \
@@ -224,8 +272,6 @@ def main():
     args = parser.parse_args()
 
     # Make sure we have hyphens in the correct places
-    if '-' not in list(args.prefix)[-1]:
-        args.prefix += '-'
     if '-' not in list(args.suffix)[0]:
         args.suffix = '-' + args.suffix
 
@@ -252,7 +298,7 @@ def main():
     if args.continuous:
         # TODO(d34dh0r53) I hate this, need to figure out a better way.
         while not monitor_reindex(es, args):
-            time.sleep(2)
+            time.sleep(args.delay)
         return 0
 
 if __name__ == "__main__":
