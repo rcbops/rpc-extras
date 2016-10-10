@@ -356,6 +356,10 @@ rsyslogd_process_names:
   - rsyslogd
 
 elasticsearch_process_names:
+  # NOTE(cjloader): Unlike rsyslog and filebeat, elasticsearch does not have a
+  # process name that includes "elasticsearch". The process running
+  # elasticsearch is actually named "java" so we search for that here. This is
+  # less than ideal, but the best we can do right now.
   - java 
 
 filebeat_process_names:
