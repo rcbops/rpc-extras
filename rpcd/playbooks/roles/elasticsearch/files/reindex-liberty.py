@@ -71,7 +71,8 @@ def get_indices(es, parsed_args, slaves=False):
     for index in full_indices:
         if 'logstash' in index:
             if parsed_args.suffix in index and slaves:
-                indices.append(index)
+                if index.replace(parsed_args.suffix, "") in full_indices:
+                    indices.append(index)
             elif parsed_args.suffix not in index:
                 indices.append(index)
 

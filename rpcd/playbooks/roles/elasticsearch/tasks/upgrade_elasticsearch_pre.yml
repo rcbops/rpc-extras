@@ -198,3 +198,21 @@
     - logging-upgrade
     - elasticsearch-upgrade
     - reindex-wrapper
+
+- name: Remove legacy apt repositories
+  apt_repository:
+    repo: "{{ item.repo }}"
+    state: absent
+  with_items: elasticsearch_legacy_apt_repos
+  register: add_repos
+  until: add_repos|success
+  retries: 5
+  delay: 2
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Flush apt cache
+  apt:
+    update_cache: yes
