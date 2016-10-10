@@ -148,6 +148,43 @@
     - elasticsearch-upgrade
     - reindex-wrapper
 
+- name: Stop elasticsearch
+  service:
+    name: elasticsearch
+    state: stopped
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Make sure elasticsearch is stopped
+  command: 'pkill -f elasticsearch'
+  ignore_errors: true
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Start elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
+- name: Wait for elasticsearch to restart
+  wait_for:
+    host: "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}"
+    port: 9200
+    state: started
+    timeout: 300
+  tags:
+    - logging-upgrade
+    - elasticsearch-upgrade
+    - reindex-wrapper
+
 - name: Install reindexing wrapper script
   copy:
     src: reindex-liberty.py
