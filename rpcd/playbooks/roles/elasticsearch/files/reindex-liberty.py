@@ -177,7 +177,7 @@ def drop_legacy(es, parsed_args):
     """Drop the legacy logstash-* indices."""
     stats = get_stats(es)
     for index in get_indices(es, parsed_args):
-        if not _check_index(es, parsed_args, index, stats):
+        if _check_index(es, parsed_args, index, stats):
             print("Dropping Legacy Index: {}").format(index)
             if not parsed_args.dry_run:
                 es.indices.delete(index)
