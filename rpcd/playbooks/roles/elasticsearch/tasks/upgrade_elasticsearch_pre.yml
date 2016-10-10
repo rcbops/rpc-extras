@@ -69,7 +69,8 @@
     - reindex-wrapper
 
 - name: Make sure elasticsearch is stopped
-  shell: 'pkill -f elasticsearch'
+  command: 'pkill -f elasticsearch'
+  ignore_errors: true
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
