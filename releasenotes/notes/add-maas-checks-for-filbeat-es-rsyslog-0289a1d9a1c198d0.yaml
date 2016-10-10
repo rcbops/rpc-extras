@@ -5,4 +5,5 @@ features:
     * elasticsearch
     * filebeat 
     * rsyslog 
-    It checks the processes and alarms if they are not running.
+    It checks the processes and alarms if they
+    are not running.
