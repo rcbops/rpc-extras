@@ -1,0 +1,14 @@
+---
+upgrade:
+  - The `elasticsearch-upgrade-pre.yml` play takes care
+    of upgrading the legacy elasticsearch data and preparing
+    the cluster for the upgrade of the elasticsearch packages.
+    Due to some inconsistencies in the legacy elasticsearch
+    mappings it is necessary to reindex all elasticsearch
+    data into indices with the updated 2.x compatible mappings.
+    Included with the upgrade tasks is a python wrapper to
+    monitor and control the reindexing process.  It is
+    recomended to reindex all indices prior to the current
+    day before beginning the upgrade.  Please check the upgrade
+    documentation for more information on how to reindex the
+    existing elasticsearch indices.
