@@ -229,7 +229,7 @@
   command: ./plugin --remove {{ item }}
   args:
     chdir: /usr/share/elasticsearch/bin
-    creates: /usr/share/elasticsearch/plugins/reindexing
+    removes: /usr/share/elasticsearch/plugins/reindexing
   with_items:
     - reindexing
   tags:
