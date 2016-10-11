@@ -225,13 +225,14 @@
     - elasticsearch-upgrade
     - elasticsearch-reindex
 
-- name: Remove Reindexing Plugin
+- name: Remove Legacy Plugins
   command: ./plugin --remove {{ item }}
   args:
     chdir: /usr/share/elasticsearch/bin
     removes: /usr/share/elasticsearch/plugins/reindexing
   with_items:
     - reindexing
+    - bigdesk
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
