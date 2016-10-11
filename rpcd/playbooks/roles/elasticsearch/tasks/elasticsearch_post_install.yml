@@ -58,3 +58,21 @@
     cron_file: "elasticsearch_curator"
   tags:
     - elasticsearch-post-install
+
+- name: Get ElasticSearch version
+  uri:
+    url: "http://{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}:{{ elasticsearch_http_port }}/"
+    method: GET
+    status_code: 200
+  register: escontent
+  tags:
+    - elasticsearch-post-install
+    - elasticsearch-version
+
+- name: Verify ElasticSearch version
+  fail:
+    msg: "Incorrect version of ElasticSearch {{ escontent.json.version.number }} is installed."
+  when: escontent.json.version.number != '2.4.1'
+  tags:
+    - elasticsearch-post-install
+    - elasticsearch-version
