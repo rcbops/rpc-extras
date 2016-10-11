@@ -38,6 +38,7 @@ elasticsearch_apt_packages:
 elasticsearch_pip_packages:
   - elasticsearch>=2.0.0,<3.0.0
   - elasticsearch-curator==4.0.4
+  - httplib2
 
 elasticsearch_upgrade_pip_packages:
   - requests
