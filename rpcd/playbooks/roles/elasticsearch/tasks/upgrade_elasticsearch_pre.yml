@@ -231,8 +231,11 @@
     chdir: /usr/share/elasticsearch/bin
     removes: /usr/share/elasticsearch/plugins/reindexing
   with_items:
-    - reindexing
     - bigdesk
+    - head
+    - HQ
+    - kopf
+    - reindexing
   tags:
     - logging-upgrade
     - elasticsearch-upgrade
