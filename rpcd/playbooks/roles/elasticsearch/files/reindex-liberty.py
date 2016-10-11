@@ -19,6 +19,7 @@ from datetime import date
 from datetime import timedelta
 from elasticsearch import Elasticsearch
 import requests
+import sys
 import time
 
 
@@ -26,12 +27,19 @@ def _calc_pct(es, parsed_args, stats, master, slave):
     """Calculate the percentage complete of a reindex."""
     master_count = _get_count(stats, master)
     slave_count = _get_count(stats, slave)
-    reindex_pct = (float(slave_count) / float(master_count)) * 100
+    reindex_pct = _percentage(slave_count, master_count)
     out = []
     out.append(master_count)
     out.append(slave_count)
     out.append(reindex_pct)
     return out
+
+
+def _percentage(numerator, denominator):
+    try:
+        return (float(numerator) / float(denominator)) * 100
+    except ZeroDivisionError:
+        return float(0.00)
 
 
 def _check_index(es, parsed_args, index, stats):
@@ -64,7 +72,6 @@ def _return_slave(index, parsed_args):
 
 def get_indices(es, parsed_args, slaves=False):
     """Fetch a list of all of the elasticsearch indices."""
-    indices = None
     indices = []
 
     full_indices = es.indices.get_aliases(request_timeout=30).keys()
@@ -93,19 +100,19 @@ def reindex(es, es_host, parsed_args):
                 reindex_params = 'http://' + es_host + \
                     '/' + index + '/_reindex/' + index + parsed_args.suffix + \
                     '/'
-                print("Reindexing: {0} into: {1}").format(index, index +
-                                                          parsed_args.suffix)
+                print("Reindexing: {0} into: {1}".format(index, index +
+                                                         parsed_args.suffix))
                 if not parsed_args.dry_run:
                     requests.post(reindex_params)
             else:
-                print("Skipping: {} reindexing in progress").format(index)
+                print("Skipping: {} reindexing in progress".format(index))
 
     else:
         reindex_params = 'http://' + es_host + '/' + parsed_args.index + \
             '/_reindex/' + parsed_args.index + parsed_args.suffix
-        print("Reindexing Single Index: {0} into: {1}").format(
+        print("Reindexing Single Index: {0} into: {1}".format(
             parsed_args.index,
-            parsed_args.index + parsed_args.suffix)
+            parsed_args.index + parsed_args.suffix))
         if not parsed_args.dry_run:
             requests.post(reindex_params)
 
@@ -118,7 +125,7 @@ def clean_legacy(es, parsed_args):
         if parsed_args.suffix in index:
             if not parsed_args.dry_run:
                 es.indices.delete(index)
-            print ("Deleted: {}").format(index)
+            print ("Deleted: {}".format(index))
 
 
 def monitor_reindex(es, parsed_args):
@@ -148,27 +155,27 @@ def monitor_reindex(es, parsed_args):
                   "Slave Index: {1:15s} "
                   "Master Count: {2:10d} "
                   "Slave Count: {3:10d} "
-                  "Percentage Complete: {4:3.2f}%").format(master,
-                                                           slave_index,
-                                                           master_count,
-                                                           slave_count,
-                                                           reindex_pct)
+                  "Percentage Complete: {4:3.2f}%".format(master,
+                                                          slave_index,
+                                                          master_count,
+                                                          slave_count,
+                                                          reindex_pct))
         total_count += master_count
         done_count += slave_count
     try:
-        pct_done = (float(done_count) / float(total_count)) * 100
+        pct_done = _percentage(done_count, total_count)
     except ZeroDivisionError:
         pct_done = float(0.00)
     if parsed_args.verbose:
         print("Total Docments: {0:20d} "
               "Reindexed Documents: {1:20d} "
-              "Percentage complete: {2:3.2f}%").format(total_count,
-                                                       done_count,
-                                                       pct_done)
+              "Percentage complete: {2:3.2f}%".format(total_count,
+                                                      done_count,
+                                                      pct_done))
     else:
-        print("Percent complete: {0:3.2f}%").format(pct_done)
+        print("Percent complete: {0:3.2f}%".format(pct_done))
     if pct_done == 100:
-        exit(code=0)
+        sys.exit()
     else:
         return False
 
@@ -178,7 +185,7 @@ def drop_legacy(es, parsed_args):
     stats = get_stats(es)
     for index in get_indices(es, parsed_args):
         if _check_index(es, parsed_args, index, stats):
-            print("Dropping Legacy Index: {}").format(index)
+            print("Dropping Legacy Index: {}".format(index))
             if not parsed_args.dry_run:
                 es.indices.delete(index)
 
@@ -210,28 +217,28 @@ def batch(es, es_host, parsed_args):
                 if s_date < p_start:
                     p_start = s_date
         d_start = p_start
-    elif parsed_args.start:
+    else:
         (s_year, s_month, s_day) = parsed_args.start.split('.')
         d_start = date(int(s_year), int(s_month), int(s_day))
     if not parsed_args.end:
         d_end = yesterday
-    elif parsed_args.end:
+    else:
         (e_year, e_month, e_day) = parsed_args.end.split('.')
         d_end = date(int(e_year), int(e_month), int(e_day))
 
     numdays = d_end - d_start + one_day
     date_range = [d_end - timedelta(days=x) for x in range(0, numdays.days)]
-    print("Start: {0}\tEnd: {1}\n").format(d_start, d_end)
+    print("Start: {0}\tEnd: {1}\n".format(d_start, d_end))
 
     for index in indices:
         parsed_args.index = index
         i_date = _index_to_date(index)
         if i_date in date_range:
             if not _check_index(es, parsed_args, index, stats):
-                print("Batch Index: {}").format(index)
+                print("Batch Index: {}".format(index))
                 reindex(es, es_host, parsed_args)
             else:
-                print("Skipping: {} reindexing in progress").format(index)
+                print("Skipping: {} reindexing in progress".format(index))
 
 
 def main():
@@ -242,7 +249,7 @@ def main():
                         port to connect to (default: 9200)")
     parser.add_argument("--suffix", default="liberty", help="Suffix for \
                         reindexed indices. (default: liberty)")
-    parser.add_argument("--clean", action="store_true", help="Clean previousi \
+    parser.add_argument("--clean", action="store_true", help="Clean previous \
                         reindexed indices")
     parser.add_argument("--list", action="store_true", dest="list_indices",
                         help="List all elasticsearch indices")
@@ -281,7 +288,7 @@ def main():
 
     es_host = args.host + ":" + args.port
     if args.verbose:
-        print("Connecting to elasticsearch at {}").format(es_host)
+        print("Connecting to elasticsearch at {}".format(es_host))
     es = Elasticsearch(es_host)
 
     if args.clean:

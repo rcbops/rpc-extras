@@ -154,7 +154,7 @@ popd
 # at the end of this script.
 touch ${UPGRADE_VARIABLES_FILE}
 if grep -q 'logging_upgrade' ${UPGRADE_VARIABLES_FILE}; then
-  sed -i "s/logging_upgrade:.*/logging_upgrade: true/" ${UPGRADE_VARIABLES_FILE}
+  sed -i "s/logging_upgrade:.*$/logging_upgrade: true/" ${UPGRADE_VARIABLES_FILE}
 else
   echo "logging_upgrade: true" >> ${UPGRADE_VARIABLES_FILE}
 fi
