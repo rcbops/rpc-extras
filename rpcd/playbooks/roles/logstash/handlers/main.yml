@@ -17,4 +17,5 @@
   service:
     name: logstash
     state: restarted
+    enabled: yes
     pattern: logstash

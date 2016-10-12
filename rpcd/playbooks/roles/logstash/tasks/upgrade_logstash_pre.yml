@@ -3,6 +3,14 @@
   apt:
     package: logstash
     state: absent
+    purge: yes
+  when:
+    - logging_upgrade | bool
+
+- name: Remove /etc/init/logstash-web.override
+  file:
+    name: "/etc/init/logstash-web.override"
+    state: absent
   when:
     - logging_upgrade | bool
 
