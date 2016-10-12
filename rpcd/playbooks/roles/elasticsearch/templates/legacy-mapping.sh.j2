@@ -1,7 +1,7 @@
 #!/bin/sh
 curl --retry 10 -XPUT 'http://{{ hostvars[inventory_hostname]['container_address'] }}:{{ elasticsearch_http_port }}/_template/legacy-liberty' -d '
 {
-  "template" : "*",
+  "template" : "*-liberty",
   "order": 0,
     "mappings" : {
       "_default_" : {
@@ -19,7 +19,7 @@ curl --retry 10 -XPUT 'http://{{ hostvars[inventory_hostname]['container_address
                 }
               }
             },
-            "match" : "*-liberty",
+            "match" : "*",
             "match_mapping_type" : "string"
           }
         } ],
