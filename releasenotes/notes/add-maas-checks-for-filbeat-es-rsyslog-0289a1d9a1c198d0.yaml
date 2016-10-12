@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    This adds MaaS checks for elasticsearch, filebeat, and 
+    rsyslog. It checks the processes are running or not. If not,
+    it will create an alarm.

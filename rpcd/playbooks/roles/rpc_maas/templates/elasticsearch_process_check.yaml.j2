@@ -1,0 +1,19 @@
+type: agent.plugin
+label: "elasticsearch_process_check--{{ ansible_hostname }}"
+disabled    : false
+period      : "{{ maas_check_period }}"
+timeout     : "{{ maas_check_timeout }}"
+details     :
+    file    : run_plugin_in_venv.sh
+    args    : ["{{ maas_plugin_dir }}process_check.py", {% if inventory_hostname in groups['all_containers'] %} "-c", "{{ inventory_hostname }}", {% else %}{% endif %}"{{ elasticsearch_process_names|join(",") }}"]
+alarms      :
+{% for process in elasticsearch_process_names %}
+    {{ process }}_process_status:
+        label                   : {{ process }}_process_status--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["{{ process }}_process_status"] != 1 ) {
+                return new AlarmStatus(CRITICAL, "Elasticsearch process {{ process }} not running on {{ ansible_hostname }}");
+            }
+{% endfor %}
