@@ -1,9 +1,9 @@
 language: python
 
 before_script:
-- pip install tox
 - pip2 install --force-reinstall 'ansible===1.9.4'
 - ansible-galaxy install --role-file=ansible-role-requirements.yml --force --roles-path=/home/travis/build/rcbops/rpc-openstack/rpcd/playbooks/roles
+- pip install 'tox!=2.4.0,>=2.3'
 
 script: tox
 
