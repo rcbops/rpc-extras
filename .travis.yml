@@ -1,7 +1,7 @@
 language: python
 
 before_script:
-- pip install tox
+- pip install 'tox!=2.4.0,>=2.3'
 
 script: tox
 
