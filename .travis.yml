@@ -1,8 +1,8 @@
 language: python
 
 before_script:
-- pip install tox
 - git fetch origin +refs/heads/*:refs/remotes/origin/*
+- pip install 'tox!=2.4.0,>=2.3'
 
 script: tox
 
