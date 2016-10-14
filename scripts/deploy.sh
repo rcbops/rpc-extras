@@ -276,7 +276,6 @@ pushd  ${RPCD_DIR}/playbooks
 # deploy and configure RAX MaaS
   if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
     RUN_TASKS+=("setup-maas.yml")
-    RUN_TASKS+=("verify-maas.yml")
   fi
 
 # deploy and configure the ELK stack
@@ -288,6 +287,12 @@ pushd  ${RPCD_DIR}/playbooks
       RUN_TASKS+=(" haproxy.yml")
     fi
   fi
+
+# verify RAX MaaS
+  if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
+    RUN_TASKS+=("verify-maas.yml")
+  fi
+
   for item in ${!RUN_TASKS[@]}; do
      run_lock $item "${RUN_TASKS[$item]}"
   done
