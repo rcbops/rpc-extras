@@ -172,6 +172,10 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   # Issue tracking upstream fix: https://github.com/rcbops/rpc-openstack/issues/1028
   ansible repo_all -m file -a 'name=/root/.pip state=absent' 2>/dev/null ||:
 
+  pushd ${RPCD_DIR}/playbooks/
+    run_ansible rpc-setup-infrastructure.yml
+  popd
+
   cd ${OA_DIR}/playbooks/
 
   # setup the haproxy load balancer
