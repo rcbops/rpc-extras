@@ -64,9 +64,6 @@ ansible-galaxy remove --roles-path /opt/rpc-openstack/rpcd/playbooks/roles/ ceph
 ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.yml --force \
                            --roles-path=/opt/rpc-openstack/rpcd/playbooks/roles
 
-# Enable playbook callbacks from OSA to display playbook statistics
-grep -q callback_plugins playbooks/ansible.cfg || sed -i '/\[defaults\]/a callback_plugins = plugins/callbacks' playbooks/ansible.cfg
-
 # bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
 
@@ -81,8 +78,13 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   fi
   # force the deployment of haproxy for an AIO
   export DEPLOY_HAPROXY="yes"
-  if [[ ! -d /etc/openstack_deploy/ ]]; then
+  if [[ ! -d /etc/openstack_deploy/ || ! -d /etc/openstack_deploy/$RPCD_OVERRIDES ]]; then
     ./scripts/bootstrap-aio.sh
+
+    # Create env.d directory so we can add our own configs
+    # See: https://review.openstack.org/#/c/332595/
+    mkdir -p /etc/openstack_deploy/env.d
+
     # move OSA variables file to AIO location.
     mv /etc/openstack_deploy/user_variables.yml /etc/openstack_deploy/user_osa_aio_variables.yml
     pushd ${RPCD_DIR}
@@ -134,11 +136,13 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
       echo "apply_security_hardening: false" >> $OA_OVERRIDES
     fi
 
+    # set the affinity to 3 for infra cluster (necessary for maas testing)
+    awk '{print} $0 == "  aio1:" && previous == "shared-infra_hosts:" \
+         {print "    affinity:\n      galera_container: 3\n      rabbit_mq_container: 3"} \
+         {previous = $0}' \
+    /etc/openstack_deploy/openstack_user_config.yml > /tmp/tmp && mv /tmp/tmp /etc/openstack_deploy/openstack_user_config.yml
     # set the ansible inventory hostname to the host's name
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/openstack_user_config.yml
-    # set the affinity to 3 for infra cluster (necessary for maas testing)
-    sed -i "s/rabbit_mq_container: 1/rabbit_mq_container: 3/" /etc/openstack_deploy/openstack_user_config.yml
-    sed -i "s/galera_container: 1/galera_container: 3/" /etc/openstack_deploy/openstack_user_config.yml
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/conf.d/*.yml
   fi
   # remove swift config if not deploying swift.
@@ -147,6 +151,7 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   fi
   rm -f /etc/openstack_deploy/conf.d/aodh.yml
   rm -f /etc/openstack_deploy/conf.d/ceilometer.yml
+  rm -f /etc/openstack_deploy/conf.d/gnocchi.yml
 fi
 
 # move OSA secrets to correct locations
@@ -205,11 +210,6 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   else
     run_ansible setup-hosts.yml
   fi
-
-  # ensure correct pip.conf
-  pushd ${RPCD_DIR}/playbooks/
-    run_ansible pip-lockdown.yml
-  popd
 
   if [[ "$DEPLOY_CEPH" == "yes" ]]; then
     pushd ${RPCD_DIR}/playbooks/

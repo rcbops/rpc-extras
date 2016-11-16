@@ -28,4 +28,4 @@ galaxy_info:
     - kibana
 
 dependencies:
-  - pip_lock_down
+  - pip_install

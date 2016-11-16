@@ -15,6 +15,3 @@ galaxy_info:
     - heat
     - development
     - openstack
-
-dependencies:
-  - pip_lock_down

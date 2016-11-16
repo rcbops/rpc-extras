@@ -29,6 +29,3 @@ galaxy_info:
     - MaaS
     - development
     - openstack
-
-dependencies:
-  - pip_lock_down

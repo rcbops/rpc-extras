@@ -26,7 +26,7 @@
 
 - name: Write Ceph monitoring client key to file
   copy:
-    content: '{{[ceph_raxmon_client.stdout, "\n"] | join("") }}'
+    content: "{{[ceph_raxmon_client.stdout, '\n'] | join('') }}"
     dest: "/etc/ceph/ceph.client.raxmon.keyring"
   delegate_to: "{{ physical_host }}"
 

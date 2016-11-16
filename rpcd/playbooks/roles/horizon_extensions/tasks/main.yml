@@ -18,15 +18,13 @@
     name: "{{ item }}"
     state: latest
     extra_args: "{{ pip_install_options | default('') }}"
-    virtualenv: "{{ horizon_venv_bin | dirname }}"
+    virtualenv: "{{ horizon_bin | dirname }}"
     virtualenv_site_packages: "no"
   register: install_pip_packages
   until: install_pip_packages|success
   retries: 5
   delay: 2
   with_items: "{{ horizon_extensions_pip_packages }}"
-  when:
-    horizon_venv_enabled | bool
   tags:
     - horizon-extensions-install
     - horizon-extensions-pip-packages
@@ -61,6 +59,6 @@
   become: true
   become_user: "{{ horizon_system_user_name }}"
   with_items:
-    - "{{ horizon_venv_bin }}/horizon-manage.py collectstatic --noinput"
-    - "{{ horizon_venv_bin }}/horizon-manage.py compress --force"
+    - "{{ horizon_bin }}/horizon-manage.py collectstatic --noinput"
+    - "{{ horizon_bin }}/horizon-manage.py compress --force"
   notify: Restart apache2

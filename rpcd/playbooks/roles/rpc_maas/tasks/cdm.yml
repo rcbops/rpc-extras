@@ -44,6 +44,5 @@
 - include: ensure_filesystem_checks.yml
   vars:
     drives: "{{ maas_filesystem_overrides }}"
-  user: root
   when: >
     maas_filesystem_overrides is defined

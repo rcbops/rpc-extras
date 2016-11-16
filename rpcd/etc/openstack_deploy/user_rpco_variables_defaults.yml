@@ -56,7 +56,9 @@ hp_check: false
 #lb_name: 'unspecified'
 
 # Set the maas_scheme
-maas_scheme: http
+# Note: (alextricity25) This has been changed to https because
+# SSL termination is done by default since Newton per https://review.openstack.org/#/c/277199/
+maas_scheme: https
 # Specify per service if required, as an example:
 # maas_nova_scheme: https
 

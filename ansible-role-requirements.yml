@@ -9,4 +9,4 @@
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
 - name: rcbops_openstack-ops
   src: https://github.com/rsoprivatecloud/openstack-ops
-  version: d55e02723c0666cd8a4959027fa97ced88cb0617
+  version: 1383d0db302c6fc400a50fae4f85e77bf1633581

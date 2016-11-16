@@ -27,6 +27,3 @@ galaxy_info:
     - support
     - rackspace
     - backups
-
-dependencies:
-  - pip_lock_down

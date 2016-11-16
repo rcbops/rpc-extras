@@ -18,7 +18,7 @@ import argparse
 import time
 
 import ipaddr
-from keystoneclient.openstack.common.apiclient import exceptions as exc
+from keystoneclient import exceptions as exc
 from maas_common import get_auth_details
 from maas_common import get_keystone_client
 from maas_common import metric
