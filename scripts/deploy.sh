@@ -197,24 +197,21 @@ heat_policy_overrides:
 magnum_config_overrides:
   certificates:
     cert_manager_type: x509keypair
+# TODO(chris_hultin):
+# Remove this line upon transition to Newton
 ansible_service_mgr: "upstart"
-magnum_rabbitmq_port: "{{ rabbitmq_port }}"
-magnum_rabbitmq_servers: "{{ rabbitmq_servers }}"
-magnum_rabbitmq_use_ssl: "{{ rabbitmq_use_ssl }}"
 EOF
     cp $OA_DIR/playbooks/roles/os_magnum/extras/env.d/magnum.yml /etc/openstack_deploy/env.d/
     cat $OA_DIR/playbooks/roles/os_magnum/extras/haproxy_magnum.yml >> $OA_DIR/playbooks/vars/configs/haproxy_config.yml
     cat $OA_DIR/playbooks/roles/os_magnum/extras/group_vars_magnum.yml >> $OA_DIR/playbooks/inventory/group_vars/magnum_all.yml
-    cat >> $OA_DIR/inventory/group_vars/magnum_all.yml <<'EOF'
+    cat >> $OA_DIR/playbooks/inventory/group_vars/magnum_all.yml <<'EOF'
 magnum_developer_mode: true
 magnum_git_install_branch: stable/newton
 magnum_requirements_git_install_branch: stable/newton
 pip_install_options: "--isolated"
-EOF
-    cat >> $OA_DIR/defaults/repo_packages/openstack_services.yml <<'EOF'
-magnum_git_repo: https://git.openstack.org/openstack/magnum
-magnum_git_install_branch: stable/mitaka
-magnum_git_dest: "/opt/magnum_{{ magnum_git_install_branch | replace('/', '_') }}"
+magnum_rabbitmq_port: "{{ rabbitmq_port }}"
+magnum_rabbitmq_servers: "{{ rabbitmq_servers }}"
+magnum_rabbitmq_use_ssl: "{{ rabbitmq_use_ssl }}"
 EOF
     cp $OA_DIR/playbooks/roles/os_magnum/extras/os-magnum-install.yml $OA_DIR/playbooks/
     sed -i 's/openstack-ansible-magnum/os_magnum/' $OA_DIR/playbooks/os-magnum-install.yml
