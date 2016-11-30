@@ -123,6 +123,24 @@ horizon_custom_uploads:
 repo_build_pip_extra_indexes:
   - "https://rpc-repo.rackspace.com/pools"
 
+# Enumerate any apt packages that the deployer would like to pin to a particular version.
+#
+# This relies on the apt_package_pinning role from openstack-ansible.
+#
+# Pinning happens in the 'apt_pinned_packages' variable.
+#
+# apt_pinned_packages:
+#   - { package: "lxc", version: "1.0.7-0ubuntu0.1" }
+#   - { package: "libvirt-bin", version: "1.2.2-0ubuntu13.1.9" }
+#   - { package: "rabbitmq-server", origin: "www.rabbitmq.com" }
+#   - { package: "*", release: "MariaDB" }
+
+# We pin download.ceph.com so ceph packages are not downloaded for the
+# UCA repository that was added in newton.
+# For more information please see https://github.com/rcbops/u-suk-dev/issues/747
+ceph_apt_pinned_packages:
+    - { package: "*", origin: "download.ceph.com", priority: 1001 }
+
 ## Host security hardening
 # The openstack-ansible-security role provides security hardening for hosts
 # by applying security configurations from the STIG. Hardening is enabled by
