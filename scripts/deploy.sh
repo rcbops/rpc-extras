@@ -162,6 +162,13 @@ EOF
   rm -f /etc/openstack_deploy/conf.d/aodh.yml
   rm -f /etc/openstack_deploy/conf.d/ceilometer.yml
   rm -f /etc/openstack_deploy/conf.d/gnocchi.yml
+
+  # Per https://github.com/rcbops/u-suk-dev/issues/749, compute hosts
+  # will not be considered to be part of the neutron_l3_agent and
+  # neutron_metadata_agent groups, so we are removing in the nova.yml
+  # environment file.
+  sed -i '/ *- neutron_l3_agent/d' $OA_DIR/playbooks/inventory/env.d/nova.yml
+  sed -i '/ *- neutron_metadata_agent/d' $OA_DIR/playbooks/inventory/env.d/nova.yml
 fi
 
 # move OSA secrets to correct locations
