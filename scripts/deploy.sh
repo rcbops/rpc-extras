@@ -79,7 +79,22 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   # force the deployment of haproxy for an AIO
   export DEPLOY_HAPROXY="yes"
   if [[ ! -d /etc/openstack_deploy/ || ! -d /etc/openstack_deploy/$RPCD_OVERRIDES ]]; then
-    ./scripts/bootstrap-aio.sh
+
+    # Adding affinity of 3 for rabbit and galera containers
+    # This variable is passed as a user variable in the following
+    # ansible-playbook command.
+    cat > /tmp/openstack_user_config_overrides.yml <<EOF
+openstack_user_config_overrides:
+  shared-infra_hosts:
+    aio1:
+      affinity:
+        galera_container: 3
+        rabbit_mq_container: 3
+      ip: 172.29.236.100
+EOF
+    pushd $OA_DIR/tests
+      ansible-playbook bootstrap-aio.yml -i test-inventory.ini -e "${BOOTSTRAP_OPTS:-""}" -e "@/tmp/openstack_user_config_overrides.yml"
+    popd
 
     # Create env.d directory so we can add our own configs
     # See: https://review.openstack.org/#/c/332595/
@@ -136,11 +151,6 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
       echo "apply_security_hardening: false" >> $OA_OVERRIDES
     fi
 
-    # set the affinity to 3 for infra cluster (necessary for maas testing)
-    awk '{print} $0 == "  aio1:" && previous == "shared-infra_hosts:" \
-         {print "    affinity:\n      galera_container: 3\n      rabbit_mq_container: 3"} \
-         {previous = $0}' \
-    /etc/openstack_deploy/openstack_user_config.yml > /tmp/tmp && mv /tmp/tmp /etc/openstack_deploy/openstack_user_config.yml
     # set the ansible inventory hostname to the host's name
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/openstack_user_config.yml
     sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/conf.d/*.yml
