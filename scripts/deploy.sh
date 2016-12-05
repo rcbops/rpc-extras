@@ -188,12 +188,17 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   #Distribute Magnum configuration files
   if [[ "${DEPLOY_MAGNUM}" == "yes" ]]; then
     cat > $OA_OVERRIDES <<'EOF'
+# These configuration entries for Keystone configure some settings for Trusts to
+# function properly
 keystone_keystone_conf_overrides:
   resource:
     admin_project_name: '{{ keystone_admin_tenant_name }}'
     admin_project_domain_name: default
+# This change to the Heat Policy configuration file allows Magnum to list all
+# stacks, regardless of owner.  This does NOT allow Magnum to have Write access
 heat_policy_overrides:
   "stacks:global_index": "role:admin"
+# This configures Magnum to use the MySQL/Galera database to store certificates
 magnum_config_overrides:
   certificates:
     cert_manager_type: x509keypair
@@ -204,14 +209,22 @@ EOF
     cp $OA_DIR/playbooks/roles/os_magnum/extras/env.d/magnum.yml /etc/openstack_deploy/env.d/
     cat $OA_DIR/playbooks/roles/os_magnum/extras/haproxy_magnum.yml >> $OA_DIR/playbooks/vars/configs/haproxy_config.yml
     cat $OA_DIR/playbooks/roles/os_magnum/extras/group_vars_magnum.yml >> $OA_DIR/playbooks/inventory/group_vars/magnum_all.yml
-    cat >> $OA_DIR/playbooks/inventory/group_vars/magnum_all.yml <<'EOF'
-magnum_developer_mode: true
-magnum_git_install_branch: stable/newton
-magnum_requirements_git_install_branch: stable/newton
-pip_install_options: "--isolated"
-magnum_rabbitmq_port: "{{ rabbitmq_port }}"
-magnum_rabbitmq_servers: "{{ rabbitmq_servers }}"
-magnum_rabbitmq_use_ssl: "{{ rabbitmq_use_ssl }}"
+    cat >> /etc/openstack_deploy/env.d/magnum.yml <<'EOF'
+      magnum_developer_mode: true
+      magnum_git_install_branch: stable/newton
+      magnum_requirements_git_install_branch: stable/newton
+      pip_install_options: "--isolated"
+      magnum_rabbitmq_port: "{{ rabbitmq_port }}"
+      magnum_rabbitmq_servers: "{{ rabbitmq_servers }}"
+      magnum_rabbitmq_use_ssl: "{{ rabbitmq_use_ssl }}"
+EOF
+    # TODO(chris_hultin):
+    # Remove this section upon transition to Newton
+    # This is required so that repo_build.yml does not attempt to build a different version of Magnum
+    cat >> $OA_DIR/playbooks/defaults/repo_packages/openstack_services.yml <<'EOF'
+    magnum_git_repo: https://git.openstack.org/openstack/magnum
+    magnum_git_install_branch: stable/mitaka
+    magnum_git_dest: "/opt/magnum_{{ magnum_git_install_branch | replace('/', '_') }}"
 EOF
     cp $OA_DIR/playbooks/roles/os_magnum/extras/os-magnum-install.yml $OA_DIR/playbooks/
     sed -i 's/openstack-ansible-magnum/os_magnum/' $OA_DIR/playbooks/os-magnum-install.yml
