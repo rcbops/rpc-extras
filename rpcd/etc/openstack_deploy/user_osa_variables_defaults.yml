@@ -176,10 +176,3 @@ ssh_delay: 60
 
 # Use the correct secrets file
 osa_secrets_file_name: "user_osa_secrets.yml"
-
-# This is so SSL is terminated on the horizon container instead of the
-# LB. This is needed to make our horizon_local.py maas check work, and
-# needs to be revisted once we have decided to either terminal SSL on
-# the LB, or keep it on the horizon container.
-# See https://github.com/rcbops/u-suk-dev/issues/748
-horizon_external_ssl: false
