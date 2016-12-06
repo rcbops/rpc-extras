@@ -139,7 +139,7 @@ repo_build_pip_extra_indexes:
 # UCA repository that was added in newton.
 # For more information please see https://github.com/rcbops/u-suk-dev/issues/747
 ceph_apt_pinned_packages:
-    - { package: "*", origin: "download.ceph.com", priority: 1001 }
+    - { package: "*", origin: "download.ceph.com", priority: 995 }
 
 ## Host security hardening
 # The openstack-ansible-security role provides security hardening for hosts
