@@ -73,6 +73,10 @@ maas_alarm_remote_consecutive_count: 1
 # Set the following to skip creating alarms for this device for disk utilisation monitoring
 # maas_excluded_devices: ['xvde']
 
+# Set the following to skip a specific check
+maas_excluded_checks:
+  - horizon_local_check
+
 # Set the threshold for filesystem monitoring when you are not specifying specific filesystems.
 maas_filesystem_warning_threshold: 80.0
 maas_filesystem_critical_threshold: 90.0
