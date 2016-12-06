@@ -45,8 +45,8 @@ def check(args):
     OS_USERNAME = auth_details['OS_USERNAME']
     OS_PASSWORD = auth_details['OS_PASSWORD']
     OS_USER_DOMAIN_NAME = auth_details['OS_USER_DOMAIN_NAME']
-    HORIZON_URL = 'http://{ip}'.format(ip=args.ip)
-    HORIZON_PORT = '80'
+    HORIZON_URL = 'https://{ip}'.format(ip=args.ip)
+    HORIZON_PORT = '443'
 
     s = requests.Session()
 
