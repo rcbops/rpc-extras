@@ -49,8 +49,12 @@ maas_target_alias: public0_v4
 # Set whether checks should be enabled or disabled
 ssl_check: false
 dell_check: false
-remote_check: true
+remote_check: false
 hp_check: false
+
+# Disable filebeat checks to debug maas issues
+maas_excluded_checks:
+  - filebeat_process_check
 
 # Set the LB device name in CORE
 #lb_name: 'unspecified'
