@@ -17,16 +17,6 @@
   hosts: hosts
   user: root
   tasks:
-    # This is needed to set the rpc_openstack_repo and rpc_release variables
-    # correctly
-    - name: Discover rpc-openstack version
-      git_repo_info:
-        path: "/opt/rpc-openstack"
-      delegate_to: localhost
-      run_once: true
-    - name: Display rpc_release variable
-      debug: var=rpc_release
-      run_once: true
     - name: ensure remote directory
       file:
         path: "{{ maas_rpc_scripts_dir }}"
