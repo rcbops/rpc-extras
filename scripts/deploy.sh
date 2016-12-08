@@ -252,16 +252,7 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
   if [[ "${DEPLOY_TEMPEST}" == "yes" ]]; then
     # Deploy tempest
-    # NOTE(mattt): This is an attempt to reduce the number of tempest-related
-    #              gate failures that we are seeing.  We cannot have the repo
-    #              server build this version of tempest because it has
-    #              requirements that do not jive with stable/mitaka.
-    run_ansible os-tempest-install.yml -e tempest_developer_mode=true \
-                                       -e tempest_git_repo=https://git.openstack.org/openstack/tempest \
-                                       -e tempest_git_install_branch=304802830b56354a83bad86925851107411d45ec \
-                                       -e tempest_requirements_git_repo=https://git.openstack.org/openstack/requirements \
-                                       -e tempest_requirements_git_install_branch=6c86e861875529f87b09244de355d5df865b7adc \
-                                       -e pip_install_options=--isolated
+    run_ansible os-tempest-install.yml
   fi
 
 fi
