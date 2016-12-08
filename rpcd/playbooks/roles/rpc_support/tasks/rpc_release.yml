@@ -13,14 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Discover rpc-openstack version
-  git_repo_info:
-    path: "/opt/rpc-openstack"
-  delegate_to: localhost
-  run_once: true
-  tags:
-    - rpc-release
-
 - name: Drop rpc-release file
   template:
     src: "rpc-release.j2"
