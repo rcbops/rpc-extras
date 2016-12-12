@@ -184,7 +184,7 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
   cd ${OA_DIR}/playbooks/
 
-  #Distribute Magnum configuration files
+  #Distribute Magnum configuration files and settings
   if [[ "${DEPLOY_MAGNUM}" == "yes" ]]; then
     cat > $OA_OVERRIDES <<'EOF'
 # These configuration entries for Keystone configure some settings for Trusts to
