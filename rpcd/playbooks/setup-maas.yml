@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- include: pip-lockdown.yml
+
 - name: Gather mons facts for ceph.conf template
   include: gen-facts.yml
 
