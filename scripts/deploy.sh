@@ -41,10 +41,6 @@ ansible-galaxy install --role-file=/opt/rpc-openstack/ansible-role-requirements.
 # Enable playbook callbacks from OSA to display playbook statistics
 grep -q callback_plugins playbooks/ansible.cfg || sed -i '/\[defaults\]/a callback_plugins = plugins/callbacks' playbooks/ansible.cfg
 
-if [[ "$DEPLOY_MAGNUM" == "yes" ]]; then
-  git clone https://github.com/openstack/openstack-ansible-os_magnum.git -b stable/newton --single-branch $OA_DIR/playbooks/roles/os_magnum
-fi
-
 # bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
 
@@ -128,7 +124,12 @@ if [[ ! -f /etc/openstack_deploy/user_osa_secrets.yml ]] && [[ -f /etc/openstack
 fi
 
 if [[ "$DEPLOY_MAGNUM" == "yes" ]]; then
-  cat $OA_DIR/playbooks/roles/os_magnum/extras/user_secrets_magnum.yml >> /etc/openstack_deploy/user_osa_secrets.yml
+  cat >> /etc/openstack_deploy/user_osa_secrets.yml <<'EOF'
+magnum_service_password:
+magnum_galera_password:
+magnum_rabbitmq_password:
+magnum_trustee_password:
+EOF
 fi
 
 # Apply host security hardening with openstack-ansible-security
@@ -203,18 +204,17 @@ magnum_config_overrides:
 # TODO(chris_hultin):
 # Remove this line upon transition to Newton
 ansible_service_mgr: "upstart"
-EOF
-    cp $OA_DIR/playbooks/roles/os_magnum/extras/env.d/magnum.yml /etc/openstack_deploy/env.d/
-    cat $OA_DIR/playbooks/roles/os_magnum/extras/haproxy_magnum.yml >> $OA_DIR/playbooks/vars/configs/haproxy_config.yml
-    cat $OA_DIR/playbooks/roles/os_magnum/extras/group_vars_magnum.yml >> $OA_DIR/playbooks/inventory/group_vars/magnum_all.yml
-    cat >> /etc/openstack_deploy/env.d/magnum.yml <<'EOF'
-      magnum_developer_mode: true
-      magnum_git_install_branch: stable/newton
-      magnum_requirements_git_install_branch: stable/newton
-      pip_install_options: "--isolated"
-      magnum_rabbitmq_port: "{{ rabbitmq_port }}"
-      magnum_rabbitmq_servers: "{{ rabbitmq_servers }}"
-      magnum_rabbitmq_use_ssl: "{{ rabbitmq_use_ssl }}"
+haproxy_extra_services:
+  - service:
+      haproxy_service_name: magnum
+      haproxy_backend_nodes: "{{ groups['magnum_all'] | default([]) }}"
+      haproxy_port: 9511
+      haproxy_balance_type: http
+      haproxy_balance_alg: leastconn
+      haproxy_backend_options:
+        - "forwardfor"
+        - "httpchk /status"
+        - "httplog"
 EOF
     # TODO(chris_hultin):
     # Remove this section upon transition to Newton
@@ -224,8 +224,7 @@ EOF
     magnum_git_install_branch: stable/mitaka
     magnum_git_dest: "/opt/magnum_{{ magnum_git_install_branch | replace('/', '_') }}"
 EOF
-    cp $OA_DIR/playbooks/roles/os_magnum/extras/os-magnum-install.yml $OA_DIR/playbooks/
-    sed -i 's/openstack-ansible-magnum/os_magnum/' $OA_DIR/playbooks/os-magnum-install.yml
+    cp $RPCD_DIR/playbooks/os-magnum-install.yml $OA_DIR/playbooks/
     echo "- include: os-magnum-install.yml" >> $OA_DIR/playbooks/setup-openstack.yml
   fi
 

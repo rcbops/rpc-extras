@@ -7,3 +7,6 @@
 - name: ceph.ceph-osd
   src: https://github.com/ceph/ansible-ceph-osd.git
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
+- name: os_magnum
+  src: https://github.com/openstack/openstack-ansible-os_magnum.git
+  version: 48fc4699ab61c14aa8ad006268d37fcd71b69656
