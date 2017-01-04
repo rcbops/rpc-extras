@@ -1,0 +1,37 @@
+---
+component_skel:
+  magnum_api:
+    belongs_to:
+      - magnum_all
+
+container_skel:
+  magnum_container:
+    belongs_to:
+      - infra_containers
+      - os-infra_containers
+    contains:
+      - magnum_api
+    properties:
+      service_name: magnum
+      container_release: trusty
+      magnum_developer_mode: true
+      magnum_git_install_branch: stable/newton
+      magnum_requirements_git_install_branch: stable/newton
+      pip_install_options: "--isolated"
+      magnum_rabbitmq_port: "{{ rabbitmq_port }}"
+      magnum_rabbitmq_servers: "{{ rabbitmq_servers }}"
+      magnum_rabbitmq_use_ssl: "{{ rabbitmq_use_ssl }}"
+      magnum_service_port: 9511
+      magnum_service_proto: http
+      magnum_service_publicuri_proto: "{{ openstack_service_adminuri_proto | default(magnum_service_proto) }}"
+      magnum_service_internaluri_proto: "{{ openstack_service_adminuri_proto | default(magnum_service_proto) }}"
+      magnum_service_adminuri_proto: "{{ openstack_service_adminuri_proto | default(magnum_service_proto) }}"
+      magnum_service_user_name: magnum
+      magnum_service_project_name: service
+      magnum_service_project_domain_id: default
+      magnum_service_user_domain_id: default
+      magnum_service_adminuri: "{{ magnum_service_adminuri_proto }}://{{ internal_lb_vip_address }}:{{ magnum_service_port }}"
+      magnum_service_adminurl: "{{ magnum_service_adminuri }}"
+      magnum_service_region: "{{ service_region }}"
+      magnum_rabbitmq_userid: magnum
+      magnum_rabbitmq_vhost: /magnum

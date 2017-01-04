@@ -13,6 +13,7 @@ export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER="no"
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
+export DEPLOY_MAGNUM=${DEPLOY_MAGNUM:-"no"}
 export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"yes"}
 export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
 export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
@@ -138,6 +139,15 @@ if [[ ! -f /etc/openstack_deploy/user_osa_secrets.yml ]] && [[ -f /etc/openstack
   mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml
 fi
 
+if [[ "$DEPLOY_MAGNUM" == "yes" ]]; then
+  cat >> /etc/openstack_deploy/user_osa_secrets.yml <<'EOF'
+magnum_service_password:
+magnum_galera_password:
+magnum_rabbitmq_password:
+magnum_trustee_password:
+EOF
+fi
+
 # Apply host security hardening with openstack-ansible-security
 # The is applied as part of setup-hosts.yml
 if [[ "$DEPLOY_HARDENING" == "yes" ]]; then
@@ -192,6 +202,50 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   ansible repo_all -m file -a 'name=/root/.pip state=absent' 2>/dev/null ||:
 
   cd ${OA_DIR}/playbooks/
+
+  #Distribute Magnum configuration files and settings
+  if [[ "${DEPLOY_MAGNUM}" == "yes" ]]; then
+    cat > $OA_OVERRIDES <<'EOF'
+# These configuration entries for Keystone configure some settings for Trusts to
+# function properly
+keystone_keystone_conf_overrides:
+  resource:
+    admin_project_name: '{{ keystone_admin_tenant_name }}'
+    admin_project_domain_name: default
+# This change to the Heat Policy configuration file allows Magnum to list all
+# stacks, regardless of owner.  This does NOT allow Magnum to have Write access
+heat_policy_overrides:
+  "stacks:global_index": "role:admin"
+# This configures Magnum to use the MySQL/Galera database to store certificates
+magnum_config_overrides:
+  certificates:
+    cert_manager_type: x509keypair
+# TODO(chris_hultin):
+# Remove this line upon transition to Newton
+ansible_service_mgr: "upstart"
+haproxy_extra_services:
+  - service:
+      haproxy_service_name: magnum
+      haproxy_backend_nodes: "{{ groups['magnum_all'] | default([]) }}"
+      haproxy_port: 9511
+      haproxy_balance_type: http
+      haproxy_balance_alg: leastconn
+      haproxy_backend_options:
+        - "forwardfor"
+        - "httpchk /status"
+        - "httplog"
+EOF
+    # TODO(chris_hultin):
+    # Remove this section upon transition to Newton
+    # This is required so that repo_build.yml does not attempt to build a different version of Magnum
+    cat >> $OA_DIR/playbooks/defaults/repo_packages/openstack_services.yml <<'EOF'
+    magnum_git_repo: https://git.openstack.org/openstack/magnum
+    magnum_git_install_branch: stable/mitaka
+    magnum_git_dest: "/opt/magnum_{{ magnum_git_install_branch | replace('/', '_') }}"
+EOF
+    cp $RPCD_DIR/playbooks/os-magnum-install.yml $OA_DIR/playbooks/
+    echo "- include: os-magnum-install.yml" >> $OA_DIR/playbooks/setup-openstack.yml
+  fi
 
   # setup the haproxy load balancer
   if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
