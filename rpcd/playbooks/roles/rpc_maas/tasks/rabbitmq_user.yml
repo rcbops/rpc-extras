@@ -51,6 +51,6 @@
     write_priv: ".*"
     tags: "administrator"
     state: "present"
-  with_items: vhost_json
+  with_items: "{{ vhost_json }}"
   tags:
     - rabbitmq-user

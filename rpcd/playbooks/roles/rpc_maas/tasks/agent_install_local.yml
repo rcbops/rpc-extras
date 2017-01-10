@@ -44,7 +44,7 @@
   file:
     path: "{{ item }}"
     mode: "0755"
-  with_items: plugin_files.stdout_lines
+  with_items: "{{ plugin_files.stdout_lines }}"
 
 - name: Create openrc file
   template:

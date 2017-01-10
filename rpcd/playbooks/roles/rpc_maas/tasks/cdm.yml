@@ -17,7 +17,6 @@
   vars:
     checks: "{{ cpu_memory_checks_list }}"
 
-
 - include: ensure_local_checks.yml
   vars:
     checks: "{{ disk_utilisation_checks_list }}"
@@ -26,23 +25,26 @@
 - name: Gathering facts for mounted drives
   set_fact:
     mounted_drives: "{% for item in ansible_mounts %}{% if 'xfs' in item.fstype or 'ext' in item.fstype %}{{ item.mount }}{% if not loop.last %},{% endif %}{% endif %}{% endfor %}"
-  when: >
-    maas_filesystem_overrides is not defined and maas_filesystem_monitors is not defined
+  when:
+    - maas_filesystem_overrides is not defined
+    - maas_filesystem_monitors is not defined
 
 - include: ensure_filesystem_auto_checks.yml
   vars:
     drives: "{{ mounted_drives.split(',') }}"
-  when: >
-    maas_filesystem_overrides is not defined and maas_filesystem_monitors is not defined
+  when:
+    - maas_filesystem_overrides is not defined
+    - maas_filesystem_monitors is not defined
 
 - include: ensure_filesystem_checks.yml
   vars:
     drives: "{{ maas_filesystem_monitors }}"
-  when: >
-    maas_filesystem_overrides is not defined and maas_filesystem_monitors is defined
+  when:
+    - maas_filesystem_overrides is not defined
+    - maas_filesystem_monitors is defined
 
 - include: ensure_filesystem_checks.yml
   vars:
     drives: "{{ maas_filesystem_overrides }}"
-  when: >
-    maas_filesystem_overrides is defined
+  when:
+    - maas_filesystem_overrides is defined

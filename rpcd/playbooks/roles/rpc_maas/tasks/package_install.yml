@@ -30,7 +30,7 @@
   until: install_packages|success
   retries: 5
   delay: 2
-  with_items: maas_requires_pip_packages
+  with_items: "{{ maas_requires_pip_packages }}"
 
 - name: Update pip
   pip:

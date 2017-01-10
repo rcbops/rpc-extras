@@ -48,6 +48,7 @@
 - include: swift_access_check.yml
   when:
     - swift_accesscheck_enabled | bool
+    - groups['swift_proxy'] | length > 0
     - inventory_hostname == groups['swift_proxy'][0]
 
 - include: remote.yml

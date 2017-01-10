@@ -33,7 +33,8 @@
       delegate_to: localhost
       run_once: true
     - name: Display rpc_release variable
-      debug: var=rpc_release
+      debug:
+        var: rpc_release
       run_once: true
   roles:
     - { role: "rpc_maas", tags: [ "maas-setup" ] }
