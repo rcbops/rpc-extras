@@ -68,8 +68,8 @@ MONITORS = [
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE {'
     r' defaults-from http destination *:6082 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
-    r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_HORIZON_SSL { defaults-from'
-    r' https destination *:443 recv "302 FOUND" send "HEAD / HTTP/1.1\r\nHost:'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_HORIZON_443 { defaults-from'
+    r' http destination *:443 recv "200 OK" send "HEAD / HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
     r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_NOVA_SPICE_CONSOLE {'
     r' defaults-from https destination *:6082 recv "200 OK" send "HEAD /'
@@ -296,8 +296,8 @@ POOL_PARTS = {
     },
     'horizon_ssl': {
         'port': 443,
-        'backend_port': 443,
-        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_HORIZON_SSL',
+        'backend_port': 80,
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_HORIZON_443',
         'group': 'horizon',
         'hosts': [],
         'make_public': True,
