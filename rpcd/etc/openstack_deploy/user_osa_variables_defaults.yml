@@ -152,3 +152,6 @@ glance_glance_api_conf_overrides:
 neutron_metering_agent_ini_overrides:
   DEFAULT:
     interface_driver: neutron.agent.linux.interface.BridgeInterfaceDriver
+
+# Chaing the lxc backing store to dir
+lxc_container_backing_store: dir
