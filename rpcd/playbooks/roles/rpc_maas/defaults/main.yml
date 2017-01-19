@@ -239,7 +239,7 @@ mysql_connection_critical_threshold: 90
 # cinder-volumes volume group thresholds
 cinder_volumes_vg_warning_threshold: 80.0
 cinder_volumes_vg_critical_threshold: 90.0
-cinder_vg_name: "{{ cinder_backends['lvm']['volume_group'] | default('') }}"
+cinder_vg_name: "{{ cinder_backends['lvm']['volume_group'] | default('cinder-volumes') }}"
 
 # MaaS CPU idle threshold
 cpu_idle_percent_avg_threshold: 10.0
