@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 - name: Install process checks
   template:
     src: "{{ item.name }}.yaml.j2"
@@ -24,6 +23,7 @@
   with_items:
     - "{{ process_checks_list }}"
   when:
-    - inventory_hostname in groups[ '{{ item.group }}' ]
+    - item.group in groups
+    - inventory_hostname in groups['{{ item.group }}']
     - item.name not in maas_excluded_checks
   delegate_to: "{{ physical_host }}"
