@@ -236,6 +236,40 @@ maas_filesystem_critical_threshold: 90.0
 mysql_connection_warning_threshold: 80
 mysql_connection_critical_threshold: 90
 
+# Maas mysql access denied thresholds
+# e.g If number of access denied errors inbetween checks
+# exceeds 20, the alarm will go into CRITICAL status.
+mysql_access_denied_errors_rate_warning_threshold: 10
+mysql_access_denied_errors_rate_critical_threshold: 20
+
+# Maas mysql aborted clients rate threshold
+# The rate is derived on a per-check basis.
+# In other words, this threshold defines how many
+# aborted_clients per check are needed to trigger
+# an alarm.
+mysql_aborted_clients_rate_warning_threshold: 1
+mysql_aborted_clients_rate_critical_threshold: 2
+
+# Maas mysql aborted connects rate threshold
+# The rate is derived on a per-check basis.
+# In other words, this threshold defines how many
+# aborted_connects per check are needed to trigger
+# an alarm
+mysql_aborted_connects_rate_warning_threshold: 1
+mysql_aborted_connects_rate_critical_threshold: 2
+
+# Maas mysql open file percentage threshold
+mysql_open_files_percentage_warning_threshold: 90
+mysql_open_files_percentage_critical_threshold: 95
+
+# Maas InnoDB row lock time avg thresholds, in milliseconds.
+innodb_row_lock_time_avg_warning_threshold: 2000
+innodb_row_lock_time_avg_critical_threshold: 10000
+
+# Maas InnoDB deadlock thresholds per maas check interval
+innodb_deadlocks_rate_warning_threshold: 1
+innodb_deadlocks_rate_critical_threshold: 2
+
 # cinder-volumes volume group thresholds
 cinder_volumes_vg_warning_threshold: 80.0
 cinder_volumes_vg_critical_threshold: 90.0

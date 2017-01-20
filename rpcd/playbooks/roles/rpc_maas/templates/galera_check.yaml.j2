@@ -69,8 +69,11 @@ alarms      :
         disabled                : {{ (('innodb_deadlocks--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
-            if (metric["innodb_deadlocks"] != 0) {
-                return new AlarmStatus(CRITICAL, "InnoDB has experienced a deadlock");
+            if (rate(metric["innodb_deadlocks"]) > {{ innodb_deadlocks_rate_warning_threshold }}) {
+                return new AlarmStatus(WARNING, "InnoDB has experienced a deadlock rate greater than {{ innodb_deadlocks_rate_warning_threshold }} per {{ maas_check_period }} seconds");
+            }
+            if (rate(metric["innodb_deadlocks"]) > {{ innodb_deadlocks_rate_critical_threshold }}) {
+                return new AlarmStatus(CRITICAL, "InnoDB has experienced a deadlock rate greater than {{ innodb_deadlocks_rate_critical_threshold }} per {{ maas_check_period }} seconds");
             }
     access_denied_errors :
         label                   : access_denied_errors--{{ ansible_hostname }}
