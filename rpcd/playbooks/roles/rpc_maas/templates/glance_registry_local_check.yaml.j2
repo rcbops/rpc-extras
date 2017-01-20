@@ -10,6 +10,7 @@ alarms      :
     glance_registry_local_status :
         label                   : glance_registry_local_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('glance_registry_local_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["glance_registry_local_status"] != 1) {

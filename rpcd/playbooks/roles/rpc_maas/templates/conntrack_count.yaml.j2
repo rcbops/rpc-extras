@@ -10,6 +10,7 @@ alarms      :
     conntrack_count_status :
         label                   : conntrack_count_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('conntrack_count_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["nf_conntrack_count"] , metric["nf_conntrack_max"]) > {{ nf_conntrack_critical_threshold }}) {

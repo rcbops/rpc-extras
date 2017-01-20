@@ -506,10 +506,22 @@ maas_source_plugin_dir: /opt/rpc-openstack/maas/plugins/
 maas_plugin_dir: /usr/lib/rackspace-monitoring-agent/plugins/
 
 maas_rpc_scripts_dir: /opt/rpc-openstack/scripts
+
+# The following two variables control which checks and alarms are excluded from
+# MaaS. Here is explanation of what each variable does:
 #
-# maas_excluded_checks: List of checks and alarms to exclude from this deploy
+# 1) When you add a check to `maas_excluded_checks`, the check (and any
+#    associated alarms) are not provisioned. This disables graphing,
+#    monitoring, alarms and alerts for that particular check.
 #
+# 2) When you add an alarm to `maas_excluded_alarms`, the alarm is not
+#    provisioned. However, the check itself (and any associated graphing) is
+#    maintained.
+#
+# Both lists can contain simple strings that match exactly, or they can contain
+# regular expressions.
 maas_excluded_checks: []
+maas_excluded_alarms: []
 
 # openrc definitions from OSA
 # This is necessary until LP #1537117 is implemented

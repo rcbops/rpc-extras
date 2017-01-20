@@ -23,5 +23,5 @@
   with_dict: "{{ cinder_backends | default({}) }}"
   when:
     - inventory_hostname in groups["cinder_volume"]
-    - "'cinder_volume_{{ item.key }}_check' not in maas_excluded_checks"
+    - not 'cinder_volume_{{ item.key }}_check' | match(maas_excluded_checks_regex)
   delegate_to: "{{ physical_host }}"
