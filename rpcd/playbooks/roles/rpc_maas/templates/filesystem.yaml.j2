@@ -9,6 +9,7 @@ alarms      :
     filesystem_{{ item.filesystem }}_check :
         label                   : "Disk space used on {{ item.filesystem }}--{{ ansible_hostname }}"
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('Disk space used on '+item.filesystem+'--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric['used'], metric['total']) >= {{ item.critical_threshold }}) {
