@@ -39,7 +39,7 @@
     - discover_nic_speed.results
   when:
     - inventory_hostname in groups["{{ item.0.group }}"]
-    - "'network_throughput-{{ item.0.name }}' not in maas_excluded_checks"
+    - not 'network_throughput-{{ item.0.name }}' | match(maas_excluded_checks_regex)
 
 - name: Remove checks that are excluded
   file:
@@ -47,4 +47,4 @@
     state: absent
   with_items: network_checks_list
   when:
-    - "'network_throughput-{{ item.name }}' in maas_excluded_checks"
+    - not 'network_throughput-{{ item.name }}' | match(maas_excluded_checks_regex)
