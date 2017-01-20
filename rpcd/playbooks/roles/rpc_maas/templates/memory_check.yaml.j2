@@ -7,6 +7,7 @@ alarms            :
     memory_used                 :
         label                   : memory_check--{{ inventory_hostname|quote }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('memory_check--'+inventory_hostname | quote) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["actual_used"], metric["total"]) >= {{ memory_used_percentage_critical_threshold }}) {

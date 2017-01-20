@@ -10,6 +10,7 @@ alarms      :
     openmanage-memory_status :
         label                   : openmanage-memory--{{ inventory_hostname|quote }}
         notification_plan_id    : {{ maas_notification_plan }}
+        disabled                : {{ (('openmanage-memory--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["hardware_memory_status"] != 1) {

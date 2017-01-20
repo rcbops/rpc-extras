@@ -10,6 +10,7 @@ alarms      :
     hp-processors_status :
         label                   : hp-processors--{{ inventory_hostname|quote }}
         notification_plan_id    : {{ maas_notification_plan }}
+        disabled                : {{ (('hp-processors--'+inventory_hostname|quote) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["hardware_processors_status"] != 1) {
