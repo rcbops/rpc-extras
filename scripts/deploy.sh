@@ -168,9 +168,6 @@ if [[ ! -f /etc/openstack_deploy/user_osa_secrets.yml ]] && [[ -f /etc/openstack
   mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml
 fi
 
-# update the RPC-O secrets
-bash ${BASE_DIR}/scripts/update-secrets.sh
-
 # ensure all needed passwords and tokens are generated
 ./scripts/pw-token-gen.py --file /etc/openstack_deploy/user_osa_secrets.yml
 ./scripts/pw-token-gen.py --file $RPCD_SECRETS
