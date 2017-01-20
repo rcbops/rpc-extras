@@ -11,6 +11,7 @@ alarms      :
     percentage_disk_utilisation_{{ device }}:
         label                   : percentage_disk_utilisation_{{ device }}--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('percentage_disk_utilisation_'+device+'--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["disk_utilisation_{{ device }}"] > {{ disk_utilisation_threshold }}) {

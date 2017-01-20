@@ -13,6 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Merge regular expressions for excluded checks/alarms into a single
+# regular expression string. If the lists are empty, use '^$' as the regular
+# expression since it does not match anything.
+- name: Gather regular expressions for excluded checks and alarms
+  set_fact:
+    maas_excluded_checks_regex: "{{ (maas_excluded_checks | length > 0) | ternary('('+maas_excluded_checks | join(')|(')+')', '^$') }}"
+    maas_excluded_alarms_regex: "{{ (maas_excluded_alarms | length > 0) | ternary('('+maas_excluded_alarms | join(')|(')+')', '^$') }}"
+
 - include: host_setup.yml
   when: >
     inventory_hostname in groups['hosts']

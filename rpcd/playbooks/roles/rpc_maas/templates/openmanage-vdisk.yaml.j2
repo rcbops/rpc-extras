@@ -10,6 +10,7 @@ alarms      :
     openmanage-vdisk :
         label                   : openmanage-vdisk--{{ inventory_hostname|quote }}
         notification_plan_id    : {{ maas_notification_plan }}
+        disabled                : {{ (('openmanage-vdisk--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["hardware_vdisk_status"] != 1) {
