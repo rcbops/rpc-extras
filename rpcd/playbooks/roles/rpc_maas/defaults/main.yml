@@ -266,6 +266,10 @@ mysql_open_files_percentage_critical_threshold: 95
 innodb_row_lock_time_avg_warning_threshold: 2000
 innodb_row_lock_time_avg_critical_threshold: 10000
 
+# Maas InnoDB deadlock thresholds per maas check interval
+innodb_deadlocks_rate_warning_threshold: 1
+innodb_deadlocks_rate_critical_threshold: 2
+
 # cinder-volumes volume group thresholds
 cinder_volumes_vg_warning_threshold: 80.0
 cinder_volumes_vg_critical_threshold: 90.0
