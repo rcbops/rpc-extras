@@ -10,6 +10,7 @@ alarms      :
     heat_api_local_status :
         label                   : heat_api_local_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('heat_api_local_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["heat_api_local_status"] != 1) {

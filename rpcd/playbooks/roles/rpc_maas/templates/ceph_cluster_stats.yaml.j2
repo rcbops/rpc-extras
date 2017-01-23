@@ -10,6 +10,7 @@ alarms      :
     ceph_health_err :
         label                   : ceph_health_err--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('ceph_health_err--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["cluster_health"] == 0) {
@@ -19,6 +20,7 @@ alarms      :
     ceph_health_warn :
         label                   : ceph_health_warn--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('ceph_health_warn--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["cluster_health"] == 1) {

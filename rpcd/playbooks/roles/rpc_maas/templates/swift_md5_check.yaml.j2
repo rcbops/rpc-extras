@@ -10,6 +10,7 @@ alarms      :
     swift_ring_md5_check :
         label                   : swift_ring_md5_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_ring_md5_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["ring_errors"] > 0) {
@@ -19,6 +20,7 @@ alarms      :
     swift_conf_md5_check :
         label                   : swift_conf_md5_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_conf_md5_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["swift_conf_errors"] > 0) {

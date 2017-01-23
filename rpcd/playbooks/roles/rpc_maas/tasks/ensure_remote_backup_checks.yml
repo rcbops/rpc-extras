@@ -26,5 +26,5 @@
     - groups["{{ item.group }}"]|length > 0
     - inventory_hostname in groups["{{ item.group }}"]
     - inventory_hostname != groups["{{ item.group }}"][0]
-    - item.name not in maas_excluded_checks
+    - not item.name | match(maas_excluded_checks_regex)
   delegate_to: "{{ physical_host }}"

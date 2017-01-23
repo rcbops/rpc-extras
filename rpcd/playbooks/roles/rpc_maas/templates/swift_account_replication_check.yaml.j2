@@ -10,6 +10,7 @@ alarms      :
     swift_account_replication_failure_check :
         label                   : swift_account_replication_failure_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_account_replication_failure_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["time_failed"] > {{ swift_account_replication_failure_percentage_threshold }}) {
@@ -18,6 +19,7 @@ alarms      :
     swift_account_replication_rate_check :
         label                   : swift_account_replication_rate_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_account_replication_rate_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["time_avg"]) > {{ swift_account_replication_growth_rate_threshold / maas_check_period}}) {
@@ -26,6 +28,7 @@ alarms      :
     swift_account_replication_avg_time_check :
         label                   : swift_account_replication_avg_time_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_account_replication_avg_time_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["time_avg"] > {{ swift_account_replication_avg_time_threshold }}) {
