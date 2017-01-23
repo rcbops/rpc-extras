@@ -63,7 +63,7 @@ maas_notification_plan: npManaged
 #
 # maas_external_ip_address:
 #
-maas_external_ip_address: "{{ external_vip_address }}"
+maas_external_ip_address: "{{ external_lb_vip_address }}"
 
 #
 # maas_agent_token: The Cloud Monitoring agent token to configure the agent with.

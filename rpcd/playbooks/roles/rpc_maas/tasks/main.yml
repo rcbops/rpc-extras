@@ -47,7 +47,7 @@
 
 - include: remote.yml
   vars:
-    ip_address: "{{ external_lb_vip_address }}"
+    ip_address: "{{ maas_external_ip_address }}"
   when: >
     remote_check == true
 
@@ -59,7 +59,7 @@
 
 - include: swift.yml
   vars:
-    external_vip_address: "{{ external_lb_vip_address }}"
+    external_vip_address: "{{ maas_external_ip_address }}"
   when: >
     inventory_hostname in groups['swift_all']
 
