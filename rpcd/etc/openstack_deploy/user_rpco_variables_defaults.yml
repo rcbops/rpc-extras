@@ -82,7 +82,7 @@ maas_alarm_remote_consecutive_count: 1
 # horizon_local_check is disabled until https://github.com/rcbops/u-suk-dev/issues/781
 # is resolved
 maas_excluded_checks:
-  - horizon_local_check
+  - "horizon_local_check.*"
 
 # Set the threshold for filesystem monitoring when you are not specifying specific filesystems.
 maas_filesystem_warning_threshold: 80.0
