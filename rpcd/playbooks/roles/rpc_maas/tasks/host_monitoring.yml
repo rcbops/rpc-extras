@@ -16,9 +16,7 @@
 - include: cdm.yml
 
 - include: dell.yml
-  when: >
-    dell_check == true
+  when: ansible_system_vendor == "Dell Inc." and host_check == true
 
 - include: hp.yml
-  when: >
-    hp_check == true
+  when: ansible_system_vendor == "HP" and host_check == true

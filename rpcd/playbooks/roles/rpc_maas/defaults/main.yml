@@ -91,16 +91,15 @@ maas_target_alias: public0_v4
 ssl_check: true
 
 #
-# dell_check: This flag indicates if the Dell-related hardware monitoring checks and alarms should
+# host_check: This flag indicates if the host-related hardware monitoring checks and alarms should
 #             be deployed.
 #
-dell_check: false
+host_check: false
 
 #
 # remote_check: This flag indicates if the remote.http checks and alarms should be deployed.
 #
 remote_check: true
-hp_check: false
 
 #
 # lb_name: Defines the entity name of the load balancing device against which the remote MaaS
@@ -336,9 +335,7 @@ cloud_resource_mem_allocation_ratio: 1.0
 
 # List of checks, by type - variable:
 hp_checks_list:
-  - { name: "hp-memory", group: "hosts" }
-  - { name: "hp-processors", group: "hosts" }
-  - { name: "hp-vdisk", group: "hosts" }
+  - { name: "hp-check", group: "hosts" }
 
 dell_checks_list:
   - { name: "openmanage-memory", group: "hosts" }
