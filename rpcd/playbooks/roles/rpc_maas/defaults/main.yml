@@ -545,3 +545,9 @@ verify_maas_retries: 5
 #               for offline testing
 #
 maas_use_api: true
+
+#
+# maas_agent_upgrade: Allow for automatic MaaS agent upgrades
+#
+#
+maas_agent_upgrade: true
