@@ -491,3 +491,9 @@ horizon_site_name: "openstack dashboard"
 #                             cinder-backup service should be deployed
 #
 maas_monitor_cinder_backup: false
+
+#
+# maas_agent_upgrade: Allow for automatic MaaS agent upgrades
+#
+#
+maas_agent_upgrade: true
