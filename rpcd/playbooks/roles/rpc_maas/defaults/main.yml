@@ -356,7 +356,7 @@ elasticsearch_process_names:
   # process name that includes "elasticsearch". The process running
   # elasticsearch is actually named "java" so we search for that here. This is
   # less than ideal, but the best we can do right now.
-  - java 
+  - java
 
 beaver_process_names:
   - beaver
@@ -523,3 +523,9 @@ horizon_site_name: "openstack dashboard"
 #                             cinder-backup service should be deployed
 #
 maas_monitor_cinder_backup: false
+
+#
+# maas_agent_upgrade: Allow for automatic MaaS agent upgrades
+#
+#
+maas_agent_upgrade: true
