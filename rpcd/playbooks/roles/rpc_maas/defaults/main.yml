@@ -548,6 +548,12 @@ verify_maas_retries: 5
 #
 maas_use_api: true
 
+#
+# maas_agent_upgrade: Allow for automatic MaaS agent upgrades
+#
+#
+maas_agent_upgrade: true
+
 # Swift object access check
 swift_accesscheck_enabled: true
 swift_accesscheck_container: "accesscheck"
