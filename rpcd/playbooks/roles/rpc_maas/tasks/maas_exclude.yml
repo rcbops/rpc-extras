@@ -13,18 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Ensure local checks are removed
-  file:
-    path: "/etc/rackspace-monitoring-agent.conf.d/{{ item }}--{{ inventory_hostname }}.yaml"
-    state: absent
-  with_items:
-    - "{{ maas_excluded_checks }}"
+- name: Get a list of all checks that exist on the system
+  find:
+    paths: /etc/rackspace-monitoring-agent.conf.d/
+    patterns: "*.yaml"
+  register: maas_check_files
   delegate_to: "{{ physical_host }}"
 
-- name: Ensure remote checks are removed
+- name: Ensure excluded checks are removed
   file:
-    path: "/etc/rackspace-monitoring-agent.conf.d/{{ item }}.yaml"
+    path: "{{ item.path }}"
     state: absent
   with_items:
-    - "{{ maas_excluded_checks }}"
+    - "{{ maas_check_files.files }}"
+  when:
+    - item.path | basename | splitext | first | match(maas_excluded_checks_regex)
   delegate_to: "{{ physical_host }}"
