@@ -41,6 +41,13 @@
 - name: Restart ElasticSearch before proceeding
   meta: flush_handlers
 
+- name: Gather logs for ElasticSearch
+  shell: cat /var/log/elasticsearch/*
+  register: result
+                 
+- debug:
+    var: result
+      
 - name: Wait for ElasticSearch port
   wait_for:
     host: "{{ ansible_ssh_host }}"
