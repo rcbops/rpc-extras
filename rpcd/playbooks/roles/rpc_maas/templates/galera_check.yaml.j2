@@ -1,8 +1,10 @@
-type: agent.plugin
-label: "galera_check--{{ ansible_hostname }}"
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "galera_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : galera_check.py
     args    : ["-H", "{{ ansible_ssh_host }}"]
@@ -77,10 +79,10 @@ alarms      :
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["access_denied_errors"]) > {{ mysql_access_denied_errors_rate_warning_threshold }}) {
-                return new AlarmStatus(WARNING, "Access denied errors rate is greater than {{ mysql_access_denied_errors_rate_warning_threshold }} per {{ maas_check_period }} seconds");
+                return new AlarmStatus(WARNING, "Access denied errors rate is greater than {{ mysql_access_denied_errors_rate_warning_threshold }} per maas_check_period_override[label] | default(maas_check_period) seconds");
             }
             if (rate(metric["access_denied_errors"]) > {{ mysql_access_denied_errors_rate_critical_threshold }}) {
-                return new AlarmStatus(CRITICAL, "Access denied errors rate is greater than {{ mysql_access_denied_errors_rate_critical_threshold }} per {{ maas_check_period }} seconds");
+                return new AlarmStatus(CRITICAL, "Access denied errors rate is greater than {{ mysql_access_denied_errors_rate_critical_threshold }} per maas_check_period_override[label] | default(maas_check_period) seconds");
             }
     aborted_clients :
         label                   : aborted_clients--{{ ansible_hostname }}
@@ -89,10 +91,10 @@ alarms      :
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["aborted_clients"]) > {{ mysql_aborted_clients_rate_warning_threshold }}) {
-                return new AlarmStatus(WARNING, "Aborted clients rate is greater than {{ mysql_aborted_clients_rate_warning_threshold }} per {{ maas_check_period }} seconds");
+                return new AlarmStatus(WARNING, "Aborted clients rate is greater than {{ mysql_aborted_clients_rate_warning_threshold }} per maas_check_period_override[label] | default(maas_check_period) seconds");
             }
             if (rate(metric["aborted_clients"]) > {{ mysql_aborted_clients_rate_critical_threshold }}) {
-                return new AlarmStatus(CRITICAL, "Aborted clients rate is greater than {{ mysql_aborted_clients_rate_critical_threshold }} per {{ maas_check_period }} seconds");
+                return new AlarmStatus(CRITICAL, "Aborted clients rate is greater than {{ mysql_aborted_clients_rate_critical_threshold }} per maas_check_period_override[label] | default(maas_check_period) seconds");
             }
     aborted_connects :
         label                   : aborted_connects--{{ ansible_hostname }}
@@ -101,8 +103,8 @@ alarms      :
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["aborted_connects"]) > {{ mysql_aborted_connects_rate_warning_threshold }}) {
-                return new AlarmStatus(WARNING, "Aborted connects rate is greater than {{ mysql_aborted_connects_rate_warning_threshold }} per {{ maas_check_period }} seconds");
+                return new AlarmStatus(WARNING, "Aborted connects rate is greater than {{ mysql_aborted_connects_rate_warning_threshold }} per maas_check_period_override[label] | default(maas_check_period) seconds");
             }
             if (rate(metric["aborted_connects"]) > {{ mysql_aborted_connects_rate_critical_threshold }}) {
-                return new AlarmStatus(CRITICAL, "Aborted connects rate is greater than {{ mysql_aborted_connects_rate_critical_threshold }} per {{ maas_check_period }} seconds");
+                return new AlarmStatus(CRITICAL, "Aborted connects rate is greater than {{ mysql_aborted_connects_rate_critical_threshold }} per maas_check_period_override[label] | default(maas_check_period) seconds");
             }

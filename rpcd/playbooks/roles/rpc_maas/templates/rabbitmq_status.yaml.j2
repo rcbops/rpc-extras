@@ -1,8 +1,10 @@
-type: agent.plugin
-label: rabbitmq_status--{{ ansible_hostname }}
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "rabbitmq_status" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : rabbitmq_status.py
     args    : ["-H", "{{ ansible_ssh_host }}", "-n", "{{ inventory_hostname.split('.')[0] }}", "-U", "{{ maas_rabbitmq_user }}", "-p", "{{ maas_rabbitmq_password }}"]
