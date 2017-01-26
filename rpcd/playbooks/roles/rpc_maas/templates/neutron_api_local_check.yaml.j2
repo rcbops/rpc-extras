@@ -1,8 +1,10 @@
-type: agent.plugin
-label: "neutron_api_local_check--{{ ansible_hostname }}"
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "neutron_api_local_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : neutron_api_local_check.py
     args    : ["{{ ansible_ssh_host }}"]

@@ -1,8 +1,10 @@
-type: agent.plugin
-label: nova_spice_console_check--{{ ansible_hostname }}
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "nova_spice_console_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : service_api_local_check.py
     args    : ["nova_spice", "{{ ansible_ssh_host }}", "6082", "--path", "spice_auto.html"]

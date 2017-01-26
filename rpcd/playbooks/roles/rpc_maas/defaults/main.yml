@@ -476,6 +476,20 @@ maas_rpc_scripts_dir: /opt/rpc-openstack/scripts
 maas_excluded_checks: []
 maas_excluded_alarms: []
 
+# Customizing MaaS check period and timeout.
+# The following two variables allow deployers to provide custom check periods
+# and timeouts for certain checks. Each variable is a list of dictionaries
+# containing the check label and the appropriate value:
+#
+#   maas_check_period_override:
+#     - disk_utilization: 60
+#     - conntrack_count: 45
+#   maas_check_timeout_override:
+#     - cinder_backup_check: 120
+#
+maas_check_period_override: {}
+maas_check_timeout_override: {}
+
 # openrc definitions from OSA
 # This is necessary until LP #1537117 is implemented
 openrc_os_endpoint_type: internalURL
