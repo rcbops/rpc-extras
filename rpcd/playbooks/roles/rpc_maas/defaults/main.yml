@@ -577,3 +577,9 @@ swift_accesscheck_file: "index.html"
 swift_accesscheck_user_name: "accesscheck"
 swift_operator_role: "swiftoperator"
 swift_service_project_name: "service"
+
+# The tasks that deploy checks/alarms for processes will skip the deployment
+# of filebeat checks if ELK is not deployed in the RPC environment. Deployers
+# can override this check and *force* the deployment of filebeat checks/alarms
+# even if ELK is not deployed by setting `maas_force_check_filebeat` to `true`.
+maas_force_check_filebeat: False
