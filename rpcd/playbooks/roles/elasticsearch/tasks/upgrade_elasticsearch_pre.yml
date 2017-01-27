@@ -109,6 +109,7 @@
 
 - name: Drop log_test1 template
   shell: 'curl -sk -XDELETE {{ internal_lb_vip_address }}:{{ elasticsearch_http_port }}/_template/log_test1'
+  register: drop_output
   retries: 5
   tags:
     - logging-upgrade
@@ -137,6 +138,12 @@
     - logging-upgrade
     - elasticsearch-upgrade
     - reindex-wrapper
+
+- name: VERBOSITY
+  debug: msg="{{ item }}"
+  with_items:
+    - "{{ drop_output.stdout_lines }}"
+    - "{{ legacy_template_result.stdout_lines }}"
 
 - name: Remove legacy liberty template script
   file:
