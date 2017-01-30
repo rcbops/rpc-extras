@@ -10,6 +10,7 @@ alarms      :
     memcache_api_local_status :
         label                   : memcache_api_local_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('memcache_api_local_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["memcache_api_local_status"] != 1) {
@@ -18,6 +19,7 @@ alarms      :
     memcache_curr_connections :
         label                   : memcache_curr_connections--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('memcache_curr_connections--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["memcache_curr_connections"] > {{ ((memcached_connections*0.9)|round|int) }}) {

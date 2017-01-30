@@ -10,6 +10,7 @@ alarms      :
     wsrep_cluster_size :
         label                   : wsrep_cluster_size--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('wsrep_cluster_size--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["wsrep_cluster_size"] < {{ groups["galera"] | length }}) {
@@ -18,6 +19,7 @@ alarms      :
     wsrep_local_state :
         label                   : wsrep_local_state--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('wsrep_local_state--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["wsrep_local_state_comment"] != "Synced" ) {
@@ -26,6 +28,7 @@ alarms      :
     percentage_used_mysql_connections :
         label                   : percentage_used_mysql_connections--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('percentage_used_mysql_connections--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["mysql_current_connections"], metric["mysql_max_configured_connections"]) > {{ mysql_connection_critical_threshold }} ) {
@@ -37,6 +40,7 @@ alarms      :
     open_file_size_limit_reached :
         label                   : open_file_size_limit_reached--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('open_file_size_limit_reached--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["num_of_open_files"], metric["open_files_limit"]) > {{ mysql_open_files_percentage_critical_threshold }}) {
@@ -48,6 +52,7 @@ alarms      :
     innodb_row_lock_time_avg :
         label                   : innodb_row_lock_time_avg--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('innodb_row_lock_time_avg--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["innodb_row_lock_time_avg"] > {{ innodb_row_lock_time_avg_critical_threshold }}) {
@@ -59,6 +64,7 @@ alarms      :
     innodb_deadlocks :
         label                   : innodb_deadlocks--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('innodb_deadlocks--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["innodb_deadlocks"]) > {{ innodb_deadlocks_rate_warning_threshold }}) {
@@ -70,6 +76,7 @@ alarms      :
     access_denied_errors :
         label                   : access_denied_errors--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('access_denied_errors--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["access_denied_errors"]) > {{ mysql_access_denied_errors_rate_warning_threshold }}) {
@@ -81,6 +88,7 @@ alarms      :
     aborted_clients :
         label                   : aborted_clients--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('aborted_clients--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["aborted_clients"]) > {{ mysql_aborted_clients_rate_warning_threshold }}) {
@@ -92,6 +100,7 @@ alarms      :
     aborted_connects :
         label                   : aborted_connects--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('aborted_connects--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["aborted_connects"]) > {{ mysql_aborted_connects_rate_warning_threshold }}) {

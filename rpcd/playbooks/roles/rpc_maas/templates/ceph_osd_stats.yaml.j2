@@ -11,6 +11,7 @@ alarms      :
     ceph_warn_osd.{{ osd_id }} :
         label                   : ceph_warn_osd.{{ osd_id }}--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('ceph_warn_osd.'+osd_id+'--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["osd.{{ osd_id }}_up"] == 0) {
