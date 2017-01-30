@@ -11,6 +11,7 @@ alarms      :
     {{ process }}_process_status:
         label                   : {{ process }}_process_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : "{{ ((process+'_process_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}"
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["{{ process }}_process_status"] != 1 ) {
