@@ -87,6 +87,8 @@
     - groups['ceph_all']|length > 0
     - inventory_hostname in groups['ceph_all']
 
+# Remove any checks that match the regular expressions provided in the
+# `maas_excluded_checks` list.
 - include: maas_exclude.yml
 
 - include: restart_raxmon.yml
