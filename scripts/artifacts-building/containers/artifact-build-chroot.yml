@@ -1,0 +1,162 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Create artifact container
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Remove cache
+      file:
+        path: "/var/cache/lxc/download/ubuntu/trusty/amd64/default/"
+        state: absent
+    - name: Remove base container
+      lxc_container:
+        name: "LXC_NAME"
+        state: absent
+    - name: Create base container
+      lxc_container:
+        name: "LXC_NAME"
+        template: "download"
+        state: "stopped"
+        backing_store: "dir"
+        template_options: >
+          --dist {{ ansible_distribution | lower }}
+          --release {{ ansible_distribution_release | lower }}
+          --arch "{{ architecture_mapping.get( ansible_architecture ) }}"
+          --force-cache
+          --server images.linuxcontainers.org
+          --keyserver hkp://p80.pool.sks-keyservers.net:80
+    - name: Prepare group of master lxc hosts
+      add_host:
+        name: "/var/lib/lxc/LXC_NAME/rootfs/"
+        groups: "lxc_container_artifact_chroots"
+        container_name: "LXC_NAME"
+        physical_host: "localhost"
+  vars:
+    architecture_mapping:
+      x86_64: amd64
+      ppc64le: ppc64el
+  tags:
+    - always
+
+- name: Run role
+  hosts: lxc_container_artifact_chroots
+  gather_facts: True
+  connection: chroot
+  pre_tasks:
+    - name: Set facts to pass some variables that wouldn't work #like '{{ image_name }}_developer_mode'
+      set_fact: '{{ image_name }}_{{ item.key }}="{{ item.value }}"'
+      with_dict: "{{ role_vars }}"
+      tags:
+        - always
+    - name: Configure chroot
+      shell: |
+        if [ -a /etc/resolv.conf ]; then
+          mv /etc/resolv.conf /etc/resolv.conf.org
+        fi
+        echo "nameserver 8.8.8.8" > /etc/resolv.conf
+        mount -t proc proc /proc || true
+      tags:
+        - always
+  roles:
+    - role: "{{ role_name }}"
+  post_tasks:
+    - name: chroot resolv cleanup
+      shell: | 
+        if [ -a /etc/resolv.conf.org ]; then
+          mv /etc/resolv.conf.org /etc/resolv.conf
+        else
+          rm -f /etc/resolv.conf
+        fi
+        apt-get clean
+        rm -rf /root/.cache/pip/
+        umount /proc || true        
+      tags:
+        - always
+  vars:
+    image_name: "{{ role_name | replace('os_', '') }}"
+    role_vars:
+      "venv_download_url": "{{ mirror_base_url }}/venvs/{{ pip_artifacts_version }}/ubuntu/{{ image_name }}-{{ pip_artifacts_version }}-{{ ansible_architecture }}.tgz"
+      "venv_tag": "{{ pip_artifacts_version }}"
+      "developer_mode": False
+
+- name: Create artifact container
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Set artifact facts
+      set_fact:
+        image_path: "{{ lxc_image_folder }}/{{ lxc_index_path }}/{{ image_name }}/{{ container_artifact_version }}"
+    - name: Ensure image doesn't exist yet.
+      file:
+        path: "{{ image_path }}"
+        state: absent
+    - name: Container image directories
+      file:
+        path: "{{ item }}"
+        state: "directory"
+        recurse: true
+      with_items:
+        - "{{ image_path }}"
+        - "{{ lxc_image_folder }}/"
+    - name: Create lxc image
+      shell: |
+        tar -Opc -C /var/lib/lxc/LXC_NAME/rootfs . | \
+          {{ xz_bin[ansible_distribution | lower] }} -{{ compression_ratio }} \
+          -c - > rootfs.tar.xz
+      args:
+        chdir: "{{ image_path }}"
+        creates: "{{ image_path }}/rootfs.tar.xz"
+    - name: Create lxc image meta
+      shell: |
+        tar -Opc -C "{{ lxc_container_cache_path }}/{{ lxc_index_path }}/default/{build_id,config,config-user,create-message,excludes-user,expiry,templates}" . | \
+          {{ xz_bin[ansible_distribution | lower] }} -{{ compression_ratio }} \
+          -c - > meta.tar.xz
+      args:
+        chdir: "{{ image_path }}"
+        creates: "{{ image_path }}/meta.tar.xz"
+    - name: Create release index entries
+      lineinfile:
+        dest: "{{ lxc_image_folder }}/{{ image_name }}-{{ container_artifact_version }}-entry"
+        line: "{{ lxc_index_entry }};{{ image_name }};{{ container_artifact_version }};/lxc-images/{{ lxc_index_path }}/{{ image_name }}/{{ container_artifact_version }}"
+        create: yes
+        state: present
+    - name: create sha256sums
+      shell: |
+        echo "$(sha256sum {{ image_path }}/rootfs.tar.xz | awk '{print $1}') rootfs.tar.xz" | tee SHA256SUMS
+        echo "$(sha256sum {{ image_path }}/meta.tar.xz | awk '{print $1}') meta.tar.xz" | tee -a SHA256SUMS
+      args:
+        chdir: "{{ image_path }}"
+  post_tasks:
+    - name: Remove base container
+      lxc_container:
+        name: "LXC_NAME"
+        state: absent
+  vars:
+    lxc_index_path: "{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}/{{ architecture_mapping.get( ansible_architecture ) }}"
+    lxc_index_entry: "{{ ansible_distribution | lower }};{{ ansible_distribution_release | lower }};{{ architecture_mapping.get( ansible_architecture ) }}"
+    lxc_image_folder: "/var/cache/artifacts"
+    lxc_container_cache_path: "/var/cache/lxc/download"
+    image_name: "{{ role_name | replace('os_', '') }}"
+    compression_ratio: 7
+    xz_bin:
+      centos: xz
+      ubuntu: pxz
+    architecture_mapping:
+      x86_64: amd64
+      ppc64le: ppc64el
+  tags:
+    - always
