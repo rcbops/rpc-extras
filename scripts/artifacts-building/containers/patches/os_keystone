@@ -1,0 +1,40 @@
+From 4c7deb6c18dc265a8b4b15b35968ebe60c7f543a Mon Sep 17 00:00:00 2001
+From: Jean-Philippe Evrard <jean-philippe.evrard@rackspace.co.uk>
+Date: Fri, 3 Feb 2017 08:15:57 +0000
+Subject: [PATCH] Cleanup artifact building
+
+Some tasks can't be changed upstream and have to be fixed here.
+---
+ tasks/keystone_install.yml     | 3 ---
+ tasks/keystone_pre_install.yml | 1 -
+ 2 files changed, 4 deletions(-)
+
+diff --git a/tasks/keystone_install.yml b/tasks/keystone_install.yml
+index 34dbb78..533d7b3 100644
+--- a/tasks/keystone_install.yml
++++ b/tasks/keystone_install.yml
+@@ -83,9 +83,6 @@
+   when:
+     - not keystone_developer_mode | bool
+     - keystone_get_venv | changed or keystone_venv_dir | changed
+-  notify:
+-    - Restart Keystone APIs
+-    - Restart service
+ 
+ - name: Install pip packages
+   pip:
+diff --git a/tasks/keystone_pre_install.yml b/tasks/keystone_pre_install.yml
+index fbc668b..553c004 100644
+--- a/tasks/keystone_pre_install.yml
++++ b/tasks/keystone_pre_install.yml
+@@ -46,7 +46,6 @@
+     system: "yes"
+     createhome: "yes"
+     home: "{{ keystone_system_user_home }}"
+-    generate_ssh_key: "yes"
+ 
+ - name: Create keystone dir
+   file:
+-- 
+1.9.1
+
