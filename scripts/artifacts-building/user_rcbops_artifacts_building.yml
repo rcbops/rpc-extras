@@ -1,0 +1,109 @@
+## Generic variables
+mirror_base_url: "http://rpc-repo.rackspace.com"
+
+## PIP
+# openstack_repo_url is the address of the repo server, so
+# everything is fine if the repo has the staged artifacts.
+# However, for builds without repos (like building containers),
+# we override it with what we want, i.e. the rax mirror
+openstack_repo_url: "{{ mirror_base_url }}"
+
+# TODO(evrardjp): remove re-wire this variable with
+# rpc_release per appropriate branch/tag (read other files).
+pip_artifacts_version: "master"
+
+# TODO(evrardjp) remove this when openstack_release is wired with rpc_release
+# For the building of containers, we currently don't have
+# the proper pip_links, pip upstream url and upper constraints
+# because they rely on openstack_release which isn't wired (yet)
+# The following do the wiring:
+openstack_repo_full_url: "{{ openstack_repo_url }}/os-releases/{{ pip_artifacts_version }}"
+pip_links:
+  - name: "openstack_release"
+    link: "{{ openstack_repo_full_url }}/"
+pip_upstream_url: "{{ openstack_repo_full_url }}/get-pip.py"
+pip_install_upper_constraints: "{{ openstack_repo_full_url }}/requirements_absolute_requirements.txt"
+
+## CONTAINER
+# TODO(evrardjp) remove this wiring when container and pip_artifacts_version will be consistent
+# (other todos addressed)
+container_artifact_version: "{{ pip_artifacts_version }}"
+
+## APT 
+# TODO(evrardjp): replace apt_artifacts_version with rpc_release when repos are merged together
+apt_artifacts_version: "rpc-14.0.0rc1" #Move to reading variable
+mirror_apt_deb_line: "deb {{ mirror_apt_url }} {{ apt_artifacts_version }}-{{ ansible_distribution_release }} main"
+mirror_apt_url: "{{ mirror_base_url }}/apt-mirror/integrated/"
+mirror_apt_rpc_filename: rax
+gpg_key_location: "{{ mirror_base_url }}/apt-mirror/"
+gpg_key_name: "rcbops-release-signing-key.asc"
+gpg_key_id: 22A9BF80 #SET IN STATIC (to force key verification per release).
+
+# For convenience
+rax_repo:
+  repo: "{{ mirror_apt_deb_line }}"
+  state: "present"
+  filename: "{{ mirror_apt_rpc_filename }}"
+rax_gpg_keys:
+  - hash_id:  "{{ gpg_key_id }}"
+    url: "{{ gpg_key_location }}{{ gpg_key_name }}"
+    state: "present"
+
+# HAProxy
+haproxy_repo: "{{ rax_repo }}"
+haproxy_gpg_keys: "{{ rax_gpg_keys }}"
+
+# RabbitMQ
+rabbitmq_install_method: "external_repo"
+rabbitmq_repo: "{{ rax_repo }}"
+rabbitmq_gpg_keys: "{{ rax_gpg_keys }}"
+
+# ceph_client wiring
+ceph_apt_repos:
+  uca: "{{ rax_repo }}"
+ceph_pkg_source: "uca"
+
+# galera_client role wiring
+galera_client_repo: "{{ mirror_apt_deb_line }}"
+mariadb_repo_filename: "{{ mirror_apt_rpc_filename }}"
+galera_client_gpg_keys: "{{ rax_gpg_keys }}"
+
+# galera_server wiring
+use_percona_upstream: True
+galera_repo: "{{ rax_repo }}"
+galera_percona_xtrabackup_repo: "{{ rax_repo }}"
+
+# neutron, nova wiring
+uca_repo: "{{ mirror_apt_deb_line }}"
+uca_apt_source_list_filename: "{{ mirror_apt_rpc_filename }}"
+
+# Elasticsearch
+elasticsearch_apt_repos:
+  - "{{ rax_repo }}"
+elasticsearch_apt_keys: "{{ rax_gpg_keys }}"
+
+# Filebeat
+filebeat_apt_repos:
+  - "{{ rax_repo }}"
+filebeat_apt_gpg_keys: "{{ rax_gpg_keys }}"
+
+# Kibana
+kibana_apt_repos:
+  - "{{ rax_repo }}"
+kibana_apt_keys: "{{ rax_gpg_keys }}"
+
+# Logstash
+logstash_apt_repos:
+  - "{{ rax_repo }}"
+logstash_apt_keys: "{{ rax_gpg_keys }}"
+
+# MAAS
+maas_apt_repos:
+  - "{{ rax_repo }}"
+maas_apt_keys: "{{ rax_gpg_keys }}"
+
+# RPC Support
+hwraid_apt_repos:
+  - repo: "deb http://rpc-repo.rackspace.com/apt-mirror/independant/hwraid-{{ ansible_distribution_release }}/ {{ apt_artifacts_version }}-{{ ansible_distribution_release }} main"
+    state: "present"
+hwraid_apt_keys: "{{ rax_gpg_keys }}"
