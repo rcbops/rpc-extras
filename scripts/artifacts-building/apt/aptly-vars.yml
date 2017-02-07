@@ -1,0 +1,372 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Prepare for aptly, repos to clone.
+aptly_clone_this_first:
+  - repo: "https://github.com/openstack/openstack-ansible-rabbitmq_server.git"
+    dest: "{{ ansible_roles_folder }}/rabbitmq_server"
+    version: "{{ roles_details | selectattr('name','equalto', 'rabbitmq_server') | list | map(attribute='version') | list | join('') }}"
+  - repo: "https://github.com/evrardjp/ansible-role-aptly.git"
+    dest: "{{ ansible_roles_folder }}/infOpen.aptly"
+    version: "rax"
+
+aptly_custom_gpg_key_file: "{{ artifacts_root_folder }}/aptly.private.key"
+aptly_custom_gpg_pubkey_file: "{{ artifacts_root_folder }}/aptly.public.key"
+aptly_custom_gpg_key_id: "{{ lookup('pipe','gpg ' ~ aptly_custom_gpg_pubkey_file ~ '| cut -f 2 -d \"/\" | cut -f 1 -d \" \" ') }}"
+aptly_system_archive_gpg_keys_import: True
+aptly_user_home: "{{ artifacts_aptrepos_dest_folder }}"
+aptly_user: aptly
+aptly_architectures:
+  - amd64
+  - i386
+#  - ppc64el
+aptly_dependency_follow_suggests: True
+#aptly_mirror_do_updates: True
+# mapping for Miko (Merge) snapshots.
+# This is a list of the repo/mirror snapshots (slushies) that will appear in the miko* snapshots
+aptly_miko_mapping:
+  trusty:
+#    - "slushie-{{ artifacts_version }}-ubuntu-trusty"
+    - "slushie-{{ artifacts_version }}-uca-mitaka-updates-trusty"
+    - "slushie-{{ artifacts_version }}-mariadb-10.0-trusty"
+    - "slushie-{{ artifacts_version }}-percona-trusty"
+    - "slushie-{{ artifacts_version }}-haproxy-trusty"
+    - "slushie-{{ artifacts_version }}-rabbitmq-downloaded-packages-{{ artifacts_version }}-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-logstash-2.3-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-kibana-4.5-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-beats-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-es-1.7-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-es-2.x-ALL"
+  xenial:
+#    - "slushie-{{ artifacts_version }}-ubuntu-xenial"
+    - "slushie-{{ artifacts_version }}-uca-newton-updates-xenial"
+    - "slushie-{{ artifacts_version }}-mariadb-10.0-xenial"
+    - "slushie-{{ artifacts_version }}-percona-xenial"
+    - "slushie-{{ artifacts_version }}-rabbitmq-downloaded-packages-{{ artifacts_version }}-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-logstash-2.3-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-kibana-4.5-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-beats-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-es-1.7-ALL"
+    - "slushie-{{ artifacts_version }}-elastic-es-2.x-ALL"
+# mapping for N (NOT MERGE) snapshots
+# This is a list of the repo/mirror snapshots (slushies) that will be published separately.
+aptly_n_mapping:
+  trusty:
+    - src: "slushie-{{ artifacts_version }}-hwraid-trusty"
+      dest: "hwraid-trusty"
+  xenial:
+    - src: "slushie-{{ artifacts_version }}-hwraid-xenial"
+      dest: "hwraid-xenial"
+
+# list of snapshots to skip
+aptly_dont_snapshot_list: []
+
+#in the name of the mirror or of the repo, please
+#give either trusty/xenial (wherever appropriate) or ALL (for all distros)
+aptly_mirrors:
+#  - name: ubuntu-trusty
+#    archive_url: http://mirror.rackspace.com/ubuntu
+#    distribution: trusty
+#    component1:
+#      - main
+#      - restricted
+#    create_flags:
+#      - "-keyring='trustedkeys.gpg'"
+#    update_flags:
+#      - "-keyring='trustedkeys.gpg'"
+#    state: "present"
+#    gpg:
+#      key: "C0B21F32 437D05B5"
+#      server: "hkp://keyserver.ubuntu.com:80"
+#      keyring: "trustedkeys.gpg"
+#    do_update: "{{ aptly_mirror_do_updates }}"
+#  - name: ubuntu-xenial
+#    archive_url: http://mirror.rackspace.com/ubuntu
+#    distribution: xenial
+#    component1:
+#      - main
+#      - restricted
+#    create_flags:
+#      - "-keyring='trustedkeys.gpg'"
+#    update_flags:
+#      - "-keyring='trustedkeys.gpg'"
+#    state: "present"
+#    gpg:
+#      key: "C0B21F32 437D05B5"
+#      server: "hkp://keyserver.ubuntu.com:80"
+#      keyring: "trustedkeys.gpg"
+#    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: uca-mitaka-updates-trusty
+    archive_url: http://ubuntu-cloud.archive.canonical.com/ubuntu
+    distribution: trusty-updates/mitaka
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "EC4926EA"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: uca-newton-updates-xenial
+    archive_url: http://ubuntu-cloud.archive.canonical.com/ubuntu
+    distribution: xenial-updates/newton
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "EC4926EA"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: mariadb-10.0-trusty
+    archive_url: http://mirror.rackspace.com/mariadb/repo/10.0/ubuntu
+    distribution: trusty
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "cbcb082a1bb943db"
+      #key: "0xcbcb082a1bb943db"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: mariadb-10.0-xenial
+    archive_url: http://mirror.rackspace.com/mariadb/repo/10.0/ubuntu
+    distribution: xenial
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "F1656F24C74CD1D8"
+      #key: "0xcbcb082a1bb943db"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: percona-trusty
+    archive_url: http://repo.percona.com/apt
+    distribution: trusty
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "9334a25f8507efa5"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: percona-xenial
+    archive_url: http://repo.percona.com/apt
+    distribution: xenial
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "9334a25f8507efa5"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: haproxy-trusty
+    archive_url: http://ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu
+    distribution: trusty
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "cffb779aadc995e4f350a060505d97a41c61b9cd"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  # Rabbitmq:
+  # Got the key from:
+  # wget https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
+  # gpg --list-packets rabbitmq-release-signing-key.asc
+  - name: rabbitmq-upstream-testing-branch-mirror-ALL
+    archive_url: http://www.rabbitmq.com/debian/
+    distribution: testing
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "6B73A36E6026DFCA"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: elastic-logstash-2.3-ALL
+    archive_url: http://packages.elastic.co/logstash/2.3/debian
+    distribution: stable
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "D88E42B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: elastic-kibana-4.5-ALL
+    archive_url: http://packages.elastic.co/kibana/4.5/debian
+    distribution: stable
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "D88E42B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: elastic-beats-ALL
+    archive_url: http://packages.elastic.co/beats/apt
+    distribution: stable
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "D88E42B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: elastic-es-1.7-ALL
+    archive_url: http://packages.elastic.co/elasticsearch/1.7/debian
+    distribution: stable
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "D88E42B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: elastic-es-2.x-ALL
+    archive_url: http://packages.elastic.co/elasticsearch/2.x/debian
+    distribution: stable
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "D88E42B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: hwraid-trusty
+    archive_url: http://hwraid.le-vert.net/ubuntu/
+    distribution: trusty
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "23B3D3B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: hwraid-xenial
+    archive_url: http://hwraid.le-vert.net/ubuntu/
+    distribution: wily
+    component1:
+      - main
+    state: "present"
+    gpg:
+      key: "23B3D3B4"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+## TODO
+#raxmon_repo_url: "http://stable.packages.cloudmonitoring.rackspace.com/ubuntu-14.04-x86_64"
+#maas_apt_keys:
+#  - { url: "https://monitoring.api.rackspacecloud.com/pki/agent/linux.asc", state: "present" }
+#maas_apt_repos:
+#  - { repo: "deb {{ raxmon_repo_url }} cloudmonitoring main", state: "present" }
+# # POWERVM ONLY
+# - name: novalink-powervm
+#   archive_url: http://public.dhe.ibm.com/systems/virtualization/Novalink/debian
+#   distribution: novalink_1.0.0
+#   component1:
+#     - non-free
+#   state: "present"
+#   gpg:
+#     key: "cffb779aadc995e4f350a060505d97a41c61b9cd"
+#     server: "hkp://keyserver.ubuntu.com:80"
+#     keyring: "trustedkeys.gpg"
+#   create_flags:
+#     - "-keyring='trustedkeys.gpg'"
+#   update_flags:
+#     - "-keyring='trustedkeys.gpg'"
+#   do_update: "{{ aptly_mirror_do_updates }}"
+
+# For rabbitmq frozen
+aptly_repos:
+  - name: "rabbitmq-downloaded-packages-{{ artifacts_version }}-ALL"
+    create_flags:
+      - '-comment="RabbitMQ Downloaded packages from RabbitMQ repo"'
+    state: 'present'
+# Ensure aptly keeps all packages of all versions
+aptly_snapshot_merge_flags: "-no-remove=true"
