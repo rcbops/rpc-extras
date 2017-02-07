@@ -31,6 +31,7 @@ export ANSIBLE_ROLE_FETCH_MODE="git-clone"
 export ANSIBLE_VERBOSITY=${ANSIBLE_VERBOSITY:--v}
 export RPC_ARTIFACTS_FOLDER=${RPC_ARTIFACTS_FOLDER:-/var/www/artifacts}
 export RPC_ARTIFACTS_PUBLIC_FOLDER=${RPC_ARTIFACTS_PUBLIC_FOLDER:-/var/www/repo}
+export RPC_REPO_BRANCH=${RPC_REPO_BRANCH:-artifacts-14.0}
 
 ## Main ----------------------------------------------------------------------
 
@@ -41,6 +42,16 @@ elif [ -z ${GPG_PRIVATE+x} ] || [ -z ${GPG_PUBLIC+x} ]; then
   echo "ERROR: The required GPG_ environment variables are not set."
   exit 1
 fi
+
+# Jenkins uses a weird checkout mechanism which does not checkout
+# the local branch, but instead the latest SHA on the branch directly.
+# This breaks the way we derive the branch, so here we check it out
+# in the way we expect it.
+git checkout ${RPC_REPO_BRANCH}
+
+#Output some debug information
+echo "GIT_TAG: $(git describe --tags --abbrev=0)"
+echo "GIT_BRANCH: $(git branch --contains $(git rev-parse HEAD) | grep ^\* | sed 's/^\* //')"
 
 # Ensure that the openstack-ansible submodule is updated
 git submodule init
@@ -74,12 +85,6 @@ grep "${REPO_HOST}" ~/.ssh/known_hosts || echo "${REPO_HOST} $(cat $REPO_HOST_PU
 #Append host to [mirrors] group
 echo '[mirrors]' > /opt/inventory
 echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${REPO_KEYFILE}' " >> /opt/inventory
-
-#Output some debug information
-GIT_TAG=$(git describe --tags --abbrev=0)
-echo "GIT_TAG: ${GIT_TAG}"
-GIT_BRANCH=$(git branch --contains $(git rev-parse HEAD) | grep ^\* | sed 's/^\* //')
-echo "GIT_BRANCH: ${GIT_BRANCH}"
 
 # Execute the playbooks
 cd ${BASE_DIR}/scripts/artifacts-building/apt
