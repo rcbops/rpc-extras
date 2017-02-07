@@ -20,8 +20,6 @@ artifact_extradownloads_dest_folder: "{{ artifacts_root_folder }}/downloads"
 ansible_roles_folder: "/etc/ansible/roles"
 
 # Generic details
-role_requirements_file: "{{ lookup('env', 'BASE_DIR') ~ 'openstack-ansible/ansible-role-requirements.yml') }}"
-roles_details: "{{ lookup('file', role_requirements_file, wantlist=True) | join('\n') | from_yaml }}"
 artifacts_version: "{{ lookup('pipe', '/opt/rpc-openstack/derive-artifact-version.py') }}"
 
 # rpc-repo mirror details
