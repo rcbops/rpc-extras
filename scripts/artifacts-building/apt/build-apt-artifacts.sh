@@ -75,6 +75,12 @@ grep "${REPO_HOST}" ~/.ssh/known_hosts || echo "${REPO_HOST} $(cat $REPO_HOST_PU
 echo '[mirrors]' > /opt/inventory
 echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${REPO_KEYFILE}' " >> /opt/inventory
 
+#Output some debug information
+GIT_TAG=$(git describe --tags --abbrev=0)
+echo "GIT_TAG: ${GIT_TAG}"
+GIT_BRANCH=$(git branch --contains $(git rev-parse HEAD) | grep ^\* | sed 's/^\* //')
+echo "GIT_BRANCH: ${GIT_BRANCH}"
+
 # Execute the playbooks
 cd ${BASE_DIR}/scripts/artifacts-building/apt
 ansible-playbook aptly-pre-install.yml ${ANSIBLE_VERBOSITY}
