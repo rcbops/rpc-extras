@@ -20,10 +20,9 @@ artifact_extradownloads_dest_folder: "{{ artifacts_root_folder }}/downloads"
 ansible_roles_folder: "/etc/ansible/roles"
 
 # Generic details
-rpc_branch: "master"
-osa_branch: 'stable/newton' #can be automated later by lookup
-roles_details: "{{ lookup('url','https://raw.githubusercontent.com/openstack/openstack-ansible/'+osa_branch+'/ansible-role-requirements.yml',wantlist=True) | join('\n') | from_yaml  }}"
-artifacts_version: "rpc-14.0.0rc1" #Move to reading variable from here: "https://github.com/rcbops/rpc-openstack/blob/master/rpcd/playbooks/group_vars/all.yml"
+role_requirements_file: "{{ lookup('env', 'BASE_DIR') ~ 'openstack-ansible/ansible-role-requirements.yml') }}"
+roles_details: "{{ lookup('file', role_requirements_file, wantlist=True) | join('\n') | from_yaml }}"
+artifacts_version: "{{ lookup('pipe', '/opt/rpc-openstack/derive-artifact-version.py') }}"
 
 # rpc-repo mirror details
 webservice_owner: "nginx"
