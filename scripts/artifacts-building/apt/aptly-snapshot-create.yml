@@ -1,0 +1,85 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Create snapshot for the release
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  become_user: aptly
+  become: True
+  become_method: sudo
+  tasks:
+    - assert:
+        that:
+          - artifacts_version is defined
+          - distribution_release is defined
+        msg: You need to define what you are releasing!
+    - name: list all the repos/mirrors for this distribution that arent in exclude list
+      shell: "aptly {{ item }} list -raw | grep -e {{ distribution_release }} -e ALL {% if aptly_dont_snapshot_list is defined and aptly_dont_snapshot_list | length > 0 %}|grep -v -e {{ aptly_dont_snapshot_list | join(' -e ') }} {% endif %}"
+      with_items:
+        - repo
+        - mirror
+      register: aptly_repo_list
+      changed_when: false
+    - name: Prepare re-building of snapshots (generated snapshots list)
+      shell: "aptly snapshot list -raw"
+      register: aptly_existing_snapshots_list
+      failed_when: false
+      changed_when: false
+    - name: Prepare re-building of snapshots (published snapshot list)
+      shell: "aptly publish list -raw"
+      register: aptly_existing_published_snapshots_list
+      failed_when: false
+      changed_when: false
+    - name: Delete old publications for this distro/artifacts version
+      shell: "aptly publish drop {{ item.split(' ')[1] }} {{ item.split(' ')[0] }}"
+      with_items: "{{ aptly_existing_published_snapshots_list.stdout_lines }}"
+      when:
+        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | default('NO') == 'YES' }}"
+        - "item.find('{{ artifacts_version }}') != -1"
+        - "item.find('{{ distribution_release }}') != -1"
+      failed_when: false
+    - name: Delete old merged snapshots for this distro/artifacts version
+      shell: "aptly snapshot drop {{ item }}"
+      with_items: "{{ aptly_existing_snapshots_list.stdout_lines }}"
+      when:
+        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | default('NO') == 'YES' }}"
+        - "item.find('miko-{{ artifacts_version }}-{{ distribution_release }}') != -1"
+      failed_when: false
+    - name: Delete old snapshots for this distro/artifacts version
+      shell: "aptly snapshot drop {{ item }}"
+      with_items: "{{ aptly_existing_snapshots_list.stdout_lines }}"
+      when:
+        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | default('NO') == 'YES' }}"
+        - "item.find('slushie-{{ artifacts_version }}') != -1"
+        - "item.find('{{ distribution_release }}') != -1 or item.find('ALL') != -1"
+      failed_when: false
+    - name: Froze the mirrors/repos by snapshot creation
+      shell: "aptly snapshot create slushie-{{ artifacts_version }}-{{ item.1 }} from {{ item.0.item }} {{ item.1 }}"
+      register: aptly_snapshot_create
+      with_subelements:
+        - "{{ aptly_repo_list.results }}"
+        - "stdout_lines"
+      failed_when: aptly_snapshot_create.rc != 0 and aptly_snapshot_create.stderr.find('already exists') == -1
+      changed_when: aptly_snapshot_create.stderr.find('already exists') == -1
+    - shell: "aptly snapshot list -raw | grep slushie-{{ artifacts_version }}"
+      register: aptly_snapshot_list
+      changed_when: false
+    - name: Output the full list of tuples distribution/artifact version
+      debug:
+        msg: "Full list of snapshots for this distribution/artifact version: {{ aptly_snapshot_list.stdout_lines }}"

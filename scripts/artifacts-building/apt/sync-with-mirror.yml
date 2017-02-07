@@ -1,0 +1,106 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Sync apt artifacts with mirror
+  hosts: mirrors
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  tasks:
+    - name: Ensure the folders are present on the repo before we try to sync them
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ aptly_user_home }}"
+        - "{{ artifacts_root_folder }}"
+    - name: Synchronize cache
+      synchronize:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode }}"
+        delete: "{{ item.delete | default(omit) }}"
+        recursive: "{{ item.recursive | default(omit) }}"
+        owner: "{{ item.owner | default(omit) }}"
+      #delegate_to: aptly_cache[0]
+      register: synchronize
+      until: synchronize|success
+      retries: 5
+      delay: 5
+      failed_when: false
+      when: item.action == action
+      with_items:
+        - action: "pull-aptly"
+          mode: "pull"
+          src: "{{ aptly_user_home }}"
+          dest: "{{ artifacts_aptrepos_dest_folder | dirname }}"
+          delete: "yes"
+          recursive: "yes"
+        - action: "push-aptly"
+          mode: "push"
+          src: "{{ aptly_user_home }}"
+          dest: "{{ artifacts_aptrepos_dest_folder | dirname }}"
+
+- name: Ensure localhost has the permissions to manipulate aptly cache
+  hosts: localhost
+  connection: local
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  tasks:
+    - name: Make sure pulled data has the proper permissions
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state }}"
+        recurse: "{{ item.recurse | default(omit) }}"
+        owner: "{{ item.owner | default(omit) }}"
+      when: action=="pull-aptly"
+      with_items:
+        - path: "{{ aptly_user_home }}"
+          state: "directory"
+          recurse: "yes"
+          owner: "{{ aptly_user }}"
+
+- name: Ensure mirror has the permissions to serve aptly public folders
+  hosts: mirrors
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  tasks:
+    - name: Make sure pushed data has the proper permissions
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state }}"
+        recurse: "{{ item.recurse | default(omit) }}"
+        owner: "{{ item.owner | default(omit) }}"
+      when: action=="push-aptly"
+      with_items:
+        - path: "{{ aptly_user_home }}"
+          state: "directory"
+          recurse: "yes"
+          owner: "{{ webservice_owner }}"
+
+- name: Public serve the gpg used for signing
+  hosts: mirrors
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  tasks:
+    - name: Sync apt public key with mirror
+      copy:
+        src: "{{ aptly_custom_gpg_pubkey_file }}"
+        dest: "{{ aptly_custom_gpg_pubkey_file }}"
+        owner: "{{ webservice_owner }}"
+      when: action=="push-gpg"

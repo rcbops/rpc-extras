@@ -1,0 +1,64 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Before going further, make sure you have keys.
+#    gpg --gen-key
+#    mkdir -p /openstack/aptly
+# check the armor and replace armor value below
+#    gpg --export-secret-keys --armor CB6E9D87 > /openstack/aptly.private.key
+#    gpg --export --armor CB6E9D87 > /openstack/aptly.public.key
+- name: Install aptly
+  hosts: localhost
+  connection: local
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  vars:
+    rabbitmq_package_url: "{{ _rabbitmq_package_url }}"
+  #role will install aptly and update the mirrors
+  roles:
+    - infOpen.aptly
+  # update repos
+  post_tasks:
+    - include_vars: "{{ ansible_roles_folder }}/rabbitmq_server/vars/debian.yml"
+      failed_when: false
+    - name: Verify if rabbitmq is already there, in case of re-run for the same artifact version
+      command: su - aptly -c "aptly repo search rabbitmq-downloaded-packages-{{ artifacts_version }}-ALL 'Name (rabbitmq-server), Version ({{ _rabbitmq_package_version }})'"
+      register: rabbitmq_search
+      failed_when: false
+      changed_when: false
+      when: aptly_mirror_do_updates | bool
+    - name: Fetch Rabbitmq to feed frozen repo
+      get_url:
+        # from: https://raw.githubusercontent.com/openstack/openstack-ansible-rabbitmq_server/stable/newton/vars/debian.yml
+        url: "{{ _rabbitmq_package_url }}"
+        dest: "/tmp/{{ _rabbitmq_package_url | basename }}"
+        sha256sum: "{{ _rabbitmq_package_sha256 }}"
+      when:
+        - aptly_mirror_do_updates | bool
+        - rabbitmq_search.stdout.find(_rabbitmq_package_version) == -1
+      register: rabbitmq_download
+      until: rabbitmq_download|success
+      retries: 5
+      delay: 5
+    - name: Upload Package
+      command: su - aptly -c "aptly repo add rabbitmq-downloaded-packages-{{ artifacts_version }}-ALL /tmp/{{ _rabbitmq_package_url | basename }}"
+      register: aptly_repo_add_output
+      when:
+        - aptly_mirror_do_updates | bool
+        - rabbitmq_search.stdout.find(_rabbitmq_package_version) == -1
+    - debug:
+        msg: "{{ aptly_repo_add_output }}"
+      when: aptly_mirror_do_updates | bool
