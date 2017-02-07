@@ -1,0 +1,46 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Before going further, make sure you have keys.
+#    gpg --gen-key
+#    mkdir -p /openstack/aptly
+# Check the armor by gpg --list-keys
+#    gpg --export-secret-keys --armor CB6E9D87 > /openstack/aptly.private.key
+#    gpg --export --armor CB6E9D87 > /openstack/aptly.public.key
+- name: Prepare before aptly-install-and-mirror playbook
+  hosts: localhost
+  connection: local
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  tasks:
+    - name: Ensure folder exists
+      file:
+        state: directory
+        path: "{{ item }}"
+      with_items:
+        - "{{ artifacts_root_folder }}"
+        - "{{ ansible_roles_folder }}"
+    - name: Fetch aptly role and rabbitmq vars files
+      git:
+        repo: "{{ item.repo }}"
+        dest: "{{ item.dest }}"
+        version: "{{ item.version | string | default('master') }}"
+        force: yes
+      with_items: "{{ aptly_clone_this_first }}"
+      register: git_clone
+      until: git_clone | success
+      retries: 2
+      delay: 5
