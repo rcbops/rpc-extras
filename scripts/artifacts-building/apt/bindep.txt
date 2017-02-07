@@ -1,0 +1,9 @@
+build-essential
+git-core
+libssl-dev
+libffi-dev
+python2.7
+python-dev
+python-pyasn1
+python-openssl
+gzip
