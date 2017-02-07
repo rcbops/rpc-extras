@@ -15,9 +15,6 @@
 
 # Prepare for aptly, repos to clone.
 aptly_clone_this_first:
-  - repo: "https://github.com/openstack/openstack-ansible-rabbitmq_server.git"
-    dest: "{{ ansible_roles_folder }}/rabbitmq_server"
-    version: "{{ roles_details | selectattr('name','equalto', 'rabbitmq_server') | list | map(attribute='version') | list | join('') }}"
   - repo: "https://github.com/evrardjp/ansible-role-aptly.git"
     dest: "{{ ansible_roles_folder }}/infOpen.aptly"
     version: "rax"
