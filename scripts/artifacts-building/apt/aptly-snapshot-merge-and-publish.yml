@@ -1,0 +1,54 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Publish Aptly Mirror
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - artifacting-vars.yml
+    - aptly-vars.yml
+  become_user: aptly
+  become: True
+  become_method: sudo
+  tasks:
+    - assert:
+        that:
+          - artifacts_version is defined
+          - distribution_release is defined
+        msg: You need to define what you are releasing!
+    - name: Merge the snapshots together
+      shell: "aptly snapshot merge {{ aptly_snapshot_merge_flags }} miko-{{ artifacts_version }}-{{ distribution_release }} {{ aptly_miko_mapping.get(distribution_release) | join(' ') }}"
+      register: aptly_snapshot_merge_create
+      failed_when: aptly_snapshot_merge_create.rc != 0 and aptly_snapshot_merge_create.stderr.find('already exists') == -1
+      changed_when: aptly_snapshot_merge_create.stderr.find('already exists') == -1
+      tags:
+        - aptly_snapshot_merge
+        - aptly_snapshot
+    - name: Publish snapshot into public/integrated/ folder
+      shell: 'aptly publish snapshot -distribution="{{ artifacts_version }}-{{ distribution_release }}" miko-{{ artifacts_version }}-{{ distribution_release }} integrated'
+      register: aptly_snapshot_publish
+      failed_when: aptly_snapshot_publish.rc != 0 and aptly_snapshot_publish.stderr.find('already used') == -1
+      changed_when: aptly_snapshot_publish.stderr.find('already used') == -1
+      tags:
+        - aptly_publish
+    - name: Publish snapshot into public folder (no merge)
+      shell: 'aptly publish snapshot -distribution="{{ artifacts_version }}-{{ distribution_release }}" {{ item.src }} independant/{{ item.dest }}'
+      with_items: "{{ aptly_n_mapping.get(distribution_release) }}"
+      register: aptly_snapshot_nomerge_publish
+      failed_when: aptly_snapshot_nomerge_publish.rc != 0 and aptly_snapshot_nomerge_publish.stderr.find('already used') == -1
+      changed_when: aptly_snapshot_nomerge_publish.stderr.find('already used') == -1
+      tags:
+        - aptly_publish
