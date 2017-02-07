@@ -20,6 +20,14 @@ set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
 
+# The BASE_DIR needs to be set to ensure that the scripts
+# know it and use this checkout appropriately.
+export BASE_DIR=${PWD}
+
+# We want the role downloads to be done via git
+# This ensures that there is no race condition with the artifacts-git job
+export ANSIBLE_ROLE_FETCH_MODE="git-clone"
+
 export ANSIBLE_VERBOSITY=${ANSIBLE_VERBOSITY:--v}
 export RPC_ARTIFACTS_FOLDER=${RPC_ARTIFACTS_FOLDER:-/var/www/artifacts}
 export RPC_ARTIFACTS_PUBLIC_FOLDER=${RPC_ARTIFACTS_PUBLIC_FOLDER:-/var/www/repo}
@@ -34,8 +42,18 @@ elif [ -z ${GPG_PRIVATE+x} ] || [ -z ${GPG_PUBLIC+x} ]; then
   exit 1
 fi
 
-cd scripts/artifacts-building/apt
-mkdir -p ~/.ssh/
+# Ensure that the openstack-ansible submodule is updated
+git submodule init
+git submodule update
+
+# The derive-artifact-version.py script expects the git clone to
+# be at /opt/rpc-openstack, so we link the current folder there.
+ln -sfn ${PWD} /opt/rpc-openstack
+
+# Install Ansible
+./scripts/bootstrap-ansible.sh
+
+# Ensure the required folders are present
 mkdir -p ${RPC_ARTIFACTS_FOLDER}
 mkdir -p ${RPC_ARTIFACTS_PUBLIC_FOLDER}
 
@@ -53,19 +71,14 @@ set -x
 # Ensure that the repo server public key is a known host
 grep "${REPO_HOST}" ~/.ssh/known_hosts || echo "${REPO_HOST} $(cat $REPO_HOST_PUBKEY)" >> ~/.ssh/known_hosts
 
-# Install Ansible
-apt-get update
-xargs apt-get install -y < bindep.txt
-curl https://bootstrap.pypa.io/get-pip.py | python
-pip install ansible==2.2
-
 #Append host to [mirrors] group
 echo '[mirrors]' > /opt/inventory
 echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${REPO_KEYFILE}' " >> /opt/inventory
 
 # Execute the playbooks
+cd ${BASE_DIR}/scripts/artifacts-building/apt
 ansible-playbook aptly-pre-install.yml ${ANSIBLE_VERBOSITY}
-ansible-playbook aptly-all.yml -i inventory ${ANSIBLE_VERBOSITY}
+ansible-playbook aptly-all.yml -i /opt/inventory ${ANSIBLE_VERBOSITY}
 
 # List the contents
 ls -R ${RPC_ARTIFACTS_FOLDER}
