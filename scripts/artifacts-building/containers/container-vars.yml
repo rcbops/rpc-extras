@@ -1,0 +1,20 @@
+---
+build_id: "{{ ansible_date_time.date | replace('-','') }}"
+lxc_index_path: "{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}/{{ architecture_mapping.get( ansible_architecture ) }}"
+lxc_index_entry: "{{ ansible_distribution | lower }};{{ ansible_distribution_release | lower }};{{ architecture_mapping.get( ansible_architecture ) }}"
+lxc_image_folder: "/var/cache/artifacts"
+built_container_artifact_metadata_file: "{{ lxc_image_folder }}/{{ image_name }}-{{ pip_artifacts_version }}-entry"
+webserver_container_artifacts_uri: "lxc-images"
+lxc_container_cache_path: "/var/cache/lxc/download"
+image_name: "{{ role_name | replace('os_', '') }}"
+compression_ratio: 7
+xz_bin:
+  centos: xz
+  ubuntu: pxz
+architecture_mapping:
+  x86_64: amd64
+  ppc64le: ppc64el
+role_vars:        
+  "venv_download_url": "{{ mirror_base_url }}/venvs/{{ pip_artifacts_version }}/ubuntu/{{ image_name }}-{{ pip_artifacts_version }}-{{ ansible_architecture }}.tgz"        
+  "venv_tag": "{{ pip_artifacts_version }}"        
+  "developer_mode": False
