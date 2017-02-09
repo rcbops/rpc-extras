@@ -85,7 +85,7 @@
     - role: "{{ role_name }}"
   post_tasks:
     - name: chroot resolv cleanup
-      shell: | 
+      shell: |
         if [ -a /etc/resolv.conf.org ]; then
           mv /etc/resolv.conf.org /etc/resolv.conf
         else
@@ -93,7 +93,7 @@
         fi
         apt-get clean
         rm -rf /root/.cache/pip/
-        umount /proc || true        
+        umount /proc || true
       tags:
         - always
 
