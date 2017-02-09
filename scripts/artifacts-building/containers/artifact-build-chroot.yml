@@ -16,6 +16,8 @@
 - name: Create artifact container
   hosts: localhost
   connection: local
+  vars_files:
+    - container-vars.yml
   tasks:
     - name: Remove cache
       file:
@@ -44,10 +46,26 @@
         groups: "lxc_container_artifact_chroots"
         container_name: "LXC_NAME"
         physical_host: "localhost"
-  vars:
-    architecture_mapping:
-      x86_64: amd64
-      ppc64le: ppc64el
+  tags:
+    - always
+
+- name: Install python
+  hosts: lxc_container_artifact_chroots
+  gather_facts: False
+  connection: chroot
+  vars_files:
+    - container-vars.yml
+  tasks:
+    - name: Configure chroot
+      raw: |
+        if [ -a /etc/resolv.conf ]; then
+          mv /etc/resolv.conf /etc/resolv.conf.org
+        fi
+        echo "nameserver 8.8.8.8" > /etc/resolv.conf
+        mount -t proc proc /proc || true
+        test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      tags:
+        - always
   tags:
     - always
 
@@ -55,19 +73,12 @@
   hosts: lxc_container_artifact_chroots
   gather_facts: True
   connection: chroot
+  vars_files:
+    - container-vars.yml
   pre_tasks:
     - name: Set facts to pass some variables that wouldn't work #like '{{ image_name }}_developer_mode'
       set_fact: '{{ image_name }}_{{ item.key }}="{{ item.value }}"'
       with_dict: "{{ role_vars }}"
-      tags:
-        - always
-    - name: Configure chroot
-      shell: |
-        if [ -a /etc/resolv.conf ]; then
-          mv /etc/resolv.conf /etc/resolv.conf.org
-        fi
-        echo "nameserver 8.8.8.8" > /etc/resolv.conf
-        mount -t proc proc /proc || true
       tags:
         - always
   roles:
@@ -85,21 +96,17 @@
         umount /proc || true        
       tags:
         - always
-  vars:
-    image_name: "{{ role_name | replace('os_', '') }}"
-    role_vars:
-      "venv_download_url": "{{ mirror_base_url }}/venvs/{{ pip_artifacts_version }}/ubuntu/{{ image_name }}-{{ pip_artifacts_version }}-{{ ansible_architecture }}.tgz"
-      "venv_tag": "{{ pip_artifacts_version }}"
-      "developer_mode": False
 
 - name: Create artifact container
   hosts: localhost
   gather_facts: no
   connection: local
+  vars_files:
+    - container-vars.yml
   tasks:
     - name: Set artifact facts
       set_fact:
-        image_path: "{{ lxc_image_folder }}/{{ lxc_index_path }}/{{ image_name }}/{{ container_artifact_version }}"
+        image_path: "{{ lxc_image_folder }}/{{ lxc_index_path }}/{{ image_name }}-{{ pip_artifacts_version }}/{{ build_id }}/"
     - name: Ensure image doesn't exist yet.
       file:
         path: "{{ image_path }}"
@@ -120,18 +127,20 @@
       args:
         chdir: "{{ image_path }}"
         creates: "{{ image_path }}/rootfs.tar.xz"
+        executable: /bin/bash
     - name: Create lxc image meta
       shell: |
-        tar -Opc -C "{{ lxc_container_cache_path }}/{{ lxc_index_path }}/default/{build_id,config,config-user,create-message,excludes-user,expiry,templates}" . | \
+        tar -Opc -C {{ lxc_container_cache_path }}/{{ lxc_index_path }}/default/ {build_id,config,config-user,create-message,excludes-user,expiry,templates} | \
           {{ xz_bin[ansible_distribution | lower] }} -{{ compression_ratio }} \
           -c - > meta.tar.xz
       args:
         chdir: "{{ image_path }}"
         creates: "{{ image_path }}/meta.tar.xz"
+        executable: /bin/bash
     - name: Create release index entries
       lineinfile:
-        dest: "{{ lxc_image_folder }}/{{ image_name }}-{{ container_artifact_version }}-entry"
-        line: "{{ lxc_index_entry }};{{ image_name }};{{ container_artifact_version }};/lxc-images/{{ lxc_index_path }}/{{ image_name }}/{{ container_artifact_version }}"
+        dest: "{{ built_container_artifact_metadata_file }}"
+        line: "{{ lxc_index_entry }};{{ image_name }}-{{ pip_artifacts_version }};{{ build_id }};/{{ webserver_container_artifacts_uri }}/{{ lxc_index_path }}/{{ image_name }}-{{ pip_artifacts_version }}/{{ build_id }}"
         create: yes
         state: present
     - name: create sha256sums
@@ -145,18 +154,5 @@
       lxc_container:
         name: "LXC_NAME"
         state: absent
-  vars:
-    lxc_index_path: "{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}/{{ architecture_mapping.get( ansible_architecture ) }}"
-    lxc_index_entry: "{{ ansible_distribution | lower }};{{ ansible_distribution_release | lower }};{{ architecture_mapping.get( ansible_architecture ) }}"
-    lxc_image_folder: "/var/cache/artifacts"
-    lxc_container_cache_path: "/var/cache/lxc/download"
-    image_name: "{{ role_name | replace('os_', '') }}"
-    compression_ratio: 7
-    xz_bin:
-      centos: xz
-      ubuntu: pxz
-    architecture_mapping:
-      x86_64: amd64
-      ppc64le: ppc64el
   tags:
     - always
