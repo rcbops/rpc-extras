@@ -1,8 +1,10 @@
-type: agent.plugin
-label: "swift_async_check--{{ ansible_hostname }}"
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "swift_async_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : swift-recon.py
     args    : ["async-pendings"]
@@ -10,6 +12,7 @@ alarms      :
     swift_async_failure_check :
         label                   : swift_async_failure_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_async_failure_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["async_failed"] > {{ swift_async_pending_failure_percentage_threshold }}) {
@@ -19,6 +22,7 @@ alarms      :
     swift_async_avg_check :
         label                   : swift_async_avg_check--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_async_avg_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["async_avg"] > {{ swift_async_pending_average_threshold }}) {

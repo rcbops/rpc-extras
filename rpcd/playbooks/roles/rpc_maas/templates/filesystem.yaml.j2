@@ -1,14 +1,17 @@
-type: agent.filesystem
-label: "filesystem_{{ item.filesystem }}--{{ ansible_hostname }}"
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "filesystem_"+item.filesystem %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.filesystem
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     target  : "{{ item.filesystem }}"
 alarms      :
     filesystem_{{ item.filesystem }}_check :
         label                   : "Disk space used on {{ item.filesystem }}--{{ ansible_hostname }}"
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('Disk space used on '+item.filesystem+'--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric['used'], metric['total']) >= {{ item.critical_threshold }}) {

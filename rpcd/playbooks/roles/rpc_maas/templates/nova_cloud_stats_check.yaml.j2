@@ -1,8 +1,10 @@
-type: agent.plugin
-label: "nova_cloud_stats_check--{{ ansible_hostname }}"
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "nova_cloud_stats_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : nova_cloud_stats.py
     args    : ["--cpu", "{{ cloud_resource_cpu_allocation_ratio }}", "--mem", "{{ cloud_resource_mem_allocation_ratio }}", "{{ ansible_ssh_host }}"]
@@ -11,6 +13,7 @@ alarms      :
     nova_cloud_memory_status :
         label                   : nova_cloud_memory_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('nova_cloud_memory_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["cloud_resource_used_memory"], metric["cloud_resource_total_memory"]) > {{ cloud_resource_critical_memory }}) {
@@ -22,6 +25,7 @@ alarms      :
     nova_cloud_disk_status :
         label                   : nova_cloud_disk_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('nova_cloud_disk_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["cloud_resource_used_disk_space"], metric["cloud_resource_total_disk_space"]) > {{ cloud_resource_critical_disk_space }}) {
@@ -33,6 +37,7 @@ alarms      :
     nova_cloud_vcpu_status :
         label                   : nova_cloud_vcpu_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('nova_cloud_vcpu_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["cloud_resource_used_vcpus"], metric["cloud_resource_total_vcpus"]) > {{ cloud_resource_critical_vcpus }}) {

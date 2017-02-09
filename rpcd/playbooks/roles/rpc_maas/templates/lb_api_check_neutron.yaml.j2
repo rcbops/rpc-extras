@@ -1,8 +1,10 @@
+{% set label = "lb_api_check_neutron" %}
+{% set check_name = label+'--'+lb_name %}
 type              : remote.http
-label             : lb_api_check_neutron--{{ lb_name }}
-disabled          : "{{ check_disabled }}"
-period            : "{{ maas_check_period }}"
-timeout           : "{{ maas_check_timeout }}"
+label             : "{{ check_name }}"
+period            : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout           : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled          : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 target_resolver   : "IPv4"
 target_hostname   : "{{ ip_address }}"
 details           :
@@ -13,8 +15,9 @@ monitoring_zones_poll:
 {% endfor %}
 alarms            :
     lb_api_alarm_neutron    :
-        notification_plan_id: "{{ maas_notification_plan }}"
         label               : lb_api_alarm_neutron
+        notification_plan_id: "{{ maas_notification_plan }}"
+        disabled            : {{ ('lb_api_alarm_neutron' | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria            : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric['code'] != '200') {

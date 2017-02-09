@@ -374,9 +374,12 @@ Returns metrics indicating the status of parts of HP hardware.
 
 ##### Example Output:
 
+    metric hardware_controller_battery_status uint32 1
+    metric hardware_controller_cache_status uint32 1
+    metric hardware_controller_status uint32 1
+    metric hardware_disk_status uint32 1
     metric hardware_memory_status uint32 1
     metric hardware_processors_status uint32 1
-    metric hardware_disk_status uint32 1
 
 ***
 #### ceph_monitoring.py

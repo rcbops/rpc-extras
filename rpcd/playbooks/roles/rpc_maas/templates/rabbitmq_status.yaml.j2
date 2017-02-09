@@ -1,8 +1,10 @@
-type: agent.plugin
-label: rabbitmq_status--{{ ansible_hostname }}
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "rabbitmq_status" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : rabbitmq_status.py
     args    : ["-H", "{{ ansible_ssh_host }}", "-n", "{{ inventory_hostname.split('.')[0] }}", "-U", "{{ maas_rabbitmq_user }}", "-p", "{{ maas_rabbitmq_password }}"]
@@ -10,6 +12,7 @@ alarms      :
     rabbitmq_disk_free_alarm_status :
         label                   : rabbitmq_disk_free_alarm_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_disk_free_alarm_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["rabbitmq_disk_free_alarm_status"] != 1) {
@@ -19,6 +22,7 @@ alarms      :
     rabbitmq_mem_alarm_status :
         label                   : rabbitmq_mem_alarm_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_mem_alarm_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["rabbitmq_mem_alarm_status"] != 1) {
@@ -28,6 +32,7 @@ alarms      :
     rabbitmq_max_channels_per_conn :
         label                   : rabbitmq_max_channels_per_conn--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_max_channels_per_conn--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["rabbitmq_max_channels_per_conn"] > {{ rabbitmq_max_channels_per_con_threshold }}) {
@@ -37,6 +42,7 @@ alarms      :
     rabbitmq_fd_used_alarm_status :
         label                   : rabbitmq_fd_used_alarm_status-{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_fd_used_alarm_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["rabbitmq_fd_used"],metric["rabbitmq_fd_total"]) >= {{ rabbitmq_fd_used_threshold }}) {
@@ -46,6 +52,7 @@ alarms      :
     rabbitmq_proc_used_alarm_status :
         label                   : rabbitmq_proc_used_alarm_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_proc_used_alarm_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["rabbitmq_proc_used"],metric["rabbitmq_proc_total"]) >= {{ rabbitmq_proc_used_threshold }}) {
@@ -55,6 +62,7 @@ alarms      :
     rabbitmq_socket_used_alarm_status :
         label                   : rabbitmq_socket_used_alarm_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_socket_used_alarm_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["rabbitmq_sockets_used"],metric["rabbitmq_sockets_total"]) >= {{ rabbitmq_socket_used_threshold }}) {
@@ -63,6 +71,7 @@ alarms      :
     rabbitmq_msgs_excl_notifications :
         label                   : rabbitmq_msgs_excl_notifications--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_msgs_excl_notifications--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["rabbitmq_msgs_excl_notifications"] > {{ rabbitmq_queued_messages_excluding_notifications_threshold }} ) {
@@ -71,6 +80,7 @@ alarms      :
     rabbitmq_qgrowth_excl_notifications :
         label                   : rabbitmq_qgrowth_excl_notifications--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('rabbitmq_qgrowth_excl_notifications--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["rabbitmq_msgs_excl_notifications"]) > {{rabbitmq_queue_growth_rate_threshold / maas_check_period}}) {

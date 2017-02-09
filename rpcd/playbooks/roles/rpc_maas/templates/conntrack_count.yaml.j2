@@ -1,8 +1,10 @@
-type: agent.plugin
-label: "conntrack_count--{{ ansible_hostname }}"
-disabled    : false
-period      : "{{ maas_check_period }}"
-timeout     : "{{ maas_check_timeout }}"
+{% set label = "conntrack_count" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : conntrack_count.py
     args    : ["{{ ansible_ssh_host }}"]
@@ -10,6 +12,7 @@ alarms      :
     conntrack_count_status :
         label                   : conntrack_count_status--{{ ansible_hostname }}
         notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('conntrack_count_status--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (percentage(metric["nf_conntrack_count"] , metric["nf_conntrack_max"]) > {{ nf_conntrack_threshold }}) {
