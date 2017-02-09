@@ -21,8 +21,6 @@
   vars:
     artifact_list: "{{ repo_server_url }}/meta/1.0/index-system"
     repo_server_url: "http://rpc-repo.rackspace.com"
-    webserver_owner: "nginx"
-    webserver_group: "www-data"
   tasks:
     - name: get the container artifacts list
       get_url:
