@@ -72,3 +72,4 @@ openstack-ansible setup-hosts.yml --limit lxc_hosts,hosts
 cd /opt/rpc-openstack/scripts/artifacts-building/
 
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_keystone -v" "install" "config"
+openstack-ansible containers/artifact-upload.yml -e role_name=os_keystone -v

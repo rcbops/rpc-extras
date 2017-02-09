@@ -1,0 +1,79 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: container artifacts metadata prep
+  hosts: localhost
+  connection: local
+  vars_files:
+    - container-vars.yml
+  vars:
+    artifact_list: "{{ repo_server_url }}/meta/1.0/index-system"
+    repo_server_url: "http://rpc-repo.rackspace.com"
+    webserver_owner: "nginx"
+    webserver_group: "www-data"
+  tasks:
+    - name: get the container artifacts list
+      get_url:
+        url: "{{ artifact_list }}" 
+        dest: "/tmp/list"
+    - name: patch the current list with the new artifact
+      lineinfile:
+        path: "/tmp/list"
+        regexp: "^{{ lxc_index_entry }};{{ image_name }}-{{ pip_artifacts_version }}"
+        line: "{{ lookup('file', built_container_artifact_metadata_file ) }}"
+    - name: Remove the metada file
+      file:
+        path: "{{ built_container_artifact_metadata_file }}"
+        state: absent
+
+- name: Push the changes
+  hosts: mirrors
+  vars_files:
+    - container-vars.yml
+  vars:
+    repo_remote_path: "/var/www/repo"
+  tasks:
+    - name: Ensure metatadata folder exists
+      file:
+        path: "{{ repo_remote_path }}/meta/1.0/"
+        state: directory
+        owner: "{{ webserver_owner }}"
+        group: "{{ webserver_group }}"
+    - name: Publish metadata
+      copy:
+        src: /tmp/list
+        dest: "{{ repo_remote_path }}/meta/1.0/index-system"
+        owner: "{{ webserver_owner }}"
+        group: "{{ webserver_group }}"
+    - name: Ensure lxc-images folder exists
+      file:
+        path: "{{ repo_remote_path }}/{{ webserver_container_artifacts_uri }}/"
+        state: directory
+        owner: "{{ webserver_owner }}"
+        group: "{{ webserver_group }}"
+    - name: Publish container artifact
+      synchronize:
+        src: "{{ lxc_image_folder }}"
+        dest: "{{ repo_remote_path }}/{{ webserver_container_artifacts_uri }}/"
+        mode: push
+        delete: no
+        recursive: yes
+        rsync_opts:
+          - "--chown=nginx:www-data"
+      register: synchronize
+      until: synchronize | success
+      retries: 5
+      delay: 5
+
