@@ -61,6 +61,13 @@ cp user_*.yml /etc/openstack_deploy/
 # Patch the roles
 git config --global user.email "rcbops@rackspace.com"
 git config --global user.name "RCBOPS gating"
+
+# TEMP WORKAROUND: CHECKOUT the version you need!
+pushd /etc/ansible/roles/os_keystone
+git fetch --all
+git checkout stable/newton
+popd
+
 cd containers/patches/
 patch_all_roles
 
