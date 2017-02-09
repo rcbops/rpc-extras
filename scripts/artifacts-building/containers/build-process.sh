@@ -54,20 +54,21 @@ cd /opt/rpc-openstack
 ./scripts/bootstrap-aio.sh
 
 # Set override vars for the artifact build
-
+echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
 cd scripts/artifacts-building/
 cp user_*.yml /etc/openstack_deploy/
 
-# Patch the roles
+# Prepare role patching
 git config --global user.email "rcbops@rackspace.com"
 git config --global user.name "RCBOPS gating"
 
-# TEMP WORKAROUND: CHECKOUT the version you need!
+# TEMP WORKAROUND: CHECKOUT the version you need before patching!
 pushd /etc/ansible/roles/os_keystone
 git fetch --all
 git checkout stable/newton
 popd
 
+# Patch the roles
 cd containers/patches/
 patch_all_roles
 
@@ -78,5 +79,33 @@ openstack-ansible setup-hosts.yml --limit lxc_hosts,hosts
 # Move back to artifacts-building dir
 cd /opt/rpc-openstack/scripts/artifacts-building/
 
+# Build it!
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_keystone -v" "install" "config"
-openstack-ansible containers/artifact-upload.yml -e role_name=os_keystone -v
+
+if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
+    echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
+    exit 1
+else
+    # Prep the ssh key for uploading to rpc-repo
+    mkdir -p ~/.ssh/
+    set +x
+    key=~/.ssh/repo.key
+    echo "-----BEGIN RSA PRIVATE KEY-----" > $key
+    echo "$REPO_KEY" \
+      |sed -e 's/\s*-----BEGIN RSA PRIVATE KEY-----\s*//' \
+           -e 's/\s*-----END RSA PRIVATE KEY-----\s*//' \
+           -e 's/ /\n/g' >> $key
+    echo "-----END RSA PRIVATE KEY-----" >> $key
+    chmod 600 ${key}
+    set -x
+    #Append host to [mirrors] group
+    echo '[mirrors]' > /opt/inventory
+    echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${key}' " >> /opt/inventory
+
+    # As we don't have access to the public key in this job
+    # we need to disable host key checking.
+    export ANSIBLE_HOST_KEY_CHECKING=False
+
+    # Ship it!
+    openstack-ansible containers/artifact-upload.yml -e role_name=os_keystone -i /opt/inventory -v
+fi
