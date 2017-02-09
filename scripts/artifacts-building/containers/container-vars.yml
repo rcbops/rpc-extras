@@ -14,7 +14,9 @@ xz_bin:
 architecture_mapping:
   x86_64: amd64
   ppc64le: ppc64el
-role_vars:        
-  "venv_download_url": "{{ mirror_base_url }}/venvs/{{ pip_artifacts_version }}/ubuntu/{{ image_name }}-{{ pip_artifacts_version }}-{{ ansible_architecture }}.tgz"        
-  "venv_tag": "{{ pip_artifacts_version }}"        
+role_vars:
+  "venv_download_url": "{{ mirror_base_url }}/venvs/{{ pip_artifacts_version }}/ubuntu/{{ image_name }}-{{ pip_artifacts_version }}-{{ ansible_architecture }}.tgz"
+  "venv_tag": "{{ pip_artifacts_version }}"
   "developer_mode": False
+webserver_owner: "nginx"
+webserver_group: "www-data"
