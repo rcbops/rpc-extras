@@ -63,8 +63,8 @@
         group: "{{ webserver_group }}"
     - name: Publish container artifact
       synchronize:
-        src: "{{ lxc_image_folder }}"
-        dest: "{{ repo_remote_path }}/{{ webserver_container_artifacts_uri }}/"
+        src: "{{ lxc_image_folder }}/"
+        dest: "{{ repo_remote_path }}/{{ webserver_container_artifacts_uri }}"
         mode: push
         delete: no
         recursive: yes
