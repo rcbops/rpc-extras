@@ -106,7 +106,7 @@
   tasks:
     - name: Set artifact facts
       set_fact:
-        image_path: "{{ lxc_image_folder }}/{{ lxc_index_path }}/{{ image_name }}-{{ pip_artifacts_version }}/{{ build_id }}/"
+        image_path: "{{ lxc_image_folder }}/{{ lxc_index_path }}/{{ image_name }}-{{ rpc_release }}/{{ build_id }}/"
     - name: Ensure image doesn't exist yet.
       file:
         path: "{{ image_path }}"
@@ -140,7 +140,7 @@
     - name: Create release index entries
       lineinfile:
         dest: "{{ built_container_artifact_metadata_file }}"
-        line: "{{ lxc_index_entry }};{{ image_name }}-{{ pip_artifacts_version }};{{ build_id }};/{{ webserver_container_artifacts_uri }}/{{ lxc_index_path }}/{{ image_name }}-{{ pip_artifacts_version }}/{{ build_id }}"
+        line: "{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }};{{ build_id }};/{{ webserver_container_artifacts_uri }}/{{ lxc_index_path }}/{{ image_name }}-{{ rpc_release }}/{{ build_id }}"
         create: yes
         state: present
     - name: create sha256sums
