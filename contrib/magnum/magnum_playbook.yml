@@ -1,0 +1,66 @@
+---
+# Copyright 2014-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+- name: Install Magnum
+  hosts: localhost
+  tasks:
+    - name: Turn on 'isolated' mode for Magnum PIP
+      lineinfile:
+        dest: '{{ oa_dir }}/playbooks/inventory/group_vars/magnum_all.yml'
+        regexp: '{{ item.regex }}'
+        line: '{{ item.line }}'
+        backup: yes
+        state: present
+      with_items:
+        - regex: '^pip_install_options:'
+          line: 'pip_install_options: --isolated'
+        - regex: '^magnum_developer_mode:'
+          line: 'magnum_developer_mode: True'
+        - regex: '^magnum_git_install_branch:'
+          line: 'magnum_git_install_branch: {{ magnum_git_install_branch }}'
+
+    - name: Set OSA variable overrides
+      blockinfile:
+        dest: '/etc/openstack_deploy/user_osa_variables_overrides.yml'
+        block: '{{ item.block }}'
+        marker: '# {mark} MAGNUM SETTING: {{ item.name }}'
+        state: present
+        backup: yes
+      with_items:
+        - block: |
+            keystone_keystone_conf_overrides:
+              resource:
+                admin_project_name: '{{ keystone_admin_tenant_name }}'
+                admin_project_domain_name: default
+          name: Keystone configuration
+        - block: |
+            heat_policy_overrides:
+              "stacks:global_index": "role:admin"
+          name: Heat Policy configuration
+        - block: |
+            magnum_config_overrides:
+              certificates:
+                cert_manager_type: x509keypair
+          name: Magnum configuration
+        - block: |
+            neutron_plugin_base:
+              - router
+              - metering
+              - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
+            neutron_lbaasv2: True
+            horizon_enable_neutron_lbaas: True
+          name: LBaaS v2 configuration
+  vars:
+    oa_dir: '/opt/rpc-openstack/openstack-ansible'
+    magnum_git_install_branch: 'f2f9bd4653fb66f61c2789d5f08a4edce6fd04bf'
