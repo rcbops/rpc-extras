@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# NOTE(mhayden): The filebeat check in this task ensures that filebeat checks
+#                and alarms are not deployed if the ELK stack is not being
+#                deployed. Deployers can override this check and deploy
+#                filebeat checks/alarms anyway by setting
+#                `maas_force_check_filebeat` to `true`.
 - name: Install process checks
   template:
     src: "{{ item.name }}.yaml.j2"
@@ -26,4 +31,5 @@
     - item.group in groups
     - inventory_hostname in groups['{{ item.group }}']
     - not item.name | match(maas_excluded_checks_regex)
+    - item.name != 'filebeat_process_check' or (item.name == 'filebeat_process_check' and ((maas_force_check_filebeat | bool) or 'elasticsearch_all' in groups))
   delegate_to: "{{ physical_host }}"
