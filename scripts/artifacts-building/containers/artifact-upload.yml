@@ -22,10 +22,15 @@
     artifact_list: "{{ repo_server_url }}/meta/1.0/index-system"
     repo_server_url: "http://rpc-repo.rackspace.com"
   tasks:
+    - name: Check if the list exist to avoid re-hitting the server
+      stat:
+        path: /tmp/list
+      register: metadata_file_locally_exists
     - name: get the container artifacts list
       get_url:
         url: "{{ artifact_list }}"
         dest: "/tmp/list"
+      when: not metadata_file_locally_exists.stat.exists
     - name: patch the current list with the new artifact
       lineinfile:
         dest: "/tmp/list"
