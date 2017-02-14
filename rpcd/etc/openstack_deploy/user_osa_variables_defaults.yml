@@ -178,9 +178,7 @@ neutron_legacy_ha_tool_enabled: true
 #
 # Set variables used for enabling/disabling the use of staged apt/container artifacts
 #
-# TODO(odyssey4me) When the staging implementation is complete, switch this to 'no'
-rpco_online_install: yes
-rpco_mirror_base_url: "{{ (rpco_online_install | bool) | ternary('http://rpc-repo.rackspace.com', openstack_repo_url) }}"
+rpco_mirror_base_url: "http://rpc-repo.rackspace.com"
 
 #
 # Set RPC deployments to make use of the apt artifacts repository
