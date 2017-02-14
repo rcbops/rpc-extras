@@ -83,6 +83,9 @@ cd /opt/rpc-openstack/scripts/artifacts-building/
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_keystone -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_cinder -v" "install" "config"
 
+# Ensure no remnants (not necessary if ephemeral host, but useful for dev purposes
+rm -f /tmp/list
+
 if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
     echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
     exit 1
