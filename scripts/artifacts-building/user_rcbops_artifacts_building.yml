@@ -19,10 +19,6 @@
 # the build time a bit.
 apply_security_hardening: False
 
-# We are not going to setup a repo server and stage the apt/python
-# artifacts into it, so we ensure that an online install is set.
-rpco_online_install: yes
-
 # In a normal deployment, openstack_repo_url is the address
 # of the repo server. When we build artifacts we don't build
 # a repo container so we override the default group_var to
