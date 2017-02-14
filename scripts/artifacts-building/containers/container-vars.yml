@@ -15,7 +15,7 @@ architecture_mapping:
   x86_64: amd64
   ppc64le: ppc64el
 role_vars:
-  "venv_download_url": "{{ mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ image_name }}-{{ rpc_release }}-{{ ansible_architecture }}.tgz"
+  "venv_download_url": "{{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ image_name }}-{{ rpc_release }}-{{ ansible_architecture }}.tgz"
   "venv_tag": "{{ rpc_release }}"
   "developer_mode": False
 webserver_owner: "nginx"

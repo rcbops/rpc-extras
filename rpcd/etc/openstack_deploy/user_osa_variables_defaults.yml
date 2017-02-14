@@ -173,3 +173,89 @@ haproxy_extra_services:
 
 #Set the default for Neutron-HA-tool to true
 neutron_legacy_ha_tool_enabled: true
+
+#
+# Set variables used for enabling/disabling the use of staged apt/container artifacts
+#
+# TODO(odyssey4me) When the staging implementation is complete, switch this to 'no'
+rpco_online_install: yes
+rpco_mirror_base_url: "{{ (rpco_online_install | bool) | ternary('http://rpc-repo.rackspace.com', openstack_repo_url) }}"
+
+#
+# Set RPC deployments to make use of the apt artifacts repository
+#
+rpco_mirror_apt_deb_line: "deb {{ rpco_mirror_apt_url }} {{ rpc_release }}-{{ ansible_distribution_release }} main"
+rpco_mirror_apt_url: "{{ rpco_mirror_base_url }}/apt-mirror/integrated/"
+rpco_mirror_apt_filename: rpco
+rpco_gpg_key_location: "{{ rpco_mirror_base_url }}/apt-mirror/"
+rpco_gpg_key_name: "rcbops-release-signing-key.asc"
+rpco_gpg_key_id: 22A9BF80 #SET IN STATIC (to force key verification per release).
+
+# For convenience
+rpco_apt_repo:
+  repo: "{{ rpco_mirror_apt_deb_line }}"
+  state: "present"
+  filename: "{{ rpco_mirror_apt_filename }}"
+rpco_apt_gpg_keys:
+  - hash_id:  "{{ rpco_gpg_key_id }}"
+    url: "{{ rpco_gpg_key_location }}{{ rpco_gpg_key_name }}"
+    state: "present"
+
+# HAProxy
+haproxy_repo: "{{ rpco_apt_repo }}"
+haproxy_gpg_keys: "{{ rpco_apt_gpg_keys }}"
+
+# RabbitMQ
+rabbitmq_install_method: "external_repo"
+rabbitmq_repo: "{{ rpco_apt_repo }}"
+rabbitmq_gpg_keys: "{{ rpco_apt_gpg_keys }}"
+
+# ceph_client wiring
+ceph_apt_repos:
+  uca: "{{ rpco_apt_repo }}"
+ceph_pkg_source: "uca"
+
+# galera_client role wiring
+galera_client_repo: "{{ rpco_mirror_apt_deb_line }}"
+mariadb_repo_filename: "{{ rpco_mirror_apt_filename }}"
+galera_client_gpg_keys: "{{ rpco_apt_gpg_keys }}"
+
+# galera_server wiring
+use_percona_upstream: True
+galera_repo: "{{ rpco_apt_repo }}"
+galera_percona_xtrabackup_repo: "{{ rpco_apt_repo }}"
+
+# neutron, nova wiring
+uca_repo: "{{ rpco_mirror_apt_deb_line }}"
+uca_apt_source_list_filename: "{{ rpco_mirror_apt_filename }}"
+
+# Elasticsearch
+elasticsearch_apt_repos:
+  - "{{ rpco_apt_repo }}"
+elasticsearch_apt_keys: "{{ rpco_apt_gpg_keys }}"
+
+# Filebeat
+filebeat_apt_repos:
+  - "{{ rpco_apt_repo }}"
+filebeat_apt_gpg_keys: "{{ rpco_apt_gpg_keys }}"
+
+# Kibana
+kibana_apt_repos:
+  - "{{ rpco_apt_repo }}"
+kibana_apt_keys: "{{ rpco_apt_gpg_keys }}"
+
+# Logstash
+logstash_apt_repos:
+  - "{{ rpco_apt_repo }}"
+logstash_apt_keys: "{{ rpco_apt_gpg_keys }}"
+
+# MAAS
+maas_apt_repos:
+  - "{{ rpco_apt_repo }}"
+maas_apt_keys: "{{ rpco_apt_gpg_keys }}"
+
+# RPC Support
+hwraid_apt_repos:
+  - repo: "deb {{ rpco_mirror_base_url }}/apt-mirror/independant/hwraid-{{ ansible_distribution_release }}/ {{ rpc_release }}-{{ ansible_distribution_release }} main"
+    state: "present"
+hwraid_apt_keys: "{{ rpco_apt_gpg_keys }}"
