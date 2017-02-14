@@ -328,10 +328,31 @@ elasticsearch_process_names:
 beaver_process_names:
   - beaver
 
+swift_object_process_names:
+  - swift-object-server
+  - swift-object-replicator
+  - swift-object-updater
+  - swift-object-auditor
+
+swift_account_process_names:
+  - swift-account-server
+  - swift-account-replicator
+  - swift-account-reaper
+  - swift-account-auditor
+
+swift_container_process_names:
+  - swift-container-server
+  - swift-container-replicator
+  - swift-container-updater
+  - swift-container-auditor
+
 process_checks_list:
   - { name: "rsyslogd_process_check", group: "rsyslog_all" }
   - { name: "elasticsearch_process_check", group: "elasticsearch_all" }
   - { name: "beaver_process_check", group: "all" }
+  - { name: "swift_object_process_check", group: "swift_obj" }
+  - { name: "swift_account_process_check", group: "swift_acc" }
+  - { name: "swift_container_process_check", group: "swift_cont" }
 
 ceph_checks_list:
   - { name: "ceph_osd_stats", group: "osds" }
