@@ -112,7 +112,5 @@ else
     export ANSIBLE_HOST_KEY_CHECKING=False
 
     # Ship it!
-    openstack-ansible containers/artifact-upload.yml -e role_name=os_keystone -i /opt/inventory -v
-    openstack-ansible containers/artifact-upload.yml -e role_name=os_cinder -i /opt/inventory -v
-    openstack-ansible containers/artifact-upload.yml -e role_name=rabbitmq_server -i /opt/inventory -v
+    openstack-ansible containers/artifact-upload.yml -i /opt/inventory -v
 fi
