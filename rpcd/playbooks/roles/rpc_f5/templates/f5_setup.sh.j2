@@ -1,0 +1,115 @@
+#!/usr/bin/bash
+
+### CREATE RPC PARTITION ###
+create auth partition {{ partition_name }}
+
+### SET DISPLAY PORT NUMBERS ###
+modify cli global-settings service number
+
+### CREATE SNATPOOL ###
+create ltm snatpool /{{ partition_name }}/RPC_SNATPOOL { members replace-all-with { {{ ' '.join(snat_pool_addresses) }} } }
+
+### CREATE MONITORS ###
+{% for monitor in services %}
+{% if monitor.mon_options is defined and monitor.condition %}
+create ltm monitor {{ monitor.proto }} /{{ partition_name }}/RPC_MON_{{ monitor.proto.upper() }}_{{ monitor.name.upper() }} { {{ ' '.join(monitor.mon_options) }} }
+{% endif %}
+{% endfor %}
+
+### CREATE SECURITY iRULE ###
+run util bash
+tmsh create ltm rule /{{ partition_name }}/RPC_DISCARD_ALL when CLIENT_ACCEPTED { discard }
+exit
+### CREATE EXTERNAL MONITOR ###
+   --> Upload External monitor file to disk <--
+       run util bash
+       cd /config/monitors/
+       vi RPC-MON-EXT-ENDPOINT.monitor
+   --> Copy and Paste the External monitor into vi <--
+       create sys file external-monitor /{{ partition_name }}/RPC-MON-EXT-ENDPOINT { source-path file:///config/monitors/RPC-MON-EXT-ENDPOINT.monitor }
+       save sys config
+       create ltm monitor external /{{ partition_name }}/RPC-MON-EXT-ENDPOINT { interval 20 timeout 61 run /{{ partition_name }}/RPC-MON-EXT-ENDPOINT }
+
+### CREATE PERSISTENCE PROFILES ###
+create ltm persistence source-addr /{{ partition_name }}/RPC_PROF_PERSIST_IP { app-service none defaults-from /Common/source_addr match-across-services enabled timeout 3600 }
+create ltm persistence cookie /{{ partition_name }}/RPC_PROF_PERSIST_COOKIE { app-service none cookie-name RPC-COOKIE defaults-from /Common/cookie }
+
+### CREATE NODES ###
+{% for host in groups['all_containers'] %}
+{{ 'create ltm node /' ~ partition_name ~ '/RPC_NODE_' ~ host -}}
+{{ ' { address' ~ hostvars[host]['container_address'] ~ ' }' }}
+{% endfor %}
+
+### CREATE POOLS ###
+{% for service in services %}
+{% if service.condition %}
+{% set priority = 100 %}
+{{ 'create ltm pool /' ~ partition_name ~ '/RPC_POOL_' ~ service.name.upper() -}}
+{{ ' { load-balancing-mode fastest-node members replace-all-with' -}}
+{{ ' {' -}}
+{% for host in groups[service.group] -%}
+{{- ' RPC_NODE_' ~ host ~ ':' ~ service.backend_port -}}
+{%- if service.priority is defined and service.priority -%} 
+{{ ' { priority-group ' ~ priority ~ ' }' -}}
+{%- endif -%}
+{%- set priority = priority-5 -%}
+{%- endfor -%}
+{{ ' }' -}}
+{%- if service.priority is defined and service.priority -%}
+{{ ' min-active-members 1' -}}
+{%- endif -%}
+{{ ' monitor ' ~ service.mon_options is defined | bool | ternary('/' ~ partition_name ~ '/RPC_MON_' ~ service.proto.upper() ~ '_' ~ service.name.upper(), '/' ~ partition_name ~ '/RPC-MON-EXT-ENDPOINT') ~ ' }' }}
+{% endif %}
+{% endfor %}
+
+### CREATE VIRTUAL SERVERS ###
+{% for service in services %}
+{% if service.condition %}
+{{ 'create ltm virtual /' ~ partition_name ~ '/RPC_VS_' ~ service.name.upper() -}}
+{{ ' { destination ' ~ internal_lb_vip_address ~ ':' ~ service.port ~ ' ip-protocol tcp mask 255.255.255.255' -}}
+{{ ' pool /' ~ partition_name ~ '/RPC_POOL_' ~ service.name.upper() ~ ' profiles replace-all-with' -}}
+{{ ' { /Common/fastL4 { } }' -}}
+{% if service.persist is defined and service.persist %}
+{{ ' persist replace-all-with { /' ~ partition_name ~ '/RPC_PROF_PERSIST_IP }' -}}
+{%- endif -%}
+{{ ' source 0.0.0.0/0 source-address-translation' -}}
+{{ ' { pool /' ~ partition_name ~ '/RPC_SNAT_POOL type snat } }' }}
+{% endif %}
+{% endfor %}
+
+### CREATE PUBLIC SSL OFFLOADED VIRTUAL SERVERS ###
+{% for service in services %}
+{% if service.condition and (service.ssl_impossible is not defined or (not service.ssl_impossible)) and (service.make_public is defined and service.make_public) %}
+{{ 'create ltm virtual /' ~ partition_name  ~ '/RPC_PUB_SSL_VS_' ~ service.name.upper() -}}
+{{ ' { destination ' ~ external_lb_vip_address ~ ':' ~ service.port -}}
+{{ ' ip-protocol tcp pool /' ~ partition_name ~ '/RPC_POOL_' ~ service.name.upper() -}}
+{{ ' profiles replace-all-with { /Common/tcp { }' -}}
+{%- if service.backend_ssl is defined and service.backend_ssl -%}
+{{ ' /' ~ partition_name ~ '/RPC_PROF_SSL_SERVER { context serverside } /' ~ partition_name ~ '/RPC_PROF_SSL_' ~ ssl_domain_name ~ ' { context clientside } }' -}}
+{%- else -%}
+{{ ' /' ~ partition_name ~ '/RPC_PROF_SSL_' ~ ssl_domain_name ~ ' { context clientside } }' -}}
+{%- endif -%}
+{%- if service.persist is defined and service.persist -%}
+{{ ' persist replace-all-with { /' ~ partition_name ~ ' /RPC_PROF_PERSIST_IP }' -}}
+{%- endif -%}
+{{ ' source-address-translation { pool /' ~ partition_name ~ '/RPC_SNAT_POOL type snat } }' }}
+{% endif %}
+{% endfor %}
+
+### CREATE PUBLIC SSL PASS-THROUGH VIRTUAL SERVERS ###
+{% for service in services %}
+{% if service.condition and service.ssl_impossible is defined and service.ssl_impossible %}
+{{ 'create ltm virtual /' ~ partition_name ~ '/RPC_PUB_VS_' ~ service.name.upper() -}}
+{{ ' { destination ' ~ external_lb_vip_address ~ ':' ~ service.port -}}
+{{ ' ip-protocol tcp pool /' ~ partition_name ~ '/RPC_POOL_' ~ service.name.upper() -}}
+{{ ' profiles replace-all-with { /Common/fastL4 { } }' -}}
+{% if service.persist is defined and service.persist %}
+{{ ' persist replace-all-with { /' ~ partition_name ~ '/RPC_PROF_PERSIST_IP }' -}}
+{% endif %}
+{{ ' source-address-translation { pool /' ~ partition_name ~ '/RPC_SNATPOOL type snat } }' }}
+{% endif %}
+{% endfor %}
+
+save sys config
+
+run cm config-sync to-group SYNC-FAILOVER

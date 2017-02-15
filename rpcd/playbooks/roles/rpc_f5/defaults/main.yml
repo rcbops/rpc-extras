@@ -1,0 +1,307 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Some basic information
+partition_name: "RPC"
+prefix_name: "RPC"
+is_lem: "{{ lookup('env', 'LAB_DATA_DIR') | bool | ternary('true', 'false') }}"
+ssl_domain_name: "{{ is_lem | bool | ternary(lookup('env', 'LAB_NAME') ~ '.rpc.rackspace.com', 'None') }}"
+f5_destination_output_file: "/root/f5-setup.sh"
+
+superman: |
+          '       **************************       '
+          '    .*##*:*####***:::**###*:######*.    '
+          '   *##: .###*            *######:,##*   '
+          ' *##:  :####:             *####*.  :##: '
+          '  *##,:########**********:,       :##:  '
+          '   .#########################*,  *#*    '
+          '     *#########################*##:     '
+          '       *##,        ..,,::**#####:       '
+          '        ,##*,*****,        *##*         '
+          '          *#########*########:          '
+          '            *##*:*******###*            '
+          '             .##*.    ,##*              '
+          '               :##*  *##,               '
+          '                 *####:                 '
+          '                   :,                   '
+
+# Getting snat pool address. The default will be the first .15 address of container_cidr
+_container_cidr: "{{ container_cidr.split('/')[0] }}"
+snat_pool_addresses: 
+  - "{{ _container_cidr.split('.')[0] }}.{{ _container_cidr.split('.')[1] }}.{{ _container_cidr.split('.')[2] }}.15"
+
+# A list of services to be load balanced
+services:
+  - name: "galera"
+    # The protocol to user for this services f5 monitor(if appllicable)
+    proto: 'mysql'
+    # The front end port for this service
+    port: "3306"
+    # The backend port that is listening on the server
+    backend_port: "3306"
+    # If priority is true, then the service's virtual server will prioritize
+    # the nodes in it's respective group such that it will always prefer the
+    # first node.
+    priority: true
+    # The Ansible inventory group this service belongs to
+    group: "galera"
+    # If a custom monitor is needed for the service, then mon_options
+    # can be specified with any number of options. Otherwise the service
+    # will use a generic external monitor
+    mon_options:
+      - "count 1"
+      - "database information_schema"
+      - "debug no"
+      - "defaults-from 'mysql'"
+      - "destination '*'"
+      - "interval 3"
+      - "recv big5_chinese_ci"
+      - "recv-column 2"
+      - "recv-row 0"
+      - "send 'select * from CHARACTER_SETS;'"
+      - "time-util-up 0"
+      - "timeout 10"
+      - "username 'monitoring'"
+    # A condition that must be met for f5 configurations to run for this service
+    condition: "{{ groups['galera'] | length > 0 }}" 
+
+  - name: "glance_api"
+    proto: "http"
+    port: "{{ glance_service_port }}"
+    backend_port: "{{ glance_service_port }}"
+    # If make_public is true, then a virtual server will be created for this
+    # service using the external vip address. This will make the service
+    # publically available via the outside interface of the LB
+    make_public: true
+    group: "glance_api"
+    condition: "{{ groups['glance_api'] | length > 0 }}"
+
+  - name: "glance_registry"
+    proto: "http"
+    port: "{{ glance_registry_service_port }}"
+    backend_port: "{{ glance_registry_service_port }}"
+    group: "glance_registry"
+    condition: "{{ groups['glance_registry'] | length > 0 }}"
+
+  - name: "keystone_admin"
+    proto: 'http'
+    port: "{{ keystone_admin_port }}"
+    backend_port: "{{ keystone_admin_port }}"
+    group: "keystone"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:{{ keystone_admin_port }}'"
+      - "recv '200 OK'"
+      - "send 'HEAD /v3 HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ groups['keystone'] | length > 0 }}"
+
+  - name: "keystone_service"
+    proto: "http"
+    port: "{{ keystone_service_port }}"
+    backend_port: "{{ keystone_service_port }}"
+    make_public: true
+    group: "keystone"
+    condition: "{{ groups['keystone'] | length > 0 }}"
+
+  - name: "neutron_server"
+    proto: "http"
+    port: "{{ neutron_service_port }}"
+    backend_port: "{{ neutron_service_port }}"
+    make_public: true
+    group: "neutron_server"
+    condition: "{{ groups['neutron_server'] | length > 0 }}"
+
+  - name: "nova_api_metadata"
+    proto: 'http'
+    port: "{{ nova_metadata_port }}"
+    backend_port: "{{ nova_metadata_port }}"
+    group: "nova_api_metadata"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:{{ nova_metadata_port }}'"
+      - "recv '200 OK'"
+      - "send 'HEAD / HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ groups['nova_api_metadata'] | length > 0 }}"
+
+  - name: "nova_api_os_compute"
+    proto: "http"
+    port: "{{ nova_service_port }}"
+    backend_port: "{{ nova_service_port }}"
+    make_public: true
+    group: "nova_api_os_compute"
+    condition: "{{ groups['nova_api_os_compute'] | length > 0 }}"
+
+  - name: "nova_spice"
+    proto: 'http'
+    port: "{{ nova_spice_html5proxy_base_port }}"
+    backend_port: "{{ nova_spice_html5proxy_base_port }}"
+    make_public: true
+    # If ssl_impossible is true, then the service's public virtual servers(if any)
+    # will not be associated with an SSL profile
+    ssl_impossible: true
+    # If persist is true, then the service's virtual servers will be configured
+    # with connection persistance
+    persist: true
+    group: "nova_console"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:{{ nova_spice_html5proxy_base_port }}'"
+      - "recv '200 OK'"
+      - "send 'HEAD /spice_auto.html HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ nova_console_type == 'spice' and groups['nova_console'] | length > 0 | bool }}"
+
+  - name: "nova_novnc"
+    proto: "http"
+    port: "{{ nova_novncproxy_port }}"
+    backend_port: "{{ nova_novncproxy_port }}"
+    make_public: true
+    ssl_impossible: true
+    persist: true
+    group: "nova_console"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:{{ nova_novncproxy_port}}'"
+      - "recv '200 OK'"
+      - "send 'HEAD /novnc_auto.html HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ nova_console_type == 'novnc' and groups['nova_console'] | length > 0 | bool }}"
+
+  - name: "cinder_api"
+    proto: "http"
+    port: "{{ cinder_service_port }}"
+    backend_port: "{{ cinder_service_port }}"
+    make_public: true
+    group: "cinder_api"
+    condition: "{{ groups['cinder_api'] | length > 0 }}"
+
+  - name: "horizon"
+    proto: 'http'
+    port: "80"
+    backend_port: "80"
+    group: "horizon"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:80'"
+      - "recv '302 Found'"
+      - "send 'HEAD / HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ groups['horizon'] | length > 0 }}"
+
+  - name: "horizon_ssl"
+    proto: "https"
+    port: "443"
+    backend_port: "80"
+    make_public: true
+    persist: true
+    group: "horizon"
+    mon_options:
+      - "defaults-from https"
+      - "destination '*:443'"
+      - "recv '302 FOUND'"
+      - "send 'HEAD / HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ groups['horizon'] | length > 0 }}"
+
+  - name: "heat_api_cfn"
+    proto: "tcp"
+    port: "{{ heat_cfn_service_port }}"
+    backend_port: "{{ heat_cfn_service_port }}"
+    make_public: true
+    group: "heat_api_cfn"
+    mon_options:
+      - "defaults-from tcp"
+      - "destination '*:{{ heat_cfn_service_port }}'"
+    condition: "{{ groups['heat_api_cfn'] | length > 0 }}"
+
+  - name: "heat_api_cloudwatch"
+    proto: "tcp"
+    port: "{{ heat_watch_port }}"
+    backend_port: "{{ heat_watch_port }}"
+    make_public: true
+    group: "heat_api_cloudwatch"
+    mon_options:
+      - "defaults-from tcp"
+      - "destination '*:{{ heat_watch_port }}'"
+    condition: "{{ groups['heat_api_cloudwatch'] | length > 0 }}"
+
+  - name: "heat_api"
+    proto: "http"
+    port: "{{ heat_service_port }}"
+    backend_port: "{{ heat_service_port }}"
+    make_public: true
+    group: "heat_api"
+    condition: "{{ groups['heat_api'] | length > 0 }}"
+
+  - name: "kibana_ssl"
+    proto: "tcp"
+    port: "{{ kibana_ssl_port }}"
+    backend_port: "{{ kibana_ssl_port }}"
+    make_public: true
+    backend_ssl: true
+    persist: true
+    group: "kibana"
+    mon_options:
+      - "defaults-from tcp"
+      - "destination '*:{{ kibana_ssl_port }}'"
+    condition: "{{ groups['kibana'] | length > 0 }}"
+
+  - name: "elasticsearch"
+    proto: "tcp"
+    port: "{{ elasticsearch_http_port }}"
+    backend_port: "{{ elasticsearch_http_port }}"
+    group: "elasticsearch"
+    mon_options:
+      - "defaults-from tcp"
+      - "destination '*:{{ elasticsearch_http_port }}'"
+    condition: "{{ groups['elasticsearch'] | length > 0 }}"
+
+  - name: "swift"
+    proto: "http"
+    port: "{{ swift_proxy_port }}"
+    backend_port: "{{ swift_proxy_port }}"
+    make_public: true
+    group: "swift_proxy"
+    condition: "{{ groups['swift_proxy'] | length > 0 }}"
+
+  - name: "repo"
+    proto: "http"
+    port: "{{ repo_server_port }}"
+    backend_port: "{{ repo_server_port }}"
+    group: "repo_all"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:{{ repo_server_port }}'"
+      - "recv '200 OK'"
+      - "send 'HEAD / HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ groups['repo_all'] | length > 0 }}"
+
+  - name: "repo_cache"
+    proto: "http"
+    port: "{{ repo_pkg_cache_port }}"
+    backend_port: "{{ repo_pkg_cache_port }}"
+    group: "repo_all"
+    mon_options:
+      - "defaults-from http"
+      - "destination '*:{{ repo_pkg_cache_port }}'"
+      - "recv '200 OK'"
+      - "send 'HEAD /acng-report.html HTTP/1.1\\r\\nHost: rpc\\r\\n\\r\\n'"
+    condition: "{{ groups['repo_all'] | length > 0 }}"
+
+  - name: "repo_git"
+    proto: "tcp"
+    port: "9418"
+    backend_port: "9418"
+    group: "repo_all"
+    mon_options:
+      - "defaults-from tcp"
+      - "destination '*:9418'"
+    condition: "{{ groups['repo_all'] | length > 0 }}"
