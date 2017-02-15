@@ -179,7 +179,7 @@
         dest: "/tmp/list"
         regexp: "^{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }}"
         line: "{{ lookup('file', built_container_artifact_metadata_file ) }}"
-    - name: Remove the metada file
+    - name: Remove the metadata file
       file:
         path: "{{ built_container_artifact_metadata_file }}"
         state: absent
