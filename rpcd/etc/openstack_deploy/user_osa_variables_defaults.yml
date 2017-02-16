@@ -177,7 +177,7 @@ neutron_legacy_ha_tool_enabled: true
 #
 # Set variables used for enabling/disabling the use of staged apt/container artifacts
 #
-rpco_mirror_base_url: "http://rpc-repo.rackspace.com"
+rpco_mirror_base_url: "https://rpc-repo.rackspace.com"
 
 #
 # Set RPC deployments to make use of the apt artifacts repository
