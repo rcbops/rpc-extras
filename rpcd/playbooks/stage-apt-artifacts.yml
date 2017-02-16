@@ -1,0 +1,88 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Stage the apt artifacts
+  hosts: "{{ staging_host | default('localhost') }}"
+  user: root
+  vars:
+    rpco_mirror_base_url: "https://rpc-repo.rackspace.com"
+    https_validate_certs: yes
+    artifact_repo_path: "mirror-data"
+    keys:
+      - "{{ rpco_mirror_base_url }}/apt-mirror/rcbops-release-signing-key.asc"
+    mirrors:
+      - url: "{{ rpco_mirror_base_url }}/apt-mirror/integrated"
+        distributions:
+          - name: "{{ rpc_release }}-trusty"
+            components:
+              - "main"
+          - name: "{{ rpc_release }}-xenial"
+            components:
+              - "main"
+      - url: "{{ rpco_mirror_base_url }}/apt-mirror/independant/hwraid-trusty"
+        distributions:
+          - name: "{{ rpc_release }}-trusty"
+            components:
+              - "main"
+      - url: "{{ rpco_mirror_base_url }}/apt-mirror/independant/hwraid-xenial"
+        distributions:
+          - name: "{{ rpc_release }}-xenial"
+            components:
+              - "main"
+  tasks:
+
+    - name: Set the staging path
+      set_fact:
+        staging_path: |-
+          {%- if (groups['repo_all'] is defined) and (groups['repo_all'] | length > 0) -%}
+          /openstack/{{ hostvars[groups['repo_all'][0]]['inventory_hostname'] }}/repo
+          {%- else -%}
+          /openstack/stage
+          {%- endif -%}
+
+    - name: Staging folders setup
+      file:
+        path: "{{ staging_path }}/{{ artifact_repo_path }}"
+        state: "directory"
+      tags: always
+
+    - name: Install apt-mirror
+      package:
+        name: "apt-mirror"
+        state: present
+
+    - name: Write the mirror configuration
+      template:
+        src: "stage-apt-artifacts-mirror.list.j2"
+        dest: "/etc/apt/mirror.list"
+
+    - name: Execute apt-mirror
+      command: "apt-mirror"
+
+    - name: Execute clean script
+      command: "/var/spool/apt-mirror/var/clean.sh"
+
+    - name: Implement the shorter link
+      file:
+        src: "{{ artifact_repo_path }}/{{ rpco_mirror_base_url | netloc_no_port }}/apt-mirror"
+        dest: "{{ staging_path }}/apt-mirror"
+        state: link
+
+    - name: Download the keys
+      get_url:
+        url: "{{ item }}"
+        dest: "{{ staging_path }}/apt-mirror/{{ item | basename }}"
+        validate_certs: "{{ https_validate_certs | bool }}"
+      with_items: "{{ keys }}"
