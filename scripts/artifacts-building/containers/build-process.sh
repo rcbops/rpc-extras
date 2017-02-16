@@ -83,6 +83,7 @@ cd /opt/rpc-openstack/scripts/artifacts-building/
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_keystone -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_cinder -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rabbitmq_server -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=galera_server -v" "install" "config"
 
 # Ensure no remnants (not necessary if ephemeral host, but useful for dev purposes
 rm -f /tmp/list
