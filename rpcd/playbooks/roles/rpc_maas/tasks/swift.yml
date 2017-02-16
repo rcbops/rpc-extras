@@ -32,3 +32,10 @@
 - include: ensure_local_checks.yml
   vars:
     checks: "{{ swift_checks_list }}"
+
+# Setup Swift Recon checks on Proxy nodes
+- include: ensure_local_checks.yml
+  vars:
+    checks: "{{ swift_recon_checks_list }}"
+  when:
+    - inventory_hostname in groups['swift_proxy'][0-1]
