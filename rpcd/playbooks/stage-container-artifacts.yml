@@ -1,0 +1,111 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Stage the container artifacts
+  hosts: "{{ staging_host | default('localhost') }}"
+  user: root
+  vars:
+    aria_input_file: "/tmp/container_artifact_list.txt"
+    rpco_mirror_base_url: "https://rpc-repo.rackspace.com"
+    http_proxy_env: "{{ lookup('env', 'http_proxy') | default('not_set', true) }}"
+    https_proxy_env: "{{ lookup('env', 'https_proxy') | default('not_set', true) }}"
+    https_validate_certs: yes
+  tasks:
+
+    - name: Set the staging path
+      set_fact:
+        staging_path: |-
+          {%- if (groups['repo_all'] is defined) and (groups['repo_all'] | length > 0) -%}
+          /openstack/{{ hostvars[groups['repo_all'][0]]['inventory_hostname'] }}/repo
+          {%- else -%}
+          /openstack/stage
+          {%- endif -%}
+      tags:
+        - always
+
+    - name: Fetch the container cache index
+      uri:
+        url: "{{ rpco_mirror_base_url }}/meta/1.0/index-system"
+        return_content: yes
+        validate_certs: "{{ https_validate_certs | bool }}"
+      register: _lxc_cache_index
+      tags:
+        - always
+
+    - name: Derive the list of artifacts to download
+      set_fact:
+        lxc_cache_index_list: |
+          {%- set content_list = _lxc_cache_index.content.split('\n') -%}
+          {%- set result_list = [] -%}
+          {%- for item in content_list -%}
+          {%-   if item | search('-' ~ rpc_release  ~ ';') -%}
+          {%-     set _ = result_list.append(item) -%}
+          {%-   endif -%}
+          {%- endfor -%}
+          {{- result_list -}}
+      tags:
+        - always
+
+    - name: Staging folder setup
+      file:
+        path: "{{ staging_path }}/meta/1.0"
+        state: "directory"
+      tags:
+        - always
+
+    - name: Install aria download manager
+      package:
+        name: "aria2"
+        state: present
+      tags:
+        - python
+
+    - name: Write container artifact URL list
+      copy:
+        content: |
+          {% for item in lxc_cache_index_list %}
+          {% set item_path = item.split(';') | last %}
+          {{ rpco_mirror_base_url }}/{{ item_path }}/SHA256SUMS
+            dir={{ staging_path }}/{{ item_path }}
+          {{ rpco_mirror_base_url }}/{{ item_path }}/meta.tar.xz
+            dir={{ staging_path }}/{{ item_path }}
+          {{ rpco_mirror_base_url }}/{{ item_path }}/rootfs.tar.xz
+            dir={{ staging_path }}/{{ item_path }}
+          {% endfor %}
+        dest: "{{ aria_input_file }}"
+      tags:
+        - python
+
+    - name: Download container artifacts
+      command: >-
+        aria2c --input-file={{ aria_input_file }}
+        --allow-overwrite=true
+        --conditional-get=true
+        --quiet
+        --check-certificate={{ (https_validate_certs | bool) | lower }}
+        {{ (http_proxy_env != 'not_set') | ternary('--http-proxy=' ~ http_proxy_env, '') }}
+        {{ (https_proxy_env != 'not_set') | ternary('--https-proxy=' ~ https_proxy_env, '') }}
+      tags:
+        - python
+
+    - name: Update the container cache index list
+      lineinfile:
+        line: "{{ item }}"
+        dest: "{{ staging_path }}/meta/1.0/index-system"
+        create: yes
+        state: present
+      with_items: "{{ lxc_cache_index_list }}"
+      tags:
+        - python
