@@ -75,6 +75,10 @@
   when: >
     groups['nova_api_os_compute']|length > 0 and inventory_hostname != groups['utility'][0] and (inventory_hostname in groups['utility'] or inventory_hostname in groups['neutron_all'])
 
+- include: support_magnum.yml
+  when: >
+    groups['magnum_all']|length > 0 and inventory_hostname == groups['utility'][0]
+
 - include: holland_preinstall.yml
   when: >
     inventory_hostname in groups['galera']
@@ -94,4 +98,3 @@
 - include: autocompletion.yml
 
 - include: configure_unattended_upgrades.yml
-
