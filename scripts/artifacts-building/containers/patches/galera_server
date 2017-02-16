@@ -1,0 +1,24 @@
+From 4ec7ed9ab44c9863ce7e941bc4f4b9e55dd54ee7 Mon Sep 17 00:00:00 2001
+From: Jean-Philippe Evrard <jean-philippe.evrard@rackspace.co.uk>
+Date: Thu, 16 Feb 2017 15:09:05 +0000
+Subject: [PATCH] Remove the notify stanza
+
+To prevent handler triggering.
+---
+ tasks/galera_install_apt.yml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tasks/galera_install_apt.yml b/tasks/galera_install_apt.yml
+index cf2ff6d..5d056de 100644
+--- a/tasks/galera_install_apt.yml
++++ b/tasks/galera_install_apt.yml
+@@ -142,7 +142,6 @@
+   retries: 5
+   delay: 2
+   with_items: "{{ galera_server_mariadb_distro_packages }}"
+-  notify: Restart mysql
+   tags:
+     - galera-apt-packages
+
+--
+1.9.1
