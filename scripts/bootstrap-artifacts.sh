@@ -30,6 +30,7 @@ check_submodule_status
 
 # begin the bootstrap process
 pushd ${OA_DIR}
-    openstack-ansible ${RPCD_DIR}/playbooks/stage-python-artifacts.yml
+    openstack-ansible ${RPCD_DIR}/playbooks/stage-apt-artifacts.yml
     openstack-ansible ${RPCD_DIR}/playbooks/stage-container-artifacts.yml
+    openstack-ansible ${RPCD_DIR}/playbooks/stage-python-artifacts.yml
 popd

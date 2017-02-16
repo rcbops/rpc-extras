@@ -1,0 +1,32 @@
+
+############# {{ ansible_managed }} ##################
+#
+set base_path    /var/spool/apt-mirror
+set mirror_path  {{ staging_path }}/{{ artifact_repo_path }}
+set skel_path    $base_path/skel
+set var_path     $base_path/var
+set cleanscript $var_path/clean.sh
+set postmirror_script $var_path/postmirror.sh
+set run_postmirror 1
+set nthreads     20
+set _tilde 0
+#
+############# end config ##############
+
+#
+# Mirror section
+#
+
+{% for mirror in mirrors %}
+{%   for distribution in mirror['distributions'] %}
+deb {{ mirror['url'] }} {{ distribution['name'] }} {{ distribution['components'] | join(' ') }}
+{%   endfor %}
+{% endfor %}
+
+#
+# Cleaning section
+#
+
+{% for mirror in mirrors %}
+clean {{ mirror['url'] }}
+{% endfor %}
