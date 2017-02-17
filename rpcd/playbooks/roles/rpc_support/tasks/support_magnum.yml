@@ -15,7 +15,7 @@
 
 - name: Install Kubectl client
   get_url:
-    url: {{ magnum_kubectl_url }}
+    url: '{{ magnum_kubectl_url }}'
     dest: /usr/local/bin/kubectl
     mode: 0755
   tags:
@@ -23,7 +23,7 @@
 
 - name: Install Carina client
   get_url:
-    url: {{ magnum_carina_url }}
+    url: '{{ magnum_carina_url }}'
     dest: /usr/local/bin/carina
     mode: 0755
   tags:
