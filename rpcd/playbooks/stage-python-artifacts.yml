@@ -17,7 +17,7 @@
   hosts: "{{ staging_host | default('localhost') }}"
   user: root
   vars:
-    debug: no
+    aria_input_file: "/tmp/python_artifact_list.txt"
     rpco_mirror_base_url: "https://rpc-repo.rackspace.com"
     http_proxy_env: "{{ lookup('env', 'http_proxy') | default('not_set', true) }}"
     https_proxy_env: "{{ lookup('env', 'https_proxy') | default('not_set', true) }}"
@@ -137,27 +137,19 @@
           {{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ item }}
             dir={{ staging_path }}/venvs/{{ rpc_release }}/ubuntu
           {% endfor %}
-        dest: "{{ staging_path }}/python_artifact_list.txt"
+        dest: "{{ aria_input_file }}"
       tags:
         - python
 
     - name: Download python artifacts
       command: >-
-        aria2c --input-file={{ staging_path }}/python_artifact_list.txt
+        aria2c --input-file={{ aria_input_file }}
         --allow-overwrite=true
         --conditional-get=true
         --quiet
         --check-certificate={{ (https_validate_certs | bool) | lower }}
         {{ (http_proxy_env != 'not_set') | ternary('--http-proxy=' ~ http_proxy_env, '') }}
         {{ (https_proxy_env != 'not_set') | ternary('--https-proxy=' ~ https_proxy_env, '') }}
-      tags:
-        - python
-
-    - name: Remove python artifact URL list
-      file:
-        path: "{{ staging_path }}/python_artifact_list.txt"
-        state: absent
-      when: not debug | bool
       tags:
         - python
 
