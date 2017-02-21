@@ -461,6 +461,7 @@ swift_recon_checks_list:
   - { name: "swift_object_replication_check", group: "swift_proxy" }
   - { name: "swift_proxy_server_check", group: "swift_proxy" }
   - { name: "swift_quarantine_check", group: "swift_proxy" }
+  - { name: "swift_time_sync_check", group: "swift_proxy" }
 
 openstack_service_remote_checks_list:
   - { name: "lb_api_check_cinder", group: "cinder_api" }
