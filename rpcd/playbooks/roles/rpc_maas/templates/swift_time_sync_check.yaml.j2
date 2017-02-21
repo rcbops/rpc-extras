@@ -1,0 +1,20 @@
+{% set label = "swift_time_sync_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
+details     :
+    file    : swift-recon.py
+    args    : ["time"]
+alarms      :
+    swift_time_sync_check :
+        label                   : swift_time_sync_check--{{ ansible_hostname }}
+        notification_plan_id    : "{{ maas_notification_plan }}"
+        disabled                : {{ (('swift_time_sync_check--'+ansible_hostname) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["time_sync_time_differ"] > 30) {
+                return new AlarmStatus(CRITICAL, "Time synchonization error");
+            }
