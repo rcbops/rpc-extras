@@ -291,6 +291,47 @@ def swift_md5():
     return md5_statistics
 
 
+def swift_time():
+    """Parse swift-recon's time sync check output and return it.
+
+    ::
+
+        >>> swift_time()
+        {'time_sync': {'total': '3', 'errors': '0', 'success': '1',
+         'time_differ': 1735200}}
+
+    :returns: Dictionary
+    """
+    check_re = re.compile('Checking\s+(?P<check>[^\s]+)?')
+    time_re = re.compile('by\s(?P<time_differ>[^\s]+)\ssec')
+    result_re = re.compile(
+        '(?P<success>\d+)/(?P<total>\d+)[^\d]+(?P<errors>\d+).*'
+    )
+    output = recon_output('--time')  # We need to pass --time as a string here
+    time_statistics = {}
+    checking_dict = {}
+    times = [0]
+    for line in output:
+        check_match = check_re.search(line)
+        if check_match and not checking_dict:
+            checking_dict = check_match.groupdict()
+            # First line of a grouping we care about, might as well skip all
+            # other checks in the loop
+            continue
+        if line.startswith('!!'):
+            time_dict = time_re.search(line).groupdict()
+            time_output = int(float(time_dict['time_differ']))
+            times.append(time_output)
+        results_match = result_re.match(line)
+        if results_match:
+            check_name = checking_dict['check'].replace('-', '_')
+            time_statistics[check_name] = results_match.groupdict()
+            checking_dict = {}
+
+    time_statistics[check_name]['time_differ'] = max(times)
+    return time_statistics
+
+
 def print_nested_stats(statistics):
     """Print out nested statistics.
 
@@ -345,7 +386,7 @@ def make_parser():
     parser.add_argument('recon',
                         help='Which statistics to collect. Acceptable recon: '
                              '"async-pendings", "md5", "quarantine", '
-                             '"replication"')
+                             '"replication", "time"')
     parser.add_argument('--ring-type', dest='ring',
                         help='Which ring to run statistics for. Only used by '
                              'replication recon.')
@@ -364,6 +405,8 @@ def get_stats_from(args):
         if args.ring not in {"account", "container", "object"}:
             maas_common.status_err('no ring provided to check')
         stats = swift_replication(args.ring)
+    elif args.recon == 'time':
+        stats = swift_time()
     else:
         raise CommandNotRecognized('unrecognized command "{0}"'.format(
             args.recon))
