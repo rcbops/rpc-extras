@@ -325,7 +325,7 @@ swift_container_replication_failure_percentage_threshold: 5.0
 swift_container_replication_growth_rate_threshold: 10.0
 swift_container_replication_avg_time_threshold: 50.0
 swift_async_pending_failure_percentage_threshold: 5.0
-swift_async_pending_average_threshold: 25.0
+swift_async_pending_average_threshold: 1000.0
 
 # cloud level resource thresholds
 cloud_resource_warning_memory: 80.0
