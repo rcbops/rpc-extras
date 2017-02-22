@@ -312,7 +312,7 @@ net_tx_pct_crit: 60
 swift_object_quarantine_failed_percentage_threshold: 5.0
 swift_object_quarantine_average_threshold: 25.0
 swift_object_replication_failure_percentage_threshold: 5.0
-swift_object_replication_growth_rate_threshold: 10.0
+swift_object_replication_growth_rate_threshold: 20.0
 swift_object_replication_avg_time_threshold: 50.0
 swift_account_quarantine_failed_percentage_threshold: 5.0
 swift_account_quarantine_average_threshold: 25.0
