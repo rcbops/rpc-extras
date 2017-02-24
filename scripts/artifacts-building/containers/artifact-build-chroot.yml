@@ -73,6 +73,7 @@
   hosts: lxc_container_artifact_chroots
   gather_facts: True
   connection: chroot
+  strategy: artifacting
   vars_files:
     - container-vars.yml
   pre_tasks:
