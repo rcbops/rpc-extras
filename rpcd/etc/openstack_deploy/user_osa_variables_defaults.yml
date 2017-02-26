@@ -181,6 +181,25 @@ neutron_legacy_ha_tool_enabled: true
 rpco_mirror_base_url: "https://rpc-repo.rackspace.com"
 
 #
+# Set the LXC container creation to use the container repository
+#
+lxc_image_cache_server: "{{ rpco_mirror_base_url | netloc_no_port }}"
+
+# TODO(odyssey4me)
+# This will need adjustment if https://review.openstack.org/438449 merges
+# and a backport to Newton merges and is available to rpc-openstack.
+# Also, no-validate should be removed once this work is done:
+#   https://github.com/rcbops/u-suk-dev/issues/1296
+lxc_container_download_template_options: >
+  --dist ubuntu
+  --release {{ hostvars[physical_host]['ansible_distribution_release'] }}
+  --arch amd64
+  --force-cache
+  --server {{ lxc_image_cache_server }}
+  --variant={{ properties['lxc_container_variant'] | default(lxc_container_variant) }}
+  --no-validate
+
+#
 # Set RPC deployments to make use of the apt artifacts repository
 #
 rpco_mirror_apt_deb_line: "deb {{ rpco_mirror_apt_url }} {{ rpc_release }}-{{ ansible_distribution_release }} main"

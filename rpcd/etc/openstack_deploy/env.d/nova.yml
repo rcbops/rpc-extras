@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2014-2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,32 @@
 # limitations under the License.
 
 container_skel:
+  nova_api_metadata_container:
+    properties:
+      service_name: nova
+      lxc_container_variant: "nova-{{ rpc_release }}"
+  nova_api_os_compute_container:
+    properties:
+      service_name: nova
+      lxc_container_variant: "nova-{{ rpc_release }}"
+  nova_cert_container:
+    properties:
+      service_name: nova
+      lxc_container_variant: "nova-{{ rpc_release }}"
   nova_compute_container:
     contains:
       - neutron_linuxbridge_agent
       - neutron_openvswitch_agent
       - nova_compute
+  nova_conductor_container:
+    properties:
+      service_name: nova
+      lxc_container_variant: "nova-{{ rpc_release }}"
+  nova_scheduler_container:
+    properties:
+      service_name: nova
+      lxc_container_variant: "nova-{{ rpc_release }}"
+  nova_console_container:
+    properties:
+      service_name: nova
+      lxc_container_variant: "nova-{{ rpc_release }}"
