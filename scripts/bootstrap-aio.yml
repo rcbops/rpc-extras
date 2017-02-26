@@ -123,7 +123,19 @@
           mode: "0440"
         - name: "user_rpco_variables_defaults.yml"
           mode: "0440"
+        - name: "env.d/cinder.yml"
+        - name: "env.d/galera.yml"
+        - name: "env.d/glance.yml"
+        - name: "env.d/heat.yml"
+        - name: "env.d/horizon.yml"
+        - name: "env.d/ironic.yml"
+        - name: "env.d/keystone.yml"
+        - name: "env.d/magnum.yml"
+        - name: "env.d/neutron.yml"
         - name: "env.d/nova.yml"
+        - name: "env.d/rabbitmq.yml"
+        - name: "env.d/swift.yml"
+        - name: "env.d/utility.yml"
 
     - name: Template the RPC-O config files
       config_template:
