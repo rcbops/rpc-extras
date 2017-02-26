@@ -24,3 +24,10 @@ apply_security_hardening: False
 # a repo container so we override the default group_var to
 # ensure that we re-use the python artifacts in rpc-repo.
 openstack_repo_url: "{{ rpco_mirror_base_url }}"
+
+# When building container artifacts we need to ensure that
+# the lxc_hosts role prepares the default container based
+# on the upstream default variant instead of the rpc-repo
+# default variant.
+lxc_image_cache_server: images.linuxcontainers.org
+
