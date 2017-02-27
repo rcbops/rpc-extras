@@ -33,6 +33,20 @@
     rpco_deploy_ceph: "{{ lookup('env', 'DEPLOY_CEPH') }}"
     rpco_deploy_hardening: "{{ lookup('env', 'DEPLOY_HARDENING') }}"
 
+- name: Enable trusty-backports
+  hosts: all
+  tasks:
+    - name: Modify sources.list
+      lineinfile:
+        dest: /etc/apt/sources.list.d/trusty-backports.list
+        create: yes
+        line: "{{ item }}"
+        state: present
+      with_items:
+        - "deb http://rackspace.clouds.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse"
+        - "deb-src http://rackspace.clouds.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse"
+      when: ansible_distribution_version == "14.04"
+
 - name: Execute the OSA AIO bootstrap
   include: "{{ lookup('env', 'OA_DIR') }}/tests/bootstrap-aio.yml"
   vars:
