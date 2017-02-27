@@ -228,8 +228,18 @@ galera_repo: "{{ rpco_apt_repo }}"
 galera_percona_xtrabackup_repo: "{{ rpco_apt_repo }}"
 
 # neutron, nova wiring
-uca_repo: "{{ rpco_mirror_apt_deb_line }}"
-uca_apt_source_list_filename: "{{ rpco_mirror_apt_filename }}"
+uca_enable: False
+user_external_repo_keys_list:
+  - id: "{{ rpco_gpg_key_id }}"
+    url: "{{ rpco_gpg_key_location }}{{ rpco_gpg_key_name }}"
+user_external_repos_list:
+  - "{{ rpco_apt_repo }}"
+# old wiring, to remove when https://review.openstack.org/#/c/438499/
+# is merged into rpc-o newton. Necessary to build artifacts meanwhile.
+user_external_repo_key:
+  id: "{{ rpco_gpg_key_id }}"
+  url: "{{ rpco_gpg_key_location }}{{ rpco_gpg_key_name }}"
+user_external_repo: "{{ rpco_apt_repo }}"
 
 # Elasticsearch
 elasticsearch_apt_repos:
