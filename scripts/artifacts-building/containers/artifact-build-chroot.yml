@@ -58,12 +58,12 @@
   tasks:
     - name: Configure chroot
       raw: |
-        if [ -a /etc/resolv.conf ]; then
+        if [ -e /etc/resolv.conf ]; then
           mv /etc/resolv.conf /etc/resolv.conf.org
         fi
         echo "nameserver 8.8.8.8" > /etc/resolv.conf
         mount -t proc proc /proc || true
-        test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        test -e /usr/bin/python || (apt-get -y update && apt-get install -y python-minimal)
       tags:
         - always
   tags:
