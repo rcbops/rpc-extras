@@ -84,7 +84,15 @@ ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e ro
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_cinder -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rabbitmq_server -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=galera_server -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_glance  -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_glance -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_heat -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_horizon -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_ironic -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_keystone -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_neutron -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_nova -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_swift -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_tempest -v" "install" "config"
 
 # Ensure no remnants (not necessary if ephemeral host, but useful for dev purposes
 rm -f /tmp/list
