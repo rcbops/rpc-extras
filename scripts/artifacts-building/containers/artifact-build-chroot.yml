@@ -19,10 +19,6 @@
   vars_files:
     - container-vars.yml
   tasks:
-    - name: Remove cache
-      file:
-        path: "/var/cache/lxc/download/ubuntu/trusty/amd64/default/"
-        state: absent
     - name: Remove base container
       lxc_container:
         name: "LXC_NAME"
@@ -36,7 +32,7 @@
         template_options: >
           --dist {{ ansible_distribution | lower }}
           --release {{ ansible_distribution_release | lower }}
-          --arch "{{ architecture_mapping.get( ansible_architecture ) }}"
+          --arch {{ architecture_mapping.get( ansible_architecture ) }}
           --force-cache
           --server images.linuxcontainers.org
           --keyserver hkp://p80.pool.sks-keyservers.net:80
@@ -85,15 +81,16 @@
   roles:
     - role: "{{ role_name }}"
   post_tasks:
-    - name: chroot resolv cleanup
+    - name: chroot cleanup
       shell: |
-        if [ -a /etc/resolv.conf.org ]; then
+        if [ -e /etc/resolv.conf.org ]; then
           mv /etc/resolv.conf.org /etc/resolv.conf
         else
           rm -f /etc/resolv.conf
         fi
         apt-get clean
         rm -rf /root/.cache/pip/
+        rm -rf /root/.ssh
         umount /proc || true
       tags:
         - always
