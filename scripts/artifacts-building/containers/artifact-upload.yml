@@ -28,7 +28,7 @@
         group: "{{ webserver_group }}"
     - name: Publish metadata
       copy:
-        src: /tmp/list
+        src: "/opt/list"
         dest: "{{ repo_remote_path }}/meta/1.0/index-system"
         owner: "{{ webserver_owner }}"
         group: "{{ webserver_group }}"
