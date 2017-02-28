@@ -1,4 +1,18 @@
 ---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 build_id: "{{ ansible_date_time.date | replace('-','') }}"
 lxc_index_path: "{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}/{{ architecture_mapping.get( ansible_architecture ) }}"
 lxc_index_entry: "{{ ansible_distribution | lower }};{{ ansible_distribution_release | lower }};{{ architecture_mapping.get( ansible_architecture ) }}"
@@ -15,8 +29,8 @@ architecture_mapping:
   x86_64: amd64
   ppc64le: ppc64el
 role_vars:
-  "venv_download_url": "{{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ image_name }}-{{ rpc_release }}-{{ ansible_architecture }}.tgz"
-  "venv_tag": "{{ rpc_release }}"
-  "developer_mode": False
+  venv_download_url: "{{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ image_name }}-{{ rpc_release }}-{{ ansible_architecture }}.tgz"
+  venv_tag: "{{ rpc_release }}"
+  developer_mode: False
 webserver_owner: "nginx"
 webserver_group: "www-data"
