@@ -48,6 +48,9 @@ function ansible_tag_filter {
 # Ensure no role is present before starting
 rm -rf /etc/ansible/roles/
 
+# Ensure no remnants (not necessary if ephemeral host, but useful for dev purposes
+rm -f /opt/list
+
 # bootstrap Ansible and the AIO config
 cd /opt/rpc-openstack
 ./scripts/bootstrap-ansible.sh
@@ -93,9 +96,6 @@ ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e ro
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_swift -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_tempest -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rabbitmq_server -v" "install" "config"
-
-# Ensure no remnants (not necessary if ephemeral host, but useful for dev purposes
-rm -f /opt/list
 
 if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
     echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
