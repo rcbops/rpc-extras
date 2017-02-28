@@ -165,16 +165,16 @@
   tasks:
     - name: Check if the list exist to avoid re-hitting the server
       stat:
-        path: /tmp/list
+        path: /opt/list
       register: metadata_file_locally_exists
     - name: get the container artifacts list
       get_url:
         url: "{{ artifact_list }}"
-        dest: "/tmp/list"
+        dest: "/opt/list"
       when: not metadata_file_locally_exists.stat.exists
     - name: patch the current list with the new artifact
       lineinfile:
-        dest: "/tmp/list"
+        dest: "/opt/list"
         regexp: "^{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }}"
         line: "{{ lookup('file', built_container_artifact_metadata_file ) }}"
     - name: Remove the metadata file
