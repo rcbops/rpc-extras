@@ -178,7 +178,9 @@ neutron_legacy_ha_tool_enabled: true
 #
 # Set variables used for enabling/disabling the use of staged apt/container artifacts
 #
-rpco_mirror_base_url: "https://rpc-repo.rackspace.com"
+# TODO(odyssey4me): Switch this to HTTPS before we use this in production
+# but only once the container artifact build issues with https are figured out
+rpco_mirror_base_url: "http://rpc-repo.rackspace.com"
 
 #
 # Set the LXC container creation to use the container repository
