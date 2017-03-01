@@ -85,6 +85,7 @@ cd /opt/rpc-openstack/scripts/artifacts-building/
 # Build it!
 openstack-ansible containers/artifact-build-chroot.yml -e role_name=pip_install -e image_name=default -v
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=galera_server -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=memcached_server -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_cinder -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_glance -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_heat -v" "install" "config"
@@ -96,6 +97,8 @@ ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e ro
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_swift -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_tempest -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rabbitmq_server -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=repo_server -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rsyslog_server -v" "install" "config"
 
 if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
     echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
