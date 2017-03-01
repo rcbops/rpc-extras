@@ -56,8 +56,40 @@
       tags:
         - always
 
+    # TODO(odyssey4me)
+    # Remove this and adjust the fact setting once
+    # https://review.openstack.org/439659 is available
+    - name: Fetch the list of files in the releases folder
+      uri:
+        url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/"
+        return_content: yes
+        validate_certs: "{{ https_validate_certs | bool }}"
+      register: releases_index
+      tags:
+        - always
+
     - name: Derive the lists of artifacts to download
       set_fact:
+        #
+        # The MANIFEST.in file gives us entries like this for wheels:
+        #
+        # pools/alembic/alembic-0.8.7-py2.py3-none-any.whl
+        # os-releases/r14.0.0rc1/alembic-0.8.7-py2.py3-none-any.whl
+        #
+        # The first is the pool location, the second is the release
+        # folder location. The wheel name is always the same.
+        #
+        # We only need to download from one accessible location to
+        # the pools folder, then implement the symlinks from the
+        # releases and links folder as is done in the repo-build
+        # process. As such, we filter the list we get based on the
+        # 'pools' path. The wheel list is separated from the venv
+        # list due to the symlinking that needs to happen later
+        # for wheels only.
+        #
+        # The resulting list has entries such as:
+        # pools/alembic/alembic-0.8.7-py2.py3-none-any.whl
+        #
         python_wheel_list: |
           {%- set content_list = manifest.content.split('\n') -%}
           {%- set result_list = [] -%}
@@ -67,6 +99,20 @@
           {%-   endif -%}
           {%- endfor -%}
           {{- result_list -}}
+        #
+        # The MANIFEST.in file gives us entries like this for git
+        # repositories:
+        #
+        # openstackgit/nova
+        #
+        # As we download the git data differently to the wheels,
+        # we need to seperate this manifest data from the wheels.
+        # As such, we filter the list we get based on the
+        # 'openstackgit' path.
+        #
+        # The resulting list is therefore an unchanged list of
+        # only the git folders.
+        #
         git_folder_list: |
           {%- set content_list = manifest.content.split('\n') -%}
           {%- set result_list = [] -%}
@@ -76,6 +122,32 @@
           {%-   endif -%}
           {%- endfor -%}
           {{- result_list -}}
+        #
+        # The MANIFEST.in does not currently have the python venvs
+        # included in the file. This will be resolved once we are
+        # able to complete a python artifact build with the
+        # following patch included:
+        #   https://review.openstack.org/433152
+        #
+        # As such we have instead used the repo server's index of
+        # files in the folder in order to get the file listing.
+        # The data we get is HTML that looks something like this:
+        #
+        # <html>
+        # <head><title>Index of /venvs/r14.0.0rc1/ubuntu/</title></head>
+        # <body bgcolor=\"white\">
+        # <h1>Index of /venvs/r14.0.0rc1/ubuntu/</h1><hr><pre><a href=\"../\">../</a>
+        # <a href=\"aodh-r14.0.0rc1-x86_64.checksum\">aodh-r14.0.0rc1-x86_64.checksum</a>                    27-Feb-2017 17:52                  41
+        # <a href=\"aodh-r14.0.0rc1-x86_64.tgz\">aodh-r14.0.0rc1-x86_64.tgz</a>                         27-Feb-2017 17:52            33403695
+        #
+        # To retrieve the file names we have to split the content
+        # into a list by line feeds, then find the link tags and
+        # grab just the file name from inside the link tag.
+        #
+        # The resulting list has entries such as:
+        # aodh-r14.0.0rc1-x86_64.checksum
+        # aodh-r14.0.0rc1-x86_64.tgz
+        #
         python_venv_list: |
           {%- set content_list = venv_index.content.split('\r\n') -%}
           {%- set result_list = [] -%}
@@ -83,6 +155,48 @@
           {%-   if item | search("<a href.*>.*</a>") -%}
           {%-     set item_clean = item | regex_replace(".*<a href.*>(.*)</a>.*", "\\1") -%}
           {%-     if item_clean != "../" -%}
+          {%-       set _ = result_list.append(item_clean) -%}
+          {%-     endif -%}
+          {%-   endif -%}
+          {%- endfor -%}
+          {{- result_list -}}
+        #
+        # The MANIFEST.in does not currently have the non-wheel items
+        # from the releases folder included in the file. This will be
+        # resolved once we are able to complete a python artifact
+        # build with the following patch included:
+        #   https://review.openstack.org/439659
+        #
+        # As such we have instead used the repo server's index of
+        # files in the folder in order to get the file listing.
+        # The data we get is HTML that looks something like this:
+        #
+        # <html>
+        # <head><title>Index of /os-releases/r14.0.0rc1</title></head>
+        # <body bgcolor=\"white\">
+        # <h1>Index of /os-releases/r14.0.0rc1</h1><hr><pre><a href=\"../\">../</a>
+        # <a href=\"get-pip.py\">get-pip.py</a>                                         27-Feb-2017 17:41             1595408
+        # <a href=\"requirements_absolute_requirements.txt\">requirements_absolute_requirements.txt</a>             27-Feb-2017 17:50                6221
+        # <a href=\"requirements_constraints.txt\">requirements_constraints.txt</a>                       27-Feb-2017 17:44               13036
+        #
+        # To retrieve the file names we have to split the content
+        # into a list by line feeds, then find the link tags and
+        # grab just the file name from inside the link tag. We
+        # also need to ignore the wheels in the folder as we already
+        # have the wheel listing.
+        #
+        # The resulting list has entries such as:
+        # get-pip.py
+        # requirements_absolute_requirements.txt
+        # requirements_constraints.txt
+        #
+        releases_file_list: |
+          {%- set content_list = releases_index.content.split('\r\n') -%}
+          {%- set result_list = [] -%}
+          {%- for item in content_list -%}
+          {%-   if item | search("<a href.*>.*</a>") -%}
+          {%-     set item_clean = item | regex_replace(".*<a href.*>(.*)</a>.*", "\\1") -%}
+          {%-     if item_clean != "../" and (item_clean | search(".txt") or item_clean == "get-pip.py") -%}
           {%-       set _ = result_list.append(item_clean) -%}
           {%-     endif -%}
           {%-   endif -%}
@@ -137,6 +251,10 @@
           {{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ item }}
             dir={{ staging_path }}/venvs/{{ rpc_release }}/ubuntu
           {% endfor %}
+          {% for item in releases_file_list %}
+          {{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/{{ item }}
+            dir={{ staging_path }}/os-releases/{{ rpc_release }}
+          {% endfor %}
         dest: "{{ aria_input_file }}"
       tags:
         - python
@@ -155,8 +273,8 @@
 
     - name: Python releases symlinks
       file:
-        src: "{{ staging_path }}/{{ item }}"
-        dest: "{{ staging_path }}/os-releases/{{ rpc_release }}/{{ item | regex_replace(item | dirname ~ '/', '') }}"
+        src: "../../{{ item }}"
+        dest: "{{ staging_path }}/os-releases/{{ rpc_release }}/{{ item | basename }}"
         state: "link"
       with_items: "{{ python_wheel_list }}"
       tags:
@@ -164,8 +282,8 @@
 
     - name: Python links symlinks
       file:
-        src: "{{ staging_path }}/{{ item }}"
-        dest: "{{ staging_path }}/links/{{ item | regex_replace(item | dirname ~ '/', '') }}"
+        src: "../{{ item }}"
+        dest: "{{ staging_path }}/links/{{ item | basename }}"
         state: "link"
       with_items: "{{ python_wheel_list }}"
       tags:
