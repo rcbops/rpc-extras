@@ -1,0 +1,22 @@
+From c8c1d0cd310563b4cec0bfae23791ee4c74f2f57 Mon Sep 17 00:00:00 2001
+From: RCBOPS gating <rcbops@rackspace.com>
+Date: Wed, 1 Mar 2017 11:58:22 +0000
+Subject: [PATCH] Cleanup artifact building
+
+Some tasks can't be changed upstream and have to be fixed here.
+---
+ tasks/repo_post_install.yml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tasks/repo_post_install.yml b/tasks/repo_post_install.yml
+index 7fb1949..34cb748 100644
+--- a/tasks/repo_post_install.yml
++++ b/tasks/repo_post_install.yml
+@@ -45,7 +45,6 @@
+     system: "yes"
+     createhome: "yes"
+     home: "{{ repo_service_home_folder }}"
+-    generate_ssh_key: "yes"
+   tags:
+     - pkg-repo-user
+     - repo-key
