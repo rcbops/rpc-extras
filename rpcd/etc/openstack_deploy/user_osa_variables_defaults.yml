@@ -188,18 +188,32 @@ rpco_mirror_base_url: "http://rpc-repo.rackspace.com"
 lxc_image_cache_server: "{{ rpco_mirror_base_url | netloc_no_port }}"
 
 # TODO(odyssey4me)
-# This will need adjustment if https://review.openstack.org/438449 merges
-# and a backport to Newton merges and is available to rpc-openstack.
-# Also, no-validate should be removed once this work is done:
+# This requires https://review.openstack.org/439201 to work.
+# The 'no-validate' option should be removed once this work is done:
 #   https://github.com/rcbops/u-suk-dev/issues/1296
-lxc_container_download_template_options: >
-  --dist ubuntu
-  --release {{ hostvars[physical_host]['ansible_distribution_release'] }}
-  --arch amd64
-  --force-cache
-  --server {{ lxc_image_cache_server }}
-  --variant={{ properties['lxc_container_variant'] | default(lxc_container_variant) }}
-  --no-validate
+lxc_cache_default_variant: "default-{{ rpc_release }}"
+lxc_cache_download_template_extra_options: "--no-validate"
+
+# TODO(odyssey4me)
+# This requires https://review.openstack.org/438449 to work.
+# The 'no-validate' option should be removed once this work is done:
+#   https://github.com/rcbops/u-suk-dev/issues/1296
+lxc_container_variant: "{{ lxc_cache_default_variant }}"
+lxc_container_download_template_extra_options: "--no-validate"
+
+# As we pre-build our container images, they have no ssh keys in them.
+# The ssh keys are required in order for delegation from a container to
+# another container to work. eg: os-keystone-install delegates the
+# rabbitmq and mariadb tasks from the keystone container to the
+# respective rabbit/mariadb container.
+lxc_container_commands: |
+  key="{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+  mkdir -p /root/.ssh
+  chmod 700 /root/.ssh
+  if [[ ! "$(grep -q "$key" /root/.ssh/authorized_keys)" ]]; then
+    echo "$key" | tee -a /root/.ssh/authorized_keys
+  fi
+  chmod 700 /root/.ssh/authorized_keys
 
 #
 # Set RPC deployments to make use of the apt artifacts repository
