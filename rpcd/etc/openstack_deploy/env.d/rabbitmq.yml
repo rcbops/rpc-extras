@@ -13,8 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-container_skel:
-  rabbit_mq_container:
-    properties:
-      service_name: rabbitmq
-      lxc_container_variant: "rabbitmq_server-{{ rpc_release }}"
+# TODO(odyssey4me):
+# Remove this remark once the following work is complete:
+#  https://github.com/rcbops/u-suk-dev/issues/1331
+#container_skel:
+#  rabbit_mq_container:
+#    properties:
+#      service_name: rabbitmq
+#      lxc_container_variant: "rabbitmq_server-{{ rpc_release }}"

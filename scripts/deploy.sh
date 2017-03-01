@@ -38,8 +38,43 @@ fi
 # Check the openstack-ansible submodule status
 check_submodule_status
 
+#################################################
+#
+# Begin: Temporary Hacks for artifacted deployment
+#
+
+# Ensure that we're using git checkouts instead of
+# the ansible-galaxy download.
+export ANSIBLE_ROLE_FETCH_MODE="git-clone"
+
 # Bootstrap Ansible
 source "$(dirname "${0}")/bootstrap-ansible.sh"
+
+# As the current testing is AIO only, and skips the
+# RPC-O bits in order to keep things simple. We will
+# enable those bits later once we've got a working
+# base OSA deployment.
+
+export DEPLOY_AIO="yes"
+export DEPLOY_ELK="no"
+export DEPLOY_RPC="no"
+
+# Allow container creation based on variant property
+#   https://github.com/rcbops/u-suk-dev/issues/1297
+pushd /etc/ansible/roles/lxc_container_create
+  git checkout stable/newton
+popd
+
+# Ability to set a different default variant
+#   https://github.com/rcbops/u-suk-dev/issues/1314
+pushd /etc/ansible/roles/lxc_hosts
+  git checkout stable/newton
+popd
+
+#
+# End: Temporary Hacks for artifacted deployment
+#
+#################################################
 
 # bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
@@ -50,6 +85,12 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
   # set the ansible inventory hostname to the host's name
   sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/openstack_user_config.yml
   sed -i "s/aio1/$(hostname)/" /etc/openstack_deploy/conf.d/*.yml
+
+  # TODO(odyssey4me):
+  # Remove this once we have published artifacts
+  # for a real tagged version.
+  # Set the rpc_release to the next guessed version.
+  echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
 
 fi
 
@@ -118,8 +159,18 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     popd
   fi
 
-  # setup the infrastructure
-  run_ansible setup-infrastructure.yml
+
+  # setup infrastructure
+  run_ansible unbound-install.yml
+  run_ansible ${RPCD_DIR}/playbooks/stage-python-artifacts.yml
+  run_ansible repo-server.yml
+  run_ansible haproxy-install.yml
+  run_ansible memcached-install.yml
+  run_ansible galera-install.yml
+  run_ansible rabbitmq-install.yml
+  run_ansible etcd-install.yml
+  run_ansible utility-install.yml
+  run_ansible rsyslog-install.yml
 
   # setup openstack
   run_ansible setup-openstack.yml

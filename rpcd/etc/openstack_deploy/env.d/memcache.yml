@@ -17,4 +17,4 @@ container_skel:
   memcached_container:
     properties:
       service_name: memcached
-      lxc_container_variant: "memcached-{{ rpc_release }}"
+      lxc_container_variant: "memcached_server-{{ rpc_release }}"
