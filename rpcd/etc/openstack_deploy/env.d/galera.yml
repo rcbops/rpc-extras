@@ -13,9 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-container_skel:
-  galera_container:
-    properties:
-      log_directory: mysql_logs
-      service_name: galera
-      lxc_container_variant: "galera_server-{{ rpc_release }}"
+# TODO(odyssey4me):
+# Remove this remark once the following work is complete:
+#  https://github.com/rcbops/u-suk-dev/issues/1251
+#container_skel:
+#  galera_container:
+#    properties:
+#      log_directory: mysql_logs
+#      service_name: galera
+#      lxc_container_variant: "galera_server-{{ rpc_release }}"
