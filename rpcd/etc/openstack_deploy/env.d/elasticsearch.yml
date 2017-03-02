@@ -12,3 +12,4 @@ container_skel:
       - elasticsearch
     properties:
       service_name: elasticsearch
+      lxc_container_variant: "elasticsearch-{{ rpc_release }}"

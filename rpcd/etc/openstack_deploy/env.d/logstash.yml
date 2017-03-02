@@ -12,3 +12,4 @@ container_skel:
       - logstash
     properties:
       service_name: logstash
+      lxc_container_variant: "logstash-{{ rpc_release }}"
