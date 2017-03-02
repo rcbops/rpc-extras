@@ -1,5 +1,5 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
+# Copyright 2014, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: repo_setup.yml
+- include: prepare_keystone.yml
+  when:
+    - groups['utility']|length > 0
+    - inventory_hostname == groups['utility'][0]
 
-- include: package_install.yml
+- include: prepare_rabbitmq.yml
+  when:
+    - groups['rabbitmq_all']|length > 0
+    - inventory_hostname == groups['rabbitmq_all'][0]
 
-- include: raxmon_cli_config.yml
-
-- include: agent_install_local.yml
-- include: agent_install_remote.yml
-  vars:
-    entity_name: "{{ inventory_hostname }}{{ maas_fqdn_extension }}"
-  when: "{{ maas_use_api | bool }}"
+- include: prepare_galera.yml
+  when:
+    - inventory_hostname in groups['galera']
