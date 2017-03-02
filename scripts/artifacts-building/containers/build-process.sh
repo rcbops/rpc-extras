@@ -84,7 +84,10 @@ cd /opt/rpc-openstack/scripts/artifacts-building/
 
 # Build it!
 openstack-ansible containers/artifact-build-chroot.yml -e role_name=pip_install -e image_name=default -v
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=elasticsearch -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=galera_server -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=kibana -v" "install" "config"
+ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=logstash -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=memcached_server -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_cinder -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_glance -v" "install" "config"
