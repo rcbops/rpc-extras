@@ -515,6 +515,8 @@ maas_pip_packages:
 #
 # maas_pip_dependencies: These are pip packages we depend on, but should already be built in
 #                        openstack-ansible
+# NOTE: python-novaclient 7.x changes how the list() method works and requires
+#       more work.
 maas_pip_dependencies:
   - cryptography
   - requests
@@ -524,7 +526,7 @@ maas_pip_dependencies:
   - python-heatclient
   - python-keystoneclient
   - python-neutronclient
-  - python-novaclient
+  - python-novaclient<7.0.0
   - python-memcached
 
 maas_source_plugin_dir: plugins/
