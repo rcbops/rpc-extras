@@ -341,6 +341,9 @@ cloud_resource_cpu_allocation_ratio: 2.0
 cloud_resource_mem_allocation_ratio: 1.0
 
 # List of checks, by type - variable:
+adaptec_checks_list:
+  - { name: "adaptec_jbod_check", group: "hosts" }
+
 hp_checks_list:
   - { name: "hp-check", group: "hosts" }
 

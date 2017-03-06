@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,20 +11,8 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License
+# limitations under the License.
 
-- include: cdm.yml
-
-- include: dell.yml
-  when: ansible_system_vendor == "Dell Inc." and host_check == true
-
-- include: hp.yml
-  when: ansible_system_vendor == "HP" and host_check == true
-
-- name: List PCI devices
-  command: lspci
-  register: pci_devices
-  changed_when: false
-
-- include: adaptec.yml
-  when: "'Adaptec Series 8 12G SAS/PCIe 3' in pci_devices"
+- include: ensure_local_checks.yml
+  vars:
+    checks: "{{ adaptec_checks_list }}"
