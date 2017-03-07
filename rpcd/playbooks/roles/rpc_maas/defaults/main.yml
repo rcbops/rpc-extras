@@ -502,32 +502,28 @@ maas_requires_pip_packages:
   - virtualenv
 
 #
-# maas_pip_packages: Packages we need but are not built by openstack-ansible
+# maas_pip_packages: These packages are installed inside the virtualenv.
 #
-maas_pip_packages:
-  - ipaddr
-  - lxc-python2
-  - psutil
-  - rackspace-monitoring-cli
-  - swift
-  - waxeye
-
-#
-# maas_pip_dependencies: These are pip packages we depend on, but should already be built in
-#                        openstack-ansible
 # NOTE: python-novaclient 7.x changes how the list() method works and requires
 #       more work.
-maas_pip_dependencies:
+maas_pip_packages:
   - cryptography
-  - requests
+  - ipaddr
+  - lxc-python2
   - lxml
+  - psutil
+  - rackspace-monitoring-cli
   - python-cinderclient
   - python-glanceclient
   - python-heatclient
   - python-keystoneclient
+  - python-magnumclient
   - python-neutronclient
   - python-novaclient<7.0.0
   - python-memcached
+  - requests
+  - swift
+  - waxeye
 
 maas_source_plugin_dir: plugins/
 

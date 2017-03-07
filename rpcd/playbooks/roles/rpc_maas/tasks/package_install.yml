@@ -48,4 +48,4 @@
   until: install_pip_packages|success
   retries: 5
   delay: 2
-  with_items: "{{ maas_pip_packages + maas_pip_dependencies }}"
+  with_items: "{{ maas_pip_packages }}"
