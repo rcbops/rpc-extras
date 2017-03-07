@@ -13,24 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Add MaaS apt keys
-  apt_key:
-    url: "{{ item.url }}"
-    state: "{{ item.state }}"
-  with_items: "{{ maas_apt_keys }}"
-  when:
-    - ansible_distribution == 'Ubuntu'
-    - maas_apt_keys is defined
+- include: maas_pre_install.yml
 
-- name: Add Container repos
-  apt_repository:
-    repo: "{{ item.repo }}"
-    state: "{{ item.state }}"
-    filename: "{{ item.filename | default(omit) }}"
-  with_items: "{{ maas_apt_repos }}"
-  when:
-    - ansible_distribution == 'Ubuntu'
-    - maas_apt_keys is defined
-  register: add_repos
-  until: add_repos|success
-  retries: 3
+- include: maas_install_local.yml
+
+- include: maas_install_remote.yml
+  vars:
+    entity_name: "{{ inventory_hostname }}{{ maas_fqdn_extension }}"
+  when: "{{ maas_use_api | bool }}"
+
+- include: maas_post_install.yml

@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2014-2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,78 +21,53 @@
     maas_excluded_checks_regex: "{{ (maas_excluded_checks | length > 0) | ternary('('+maas_excluded_checks | join(')|(')+')', '^$') }}"
     maas_excluded_alarms_regex: "{{ (maas_excluded_alarms | length > 0) | ternary('('+maas_excluded_alarms | join(')|(')+')', '^$') }}"
 
-- include: host_setup.yml
-  when: >
+# Install MaaS packages and all dependencies.
+- include: maas_install.yml
+  when:
     inventory_hostname in groups['hosts']
 
-- include: keystone_user.yml
-  when:
-    - groups['utility']|length > 0
-    - inventory_hostname == groups['utility'][0]
-
-- include: rabbitmq_user.yml
-  when:
-    - groups['rabbitmq_all']|length > 0
-    - inventory_hostname == groups['rabbitmq_all'][0]
-
-- include: create_my_cnf.yml
-  when:
-    - inventory_hostname in groups['galera']
-
-- include: host_monitoring.yml
+# Monitor various items on each host, including CPU, disk, memory, network,
+# kernel, and processes.
+- include: monitor_hosts.yml
   when:
     - inventory_hostname in groups['hosts']
 
-- include: network.yml
-  when:
-    - network_checks_list|length > 0
-    - inventory_hostname in groups['hosts']
-
-- include: kernel.yml
-
-- include: process.yml
-
-- include: local.yml
+# Monitor OpenStack services locally on the host.
+- include: monitor_openstack_local.yml
   vars:
     internal_vip_address: "{{ internal_lb_vip_address }}"
 
-- include: swift_access_check.yml
+# Put an object into swift and monitor it regularly.
+- include: monitor_swift_access_check.yml
   when:
     - swift_accesscheck_enabled | bool
-    - groups['swift_proxy']|length > 0
+    - groups['swift_proxy'] | length > 0
     - inventory_hostname == groups['swift_proxy'][0]
 
-- include: remote.yml
+# Monitor various APIs and endpoints remotely.
+- include: monitor_remote.yml
   vars:
     ip_address: "{{ maas_external_ip_address }}"
   when:
-    - remote_check == true
+    - remote_check | bool
 
-- include: ensure_local_checks.yml
-  vars:
-    checks: "{{ cinder_vg_checks_list }}"
-  when:
-    - cinder_backends['lvm'] is defined
-
-- include: swift.yml
+# Monitor the swift service.
+- include: monitor_swift.yml
   vars:
     external_vip_address: "{{ maas_external_ip_address }}"
   when:
     - groups['swift_all']|length > 0
     - inventory_hostname in groups['swift_all']
 
-- include: ceph.yml
+# Monitor ceph.
+- include: monitor_ceph.yml
   when:
     - groups['ceph_all'] is defined
     - groups['ceph_all']|length > 0
     - inventory_hostname in groups['ceph_all']
 
-- include: magnum.yml
-  when:
-    - groups['magnum_all'] is defined
-    - groups['magnum_all']|length > 0
-    - inventory_hostname in groups['magnum_all']
-
+# Ensure that the monitoring agent is always restarted to load the most
+# up to date checks and alarms.
 - include: restart_raxmon.yml
   when:
     - inventory_hostname in groups['hosts']

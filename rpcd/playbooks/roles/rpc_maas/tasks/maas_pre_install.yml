@@ -1,5 +1,5 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
+# Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+- name: Add MaaS apt keys
+  apt_key:
+    url: "{{ item.url }}"
+    state: "{{ item.state }}"
+  with_items: "{{ maas_apt_keys }}"
+  when:
+    - maas_apt_keys is defined
+
+- name: Add container repos
+  apt_repository:
+    repo: "{{ item.repo }}"
+    state: "{{ item.state }}"
+    filename: "{{ item.filename | default(omit) }}"
+  with_items: "{{ maas_apt_repos }}"
+  when:
+    - maas_apt_keys is defined
+  register: add_repos
+  until: add_repos|success
+  retries: 3
 
 - name: Ensure container packages are installed
   apt:
@@ -49,3 +69,15 @@
   retries: 5
   delay: 2
   with_items: "{{ maas_pip_packages + maas_pip_dependencies }}"
+
+- name: Drop .raxrc file
+  template:
+    src: raxrc.j2
+    dest: /root/.raxrc
+    mode: 0600
+    owner: root
+    group: root
+  tags:
+    - drop-raxrc-config
+    - setup-raxmon-cli
+    - setup-rpc-maas-tool-config

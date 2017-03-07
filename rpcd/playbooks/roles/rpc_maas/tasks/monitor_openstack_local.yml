@@ -31,3 +31,11 @@
 - include: ensure_local_checks.yml
   vars:
     checks: "{{ infra_service_local_checks_list }}"
+
+- include: ensure_local_checks.yml
+  when:
+    - groups['magnum_all'] is defined
+    - groups['magnum_all']|length > 0
+    - inventory_hostname in groups['magnum_all']
+  vars:
+    checks: "{{ magnum_checks_list }}"
