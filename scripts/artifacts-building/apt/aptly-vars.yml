@@ -21,7 +21,7 @@ aptly_clone_this_first:
 
 aptly_custom_gpg_key_file: "{{ artifacts_root_folder }}/aptly.private.key"
 aptly_custom_gpg_pubkey_file: "{{ artifacts_root_folder }}/aptly.public.key"
-aptly_custom_gpg_key_id: "{{ lookup('pipe','gpg ' ~ aptly_custom_gpg_pubkey_file ~ '| cut -f 2 -d \"/\" | cut -f 1 -d \" \" ') }}"
+aptly_custom_gpg_key_id: "{{ lookup('pipe','gpg ' ~ aptly_custom_gpg_pubkey_file ~ '| cut -f 2 -d \"/\" | cut -f 1 -d \" \" | head -n 1') }}"
 aptly_system_archive_gpg_keys_import: True
 aptly_user_home: "{{ artifacts_aptrepos_dest_folder }}"
 aptly_user: aptly
