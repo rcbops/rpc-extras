@@ -223,7 +223,7 @@ rpco_mirror_apt_url: "{{ rpco_mirror_base_url }}/apt-mirror/integrated/"
 rpco_mirror_apt_filename: rpco
 rpco_gpg_key_location: "{{ rpco_mirror_base_url }}/apt-mirror/"
 rpco_gpg_key_name: "rcbops-release-signing-key.asc"
-rpco_gpg_key_id: 22A9BF80 #SET IN STATIC (to force key verification per release).
+rpco_gpg_key_id: 9EBBA735 #SET IN STATIC (to force key verification per release).
 
 # We won't be using the repo package cache, as we'll have a full mirror.
 repo_pkg_cache_enabled: no
