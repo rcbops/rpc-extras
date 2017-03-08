@@ -17,6 +17,7 @@
   vars:
     aptly_mirror_do_updates: "False"
 - include: sync-with-mirror.yml
+  when: "{{ (lookup('ENV','DOWNLOAD_FIRST') | default(True,True)) | bool }}"
   vars:
     action: "pull-aptly"
 - include: aptly-install-and-mirror.yml
