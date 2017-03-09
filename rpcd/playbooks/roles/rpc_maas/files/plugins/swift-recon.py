@@ -24,9 +24,11 @@
 
 import argparse
 import re
+import shlex
 import subprocess
 
 import maas_common
+from maas_common import status_err
 
 
 class ParseError(maas_common.MaaSException):
@@ -62,9 +64,32 @@ def recon_output(for_ring, options=None):
     :returns: Strings from output that are most important
     :rtype: list
     """
+
+    # grab the current release
+    with open("/etc/rpc-release") as search:
+        for line in search:
+            if 'DISTRIB_RELEASE' in line:
+                rpc_version = line.replace('\"', '').strip().split("=")[1]
+
+    # identify the container we will use for monitoring
+    get_container = shlex.split('lxc-ls -1 --running .*swift_proxy')
+
+    try:
+        containers_list = subprocess.check_output(get_container)
+        container = containers_list.splitlines()[0]
+    except (IndexError, subprocess.CalledProcessError):
+        status_err('no running swift proxy containers found')
+
+    venv_path = '/openstack/venvs/swift-%s/bin' % (rpc_version)
+    swift_recon_cmd = 'source %s/activate; python2.7 %s/' % (venv_path,
+                                                             venv_path)
     command = ['swift-recon', for_ring]
     command.extend(options or [])
-    out = subprocess.check_output(command)
+    command_options = ' '.join(command)
+    full_command = shlex.split('lxc-attach -n %s -- bash -c "%s%s"' % (
+                               container, swift_recon_cmd,
+                               command_options))
+    out = subprocess.check_output(full_command)
     return filter(lambda s: s and not s.startswith(('==', '-')),
                   out.split('\n'))
 
