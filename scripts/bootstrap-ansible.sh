@@ -33,6 +33,16 @@ export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-galaxy}
 # Check the openstack-ansible submodule status
 check_submodule_status
 
+# The deployment host must only have the base Ubuntu repository configured.
+# All updates (security and otherwise) must come from the RPC-O apt artifacting.
+# This is being done via bash because Ansible is not bootstrapped yet, and the
+# apt artifacts used for bootstrapping Ansible must also come from the RPC-O
+# artifact repo.
+sed -i '/^deb-src /d' /etc/apt/sources.list
+sed -i '/-backports /d' /etc/apt/sources.list
+sed -i '/-security /d' /etc/apt/sources.list
+sed -i '/-updates /d' /etc/apt/sources.list
+
 # begin the bootstrap process
 pushd ${OA_DIR}
 
