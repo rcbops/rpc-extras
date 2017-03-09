@@ -36,6 +36,7 @@
 - name: Execute the OSA AIO bootstrap
   include: "{{ lookup('env', 'OA_DIR') }}/tests/bootstrap-aio.yml"
   vars:
+    bootstrap_host_apt_distribution_suffix_list: []
     scenario: "{% if lookup('env', 'DEPLOY_MAGNUM') == 'yes' %}magnum{% else %}{{ lookup('env', 'DEPLOY_CEPH') |bool |ternary('ceph','swift') }}{%endif%}"
     bootstrap_host_user_variables_filename: "user_osa_variables_overrides.yml"
     bootstrap_host_user_secrets_filename: "user_osa_secrets.yml"
