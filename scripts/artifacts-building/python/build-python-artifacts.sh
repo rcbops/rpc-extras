@@ -28,6 +28,11 @@ cd /opt/rpc-openstack
 ./scripts/bootstrap-ansible.sh
 ./scripts/bootstrap-aio.sh
 
+# Remove the env.d configurations that set the build to use
+# container artifacts. We don't want this because container
+# artifacts are built using python artifacts.
+sed -i.bak '/lxc_container_variant: /d' /etc/openstack_deploy/env.d/*.yml
+
 # Set override vars for the artifact build
 echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
 echo "repo_build_wheel_selective: no" >> /etc/openstack_deploy/user_osa_variables_overrides.yml

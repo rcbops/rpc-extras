@@ -118,18 +118,25 @@
         src: "{{ rpco_cfg_src_path }}/{{ item.name }}"
         dest: "/etc/openstack_deploy/{{ item.name }}"
         mode: "{{ item.mode | default(omit) }}"
+      when: "{{ (item.condition | default(True)) | bool }}"
       with_items:
         - name: "user_osa_variables_defaults.yml"
           mode: "0440"
         - name: "user_rpco_variables_defaults.yml"
           mode: "0440"
         - name: "env.d/cinder.yml"
+        - name: "env.d/elasticsearch.yml"
+          condition: "{{ rpco_deploy_elk | bool }}"
         - name: "env.d/galera.yml"
         - name: "env.d/glance.yml"
         - name: "env.d/heat.yml"
         - name: "env.d/horizon.yml"
         - name: "env.d/ironic.yml"
         - name: "env.d/keystone.yml"
+        - name: "env.d/kibana.yml"
+          condition: "{{ rpco_deploy_elk | bool }}"
+        - name: "env.d/logstash.yml"
+          condition: "{{ rpco_deploy_elk | bool }}"
         - name: "env.d/magnum.yml"
         - name: "env.d/memcache.yml"
         - name: "env.d/neutron.yml"
@@ -159,12 +166,6 @@
               ceph_osd_container:
                 properties:
                   is_metal: false
-        - name: "env.d/elasticsearch.yml"
-          condition: "{{ rpco_deploy_elk | bool }}"
-        - name: "env.d/kibana.yml"
-          condition: "{{ rpco_deploy_elk | bool }}"
-        - name: "env.d/logstash.yml"
-          condition: "{{ rpco_deploy_elk | bool }}"
 
     - name: Update the RPC-O secrets
       shell: "{{ rpco_base_dir }}/scripts/update-secrets.sh"
