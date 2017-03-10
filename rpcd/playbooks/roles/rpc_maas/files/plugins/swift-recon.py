@@ -66,10 +66,11 @@ def recon_output(for_ring, options=None):
     """
 
     # grab the current release
-    with open("/etc/rpc-release") as search:
+    with open("/etc/openstack-release") as search:
         for line in search:
             if 'DISTRIB_RELEASE' in line:
-                rpc_version = line.replace('\"', '').strip().split("=")[1]
+                openstack_version = line.replace('\"',
+                                                 '').strip().split("=")[1]
 
     # identify the container we will use for monitoring
     get_container = shlex.split('lxc-ls -1 --running .*swift_proxy')
@@ -80,14 +81,19 @@ def recon_output(for_ring, options=None):
     except (IndexError, subprocess.CalledProcessError):
         status_err('no running swift proxy containers found')
 
-    venv_path = '/openstack/venvs/swift-%s/bin' % (rpc_version)
-    swift_recon_cmd = 'source %s/activate; python2.7 %s/' % (venv_path,
-                                                             venv_path)
+    # kilo didn't have venvs so check if kilo
+    if openstack_version == "11.2.17":
+        swift_recon_path = '/usr/local/bin/'
+    else:
+        venv_path = '/openstack/venvs/swift-%s/bin' % (openstack_version)
+        swift_recon_path = 'source %s/activate; python2.7 %s/' % (venv_path,
+                                                                  venv_path)
+
     command = ['swift-recon', for_ring]
     command.extend(options or [])
     command_options = ' '.join(command)
     full_command = shlex.split('lxc-attach -n %s -- bash -c "%s%s"' % (
-                               container, swift_recon_cmd,
+                               container, swift_recon_path,
                                command_options))
     out = subprocess.check_output(full_command)
     return filter(lambda s: s and not s.startswith(('==', '-')),
