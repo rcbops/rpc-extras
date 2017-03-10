@@ -69,7 +69,11 @@
   hosts: lxc_container_artifact_chroots
   gather_facts: True
   connection: chroot
-  strategy: artifacting
+  strategy: tagfilter
+  vars:
+    skip_tags:
+      - config
+    skip_handlers: True
   vars_files:
     - container-vars.yml
   pre_tasks:
