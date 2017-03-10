@@ -56,6 +56,16 @@ cd /opt/rpc-openstack
 ./scripts/bootstrap-ansible.sh
 ./scripts/bootstrap-aio.sh
 
+# Remove the RPC-O default configurations that are necessary
+# for deployment, but cause the build to break due to the fact
+# that they require the container artifacts to be available,
+# but those are not yet built.
+sed -i.bak '/lxc_image_cache_server: /d' /etc/openstack_deploy/user_osa_variables_defaults.yml
+sed -i.bak '/lxc_cache_default_variant: /d' /etc/openstack_deploy/user_osa_variables_defaults.yml
+sed -i.bak '/lxc_cache_download_template_extra_options: /d' /etc/openstack_deploy/user_osa_variables_defaults.yml
+sed -i.bak '/lxc_container_variant: /d' /etc/openstack_deploy/user_osa_variables_defaults.yml
+sed -i.bak '/lxc_container_download_template_extra_options: /d' /etc/openstack_deploy/user_osa_variables_defaults.yml
+
 # Set override vars for the artifact build
 echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
 cd scripts/artifacts-building/
