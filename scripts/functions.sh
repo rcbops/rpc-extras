@@ -40,6 +40,7 @@ export RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-''}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 
+export HOST_SOURCES_REWRITE=${HOST_SOURCES_REWRITE:-"yes"}
 export HOST_UBUNTU_REPO=${HOST_UBUNTU_REPO:-"http://mirror.rackspace.com/ubuntu"}
 export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://rpc-repo.rackspace.com/apt-mirror"}
 
