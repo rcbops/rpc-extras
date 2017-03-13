@@ -38,10 +38,8 @@ check_submodule_status
 # This is being done via bash because Ansible is not bootstrapped yet, and the
 # apt artifacts used for bootstrapping Ansible must also come from the RPC-O
 # artifact repo.
-sed -i '/^deb-src /d' /etc/apt/sources.list
-sed -i '/-backports /d' /etc/apt/sources.list
-sed -i '/-security /d' /etc/apt/sources.list
-sed -i '/-updates /d' /etc/apt/sources.list
+apt_sources_back_to_stock
+apt_sources_use_rpc_apt_artifacts
 
 # begin the bootstrap process
 pushd ${OA_DIR}
