@@ -33,6 +33,9 @@ export RPC_ARTIFACTS_FOLDER=${RPC_ARTIFACTS_FOLDER:-/var/www/artifacts}
 export RPC_ARTIFACTS_PUBLIC_FOLDER=${RPC_ARTIFACTS_PUBLIC_FOLDER:-/var/www/repo}
 export RPC_REPO_BRANCH=${RPC_REPO_BRANCH:-artifacts-14.0}
 
+# We do not want to rewrite the host apt sources when executing bootstrap-ansible
+export HOST_SOURCES_REWRITE="no"
+
 ## Main ----------------------------------------------------------------------
 
 if [ -z ${REPO_USER_KEY+x} ] || [ -z ${REPO_USER+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_HOST_PUBKEY+x} ]; then
