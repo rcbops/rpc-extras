@@ -59,18 +59,6 @@ export DEPLOY_AIO="yes"
 export DEPLOY_ELK="no"
 export DEPLOY_RPC="no"
 
-# Allow container creation based on variant property
-#   https://github.com/rcbops/u-suk-dev/issues/1297
-pushd /etc/ansible/roles/lxc_container_create
-  git checkout stable/newton
-popd
-
-# Ability to set a different default variant
-#   https://github.com/rcbops/u-suk-dev/issues/1314
-pushd /etc/ansible/roles/lxc_hosts
-  git checkout stable/newton
-popd
-
 #
 # End: Temporary Hacks for artifacted deployment
 #
@@ -142,6 +130,10 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
   cd ${OA_DIR}/playbooks/
 
+  # The hosts must only have the base Ubuntu repository configured.
+  # All updates (security and otherwise) must come from the RPC-O apt artifacting.
+  run_ansible ${RPCD_DIR}/playbooks/configure-apt-sources.yml
+
   # NOTE(mhayden): V-38642 must be skipped when using an apt repository with
   # unsigned/untrusted packages.
   # NOTE(mhayden): V-38660 halts the playbook run when it finds SNMP v1/2
@@ -152,6 +144,15 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   else
     run_ansible setup-hosts.yml --skip-tags=V-38660
   fi
+
+  # The containers must only have the base Ubuntu repository configured.
+  # All updates (security and otherwise) must come from the RPC-O apt artifacting.
+  # The container artifacts will have mirror.rackspace.com configured as the source,
+  # but in a CDC there may be a local mirror that's used instead. This ensures that
+  # after the container is built it is reconfigured ot use that local mirror. If
+  # this is not done then the apt-get update tasks will fail when we try to deploy
+  # the services.
+  run_ansible ${RPCD_DIR}/playbooks/configure-apt-sources.yml -e apt_target_group=all_containers
 
   if [[ "$DEPLOY_CEPH" == "yes" ]]; then
     pushd ${RPCD_DIR}/playbooks/

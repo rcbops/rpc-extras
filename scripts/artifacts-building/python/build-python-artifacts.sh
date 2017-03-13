@@ -48,8 +48,16 @@ echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifa
 echo "repo_build_wheel_selective: no" >> /etc/openstack_deploy/user_osa_variables_overrides.yml
 echo "repo_build_venv_selective: no" >> /etc/openstack_deploy/user_osa_variables_overrides.yml
 
-# Setup the repo container and build the artifacts
+# Prepare to run the playbooks
 cd /opt/rpc-openstack/openstack-ansible/playbooks
+
+# The host must only have the base Ubuntu repository configured.
+# All updates (security and otherwise) must come from the RPC-O apt artifacting.
+# This is also being done to ensure that the python artifacts are built using
+# the same sources as the container artifacts will use.
+openstack-ansible ${RPCD_DIR}/playbooks/configure-apt-sources.yml -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu"
+
+# Setup the repo container and build the artifacts
 openstack-ansible setup-hosts.yml -e container_group=repo_all
 openstack-ansible repo-install.yml
 

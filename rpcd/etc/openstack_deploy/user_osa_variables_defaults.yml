@@ -228,6 +228,10 @@ rpco_gpg_key_id: 52AA252F #SET IN STATIC (to force key verification per release)
 # We won't be using the repo package cache, as we'll have a full mirror.
 repo_pkg_cache_enabled: no
 
+# We don't want the Trusty backports repo to be added because
+# all packages must come from our apt artifacts.
+lxc_package_repo_add: no
+
 # For convenience
 rpco_apt_repo:
   repo: "{{ rpco_mirror_apt_deb_line }}"
