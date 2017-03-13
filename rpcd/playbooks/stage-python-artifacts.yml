@@ -44,30 +44,6 @@
       tags:
         - always
 
-    # TODO(odyssey4me)
-    # Remove this and adjust the fact setting once
-    # https://review.openstack.org/433152 is available
-    - name: Fetch the upstream venv list
-      uri:
-        url: "{{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/"
-        return_content: yes
-        validate_certs: "{{ https_validate_certs | bool }}"
-      register: venv_index
-      tags:
-        - always
-
-    # TODO(odyssey4me)
-    # Remove this and adjust the fact setting once
-    # https://review.openstack.org/439659 is available
-    - name: Fetch the list of files in the releases folder
-      uri:
-        url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/"
-        return_content: yes
-        validate_certs: "{{ https_validate_certs | bool }}"
-      register: releases_index
-      tags:
-        - always
-
     - name: Derive the lists of artifacts to download
       set_fact:
         #
@@ -123,82 +99,45 @@
           {%- endfor -%}
           {{- result_list -}}
         #
-        # The MANIFEST.in does not currently have the python venvs
-        # included in the file. This will be resolved once we are
-        # able to complete a python artifact build with the
-        # following patch included:
-        #   https://review.openstack.org/433152
+        # The MANIFEST.in file gives us entries like this for
+        # python venvs:
         #
-        # As such we have instead used the repo server's index of
-        # files in the folder in order to get the file listing.
-        # The data we get is HTML that looks something like this:
+        # venvs/r14.0.0rc1/ubuntu/aodh-r14.0.0rc1-x86_64.checksum
+        # venvs/r14.0.0rc1/ubuntu/aodh-r14.0.0rc1-x86_64.tgz
         #
-        # <html>
-        # <head><title>Index of /venvs/r14.0.0rc1/ubuntu/</title></head>
-        # <body bgcolor=\"white\">
-        # <h1>Index of /venvs/r14.0.0rc1/ubuntu/</h1><hr><pre><a href=\"../\">../</a>
-        # <a href=\"aodh-r14.0.0rc1-x86_64.checksum\">aodh-r14.0.0rc1-x86_64.checksum</a>                    27-Feb-2017 17:52                  41
-        # <a href=\"aodh-r14.0.0rc1-x86_64.tgz\">aodh-r14.0.0rc1-x86_64.tgz</a>                         27-Feb-2017 17:52            33403695
-        #
-        # To retrieve the file names we have to split the content
-        # into a list by line feeds, then find the link tags and
-        # grab just the file name from inside the link tag.
-        #
-        # The resulting list has entries such as:
-        # aodh-r14.0.0rc1-x86_64.checksum
-        # aodh-r14.0.0rc1-x86_64.tgz
+        # Each file needs to be downloaded and placed in the same
+        # relative path. The resulting list is therefore an
+        # unchanged list of only the python venvs.
         #
         python_venv_list: |
-          {%- set content_list = venv_index.content.split('\r\n') -%}
+          {%- set content_list = manifest.content.split('\n') -%}
           {%- set result_list = [] -%}
           {%- for item in content_list -%}
-          {%-   if item | search("<a href.*>.*</a>") -%}
-          {%-     set item_clean = item | regex_replace(".*<a href.*>(.*)</a>.*", "\\1") -%}
-          {%-     if item_clean != "../" -%}
-          {%-       set _ = result_list.append(item_clean) -%}
-          {%-     endif -%}
+          {%-   if item.split('/')[0] == 'venvs' -%}
+          {%-     set _ = result_list.append(item) -%}
           {%-   endif -%}
           {%- endfor -%}
           {{- result_list -}}
         #
-        # The MANIFEST.in does not currently have the non-wheel items
-        # from the releases folder included in the file. This will be
-        # resolved once we are able to complete a python artifact
-        # build with the following patch included:
-        #   https://review.openstack.org/439659
+        # The MANIFEST.in file gives us entries like this for
+        # files in the releases folder that are not python
+        # wheels:
         #
-        # As such we have instead used the repo server's index of
-        # files in the folder in order to get the file listing.
-        # The data we get is HTML that looks something like this:
+        # os-releases/r14.0.0rc1/get-pip.py
+        # os-releases/r14.0.0rc1/requirements_absolute_requirements.txt
+        # os-releases/r14.0.0rc1/requirements_constraints.txt
         #
-        # <html>
-        # <head><title>Index of /os-releases/r14.0.0rc1</title></head>
-        # <body bgcolor=\"white\">
-        # <h1>Index of /os-releases/r14.0.0rc1</h1><hr><pre><a href=\"../\">../</a>
-        # <a href=\"get-pip.py\">get-pip.py</a>                                         27-Feb-2017 17:41             1595408
-        # <a href=\"requirements_absolute_requirements.txt\">requirements_absolute_requirements.txt</a>             27-Feb-2017 17:50                6221
-        # <a href=\"requirements_constraints.txt\">requirements_constraints.txt</a>                       27-Feb-2017 17:44               13036
-        #
-        # To retrieve the file names we have to split the content
-        # into a list by line feeds, then find the link tags and
-        # grab just the file name from inside the link tag. We
-        # also need to ignore the wheels in the folder as we already
-        # have the wheel listing.
-        #
-        # The resulting list has entries such as:
-        # get-pip.py
-        # requirements_absolute_requirements.txt
-        # requirements_constraints.txt
+        # Each file needs to be downloaded and placed in the same
+        # relative path. The resulting list is therefore an
+        # unchanged list of only these files.
         #
         releases_file_list: |
-          {%- set content_list = releases_index.content.split('\r\n') -%}
+          {%- set content_list = manifest.content.split('\n') -%}
           {%- set result_list = [] -%}
           {%- for item in content_list -%}
-          {%-   if item | search("<a href.*>.*</a>") -%}
-          {%-     set item_clean = item | regex_replace(".*<a href.*>(.*)</a>.*", "\\1") -%}
-          {%-     if item_clean != "../" and (item_clean | search(".txt") or item_clean == "get-pip.py") -%}
-          {%-       set _ = result_list.append(item_clean) -%}
-          {%-     endif -%}
+          {%-   if item.split('/')[0] == 'os-releases' -%}
+          {%-     if not (item | match(".*\.whl")) -%}
+          {%-       set _ = result_list.append(item) -%}
           {%-   endif -%}
           {%- endfor -%}
           {{- result_list -}}
@@ -243,17 +182,9 @@
     - name: Write python artifact URL list
       copy:
         content: |
-          {% for item in python_wheel_list %}
+          {% for item in python_wheel_list + python_venv_list + releases_file_list %}
           {{ rpco_mirror_base_url }}/{{ item }}
             dir={{ staging_path }}/{{ item | dirname }}
-          {% endfor %}
-          {% for item in python_venv_list %}
-          {{ rpco_mirror_base_url }}/venvs/{{ rpc_release }}/ubuntu/{{ item }}
-            dir={{ staging_path }}/venvs/{{ rpc_release }}/ubuntu
-          {% endfor %}
-          {% for item in releases_file_list %}
-          {{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/{{ item }}
-            dir={{ staging_path }}/os-releases/{{ rpc_release }}
           {% endfor %}
         dest: "{{ aria_input_file }}"
       tags:
