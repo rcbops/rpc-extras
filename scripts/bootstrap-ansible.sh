@@ -35,11 +35,17 @@ check_submodule_status
 
 # The deployment host must only have the base Ubuntu repository configured.
 # All updates (security and otherwise) must come from the RPC-O apt artifacting.
+#
 # This is being done via bash because Ansible is not bootstrapped yet, and the
 # apt artifacts used for bootstrapping Ansible must also come from the RPC-O
 # artifact repo.
-apt_sources_back_to_stock
-apt_sources_use_rpc_apt_artifacts
+#
+# This has the ability to be disabled for the purpose of reusing the
+# bootstrap-ansible script for putting together the apt artifacts.
+if [[ "${HOST_SOURCES_REWRITE}" == 'yes' ]]; then
+  apt_sources_back_to_stock
+  apt_sources_use_rpc_apt_artifacts
+fi
 
 # begin the bootstrap process
 pushd ${OA_DIR}
