@@ -35,7 +35,7 @@ aptly_dependency_follow_suggests: True
 # This is a list of the repo/mirror snapshots (slushies) that will appear in the miko* snapshots
 aptly_miko_mapping:
   trusty:
-#    - "slushie-{{ artifacts_version }}-ubuntu-trusty"
+    - "slushie-{{ artifacts_version }}-ubuntu-updates-trusty"
     - "slushie-{{ artifacts_version }}-uca-mitaka-updates-trusty"
     - "slushie-{{ artifacts_version }}-mariadb-10.0-trusty"
     - "slushie-{{ artifacts_version }}-percona-trusty"
@@ -47,7 +47,7 @@ aptly_miko_mapping:
     - "slushie-{{ artifacts_version }}-elastic-es-1.7-ALL"
     - "slushie-{{ artifacts_version }}-elastic-es-2.x-ALL"
   xenial:
-#    - "slushie-{{ artifacts_version }}-ubuntu-xenial"
+    - "slushie-{{ artifacts_version }}-ubuntu-updates-xenial"
     - "slushie-{{ artifacts_version }}-uca-newton-updates-xenial"
     - "slushie-{{ artifacts_version }}-mariadb-10.0-xenial"
     - "slushie-{{ artifacts_version }}-percona-xenial"
@@ -73,38 +73,38 @@ aptly_dont_snapshot_list: []
 #in the name of the mirror or of the repo, please
 #give either trusty/xenial (wherever appropriate) or ALL (for all distros)
 aptly_mirrors:
-#  - name: ubuntu-trusty
-#    archive_url: http://mirror.rackspace.com/ubuntu
-#    distribution: trusty
-#    component1:
-#      - main
-#      - restricted
-#    create_flags:
-#      - "-keyring='trustedkeys.gpg'"
-#    update_flags:
-#      - "-keyring='trustedkeys.gpg'"
-#    state: "present"
-#    gpg:
-#      key: "C0B21F32 437D05B5"
-#      server: "hkp://keyserver.ubuntu.com:80"
-#      keyring: "trustedkeys.gpg"
-#    do_update: "{{ aptly_mirror_do_updates }}"
-#  - name: ubuntu-xenial
-#    archive_url: http://mirror.rackspace.com/ubuntu
-#    distribution: xenial
-#    component1:
-#      - main
-#      - restricted
-#    create_flags:
-#      - "-keyring='trustedkeys.gpg'"
-#    update_flags:
-#      - "-keyring='trustedkeys.gpg'"
-#    state: "present"
-#    gpg:
-#      key: "C0B21F32 437D05B5"
-#      server: "hkp://keyserver.ubuntu.com:80"
-#      keyring: "trustedkeys.gpg"
-#    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: ubuntu-updates-trusty
+    archive_url: http://mirror.rackspace.com/ubuntu
+    distribution: trusty-updates
+    component1:
+      - main
+      - universe
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    state: "present"
+    gpg:
+      key: "C0B21F32 437D05B5 EFE21092"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: ubuntu-updates-xenial
+    archive_url: http://mirror.rackspace.com/ubuntu
+    distribution: xenial-updates
+    component1:
+      - main
+      - universe
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    state: "present"
+    gpg:
+      key: "C0B21F32 437D05B5 EFE21092"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    do_update: "{{ aptly_mirror_do_updates }}"
   - name: uca-mitaka-updates-trusty
     archive_url: http://ubuntu-cloud.archive.canonical.com/ubuntu
     distribution: trusty-updates/mitaka
