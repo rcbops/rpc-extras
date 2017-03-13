@@ -40,6 +40,9 @@ export RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-''}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 
+export HOST_UBUNTU_REPO=${HOST_UBUNTU_REPO:-"http://mirror.rackspace.com/ubuntu"}
+export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://rpc-repo.rackspace.com/apt-mirror"}
+
 ## Functions -----------------------------------------------------------------
 
 function run_ansible {
@@ -62,4 +65,21 @@ function check_submodule_status {
       exit 1
       ;;
   esac
+}
+
+function apt_sources_back_to_stock {
+  sed -i '/^deb-src /d' /etc/apt/sources.list
+  sed -i '/-backports /d' /etc/apt/sources.list
+  sed -i '/-security /d' /etc/apt/sources.list
+  sed -i '/-updates /d' /etc/apt/sources.list
+}
+
+function apt_sources_use_rpc_apt_artifacts {
+ source /etc/lsb-release
+ # TODO(evrardjp): Replace the derive-artifact-version.py
+ # when we have a single source of truth
+ RPCO_VERSION=${RPCO_VERSION:-$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)}
+ echo "deb $HOST_RCBOPS_REPO/integrated/ ${RPCO_VERSION}-$DISTRIB_CODENAME main" \
+   > /etc/apt/sources.list.d/rpco.list
+ curl $HOST_RCBOPS_REPO/rcbops-release-signing-key.asc | apt-key add -
 }
