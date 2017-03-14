@@ -42,6 +42,18 @@
       register: aptly_snapshot_publish
       failed_when: aptly_snapshot_publish.rc != 0 and aptly_snapshot_publish.stderr.find('already used') == -1
       changed_when: aptly_snapshot_publish.stderr.find('already used') == -1
+      #This can run for maximum 23h.
+      async: 82800
+      poll: 0
+      tags:
+        - aptly_publish
+    # To avoid CI build timeouts, we want to make sure ansible outputs to
+    # the console regularily. We do this using an async_status task.
+    - name: Poll async status
+      async_status: jid={{ aptly_snapshot_publish.ansible_job_id }}
+      register: job_merged_snapshot_publish_result
+      until: job_merged_snapshot_publish_result.finished
+      retries: 16560
       tags:
         - aptly_publish
     - name: Publish snapshot into public folder (no merge)
@@ -50,5 +62,17 @@
       register: aptly_snapshot_nomerge_publish
       failed_when: aptly_snapshot_nomerge_publish.rc != 0 and aptly_snapshot_nomerge_publish.stderr.find('already used') == -1
       changed_when: aptly_snapshot_nomerge_publish.stderr.find('already used') == -1
+      #This can run for maximum 23h.
+      async: 82800
+      poll: 0
+      tags:
+        - aptly_publish
+    # To avoid CI build timeouts, we want to make sure ansible outputs to
+    # the console regularily. We do this using an async_status task.
+    - name: Poll async status
+      async_status: jid={{ aptly_snapshot_nomerge_publish.ansible_job_id }}
+      register: job_unmerged_snapshot_publish_result
+      until: job_unmerged_snapshot_publish_result.finished
+      retries: 16560
       tags:
         - aptly_publish
