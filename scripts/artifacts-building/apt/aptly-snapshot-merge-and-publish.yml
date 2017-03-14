@@ -40,8 +40,6 @@
     - name: Publish snapshot into public/integrated/ folder
       shell: 'aptly publish snapshot -distribution="{{ artifacts_version }}-{{ distribution_release }}" miko-{{ artifacts_version }}-{{ distribution_release }} integrated'
       register: aptly_snapshot_publish
-      failed_when: aptly_snapshot_publish.rc != 0 and aptly_snapshot_publish.stderr.find('already used') == -1
-      changed_when: aptly_snapshot_publish.stderr.find('already used') == -1
       #This can run for maximum 23h.
       async: 82800
       poll: 0
@@ -53,6 +51,8 @@
       async_status: jid={{ aptly_snapshot_publish.ansible_job_id }}
       register: job_merged_snapshot_publish_result
       until: job_merged_snapshot_publish_result.finished
+      failed_when: job_merged_snapshot_publish_result.rc != 0 and job_merged_snapshot_publish_result.stderr.find('already used') == -1
+      changed_when: job_merged_snapshot_publish_result.stderr.find('already used') == -1
       retries: 16560
       tags:
         - aptly_publish
@@ -60,8 +60,6 @@
       shell: 'aptly publish snapshot -distribution="{{ artifacts_version }}-{{ distribution_release }}" {{ item.src }} independant/{{ item.dest }}'
       with_items: "{{ aptly_n_mapping.get(distribution_release) }}"
       register: aptly_snapshot_nomerge_publish
-      failed_when: aptly_snapshot_nomerge_publish.rc != 0 and aptly_snapshot_nomerge_publish.stderr.find('already used') == -1
-      changed_when: aptly_snapshot_nomerge_publish.stderr.find('already used') == -1
       #This can run for maximum 23h.
       async: 82800
       poll: 0
@@ -73,6 +71,8 @@
       async_status: jid={{ aptly_snapshot_nomerge_publish.ansible_job_id }}
       register: job_unmerged_snapshot_publish_result
       until: job_unmerged_snapshot_publish_result.finished
+      failed_when: job_unmerged_snapshot_publish_result.rc != 0 and job_unmerged_snapshot_publish_result.stderr.find('already used') == -1
+      changed_when: job_unmerged_snapshot_publish_result.stderr.find('already used') == -1
       retries: 16560
       tags:
         - aptly_publish
