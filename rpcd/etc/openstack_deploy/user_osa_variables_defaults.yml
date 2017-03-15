@@ -238,17 +238,6 @@ lxc_container_cache_files:
   - src: "/etc/apt/sources.list.d/{{ rpco_mirror_apt_filename }}.list"
     dest: "/etc/apt/sources.list.d/{{ rpco_mirror_apt_filename }}.list"
 
-# The default Trusty set in OSA is very large, unnecessary,
-# and causes the image cache prep to fail due to package conflicts.
-lxc_cache_distro_packages:
-  - apt-transport-https
-  - ca-certificates
-  - iptables
-  - openssh-server
-  - python2.7
-  - systemd-shim
-  - time
-
 # For convenience
 rpco_apt_repo:
   repo: "{{ rpco_mirror_apt_deb_line }}"

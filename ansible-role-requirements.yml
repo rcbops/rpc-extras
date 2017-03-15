@@ -17,10 +17,12 @@
 # Allow the Trusty backport repo addition to be disabled
 #   https://review.openstack.org/442592
 #   https://review.openstack.org/445944
+# Cut down default lxc_cache_distro_packages
+#   https://review.openstack.org/446188
 - name: lxc_hosts
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-lxc_hosts
-  version: d61f4185b7759427cad96f0c1e19388dad55b761
+  version: d82f26adf2a8f9f6cc930831b19301db7a21cf81
 # Ensure that the tags are appropriate
 #   https://review.openstack.org/444408
 - name: pip_install
