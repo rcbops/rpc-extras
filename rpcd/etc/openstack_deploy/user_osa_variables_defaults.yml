@@ -232,6 +232,12 @@ repo_pkg_cache_enabled: no
 # all packages must come from our apt artifacts.
 lxc_package_repo_add: no
 
+# We need to ensure that the RPC-O repo containing apt
+# artifacts is included in the LXC container prep.
+lxc_container_cache_files:
+  - src: "/etc/apt/sources.list.d/{{ rpco_mirror_apt_filename }}.list"
+    dest: "/etc/apt/sources.list.d/{{ rpco_mirror_apt_filename }}.list"
+
 # For convenience
 rpco_apt_repo:
   repo: "{{ rpco_mirror_apt_deb_line }}"
