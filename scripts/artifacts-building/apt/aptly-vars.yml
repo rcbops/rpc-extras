@@ -36,6 +36,7 @@ aptly_dependency_follow_suggests: True
 aptly_miko_mapping:
   trusty:
     - "slushie-{{ artifacts_version }}-ubuntu-updates-trusty"
+    - "slushie-{{ artifacts_version }}-ubuntu-backports-trusty"
     - "slushie-{{ artifacts_version }}-uca-mitaka-updates-trusty"
     - "slushie-{{ artifacts_version }}-mariadb-10.0-trusty"
     - "slushie-{{ artifacts_version }}-percona-trusty"
@@ -76,6 +77,22 @@ aptly_mirrors:
   - name: ubuntu-updates-trusty
     archive_url: http://mirror.rackspace.com/ubuntu
     distribution: trusty-updates
+    component1:
+      - main
+      - universe
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    state: "present"
+    gpg:
+      key: "C0B21F32 437D05B5 EFE21092"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  - name: ubuntu-backports-trusty
+    archive_url: http://mirror.rackspace.com/ubuntu
+    distribution: trusty-backports
     component1:
       - main
       - universe
