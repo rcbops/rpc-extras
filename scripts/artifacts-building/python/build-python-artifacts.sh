@@ -55,7 +55,7 @@ cd /opt/rpc-openstack/openstack-ansible/playbooks
 # All updates (security and otherwise) must come from the RPC-O apt artifacting.
 # This is also being done to ensure that the python artifacts are built using
 # the same sources as the container artifacts will use.
-openstack-ansible ${RPCD_DIR}/playbooks/configure-apt-sources.yml -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu"
+openstack-ansible /opt/rpc-openstack/rpcd/playbooks/configure-apt-sources.yml -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu"
 
 # Setup the repo container and build the artifacts
 openstack-ansible setup-hosts.yml -e container_group=repo_all

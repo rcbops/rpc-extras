@@ -93,7 +93,7 @@ cd /opt/rpc-openstack/openstack-ansible/playbooks
 # The host sources are modified to ensure that when the containers are prepared
 # they have our mirror included as the default. This happens because in the
 # lxc_hosts role the host apt sources are copied into the container cache.
-openstack-ansible ${RPCD_DIR}/playbooks/configure-apt-sources.yml -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu"
+openstack-ansible /opt/rpc-openstack/rpcd/playbooks/configure-apt-sources.yml -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu"
 
 # Setup the host
 openstack-ansible setup-hosts.yml --limit lxc_hosts,hosts
