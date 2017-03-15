@@ -29,3 +29,9 @@
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-pip_install
   version: dc91246e5c825227db1083fba39a3b405fabf6eb
+# Add non *.whl files to MANIFEST.in
+#   https://review.openstack.org/441181
+- name: repo_build
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-repo_build
+  version: c53992c81b97a66da765f1757d699a64d7b880ef
