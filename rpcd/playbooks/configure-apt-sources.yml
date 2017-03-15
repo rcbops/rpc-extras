@@ -34,12 +34,8 @@
         - _ubuntu_repo.stdout_lines is defined
 
     - name: Replace the apt sources file with our content
-      copy:
-        content: |
-          # {{ ansible_managed }}
-
-          # Base repository
-          deb {{ host_ubuntu_repo }} {{ ansible_distribution_release }} main universe
+      template:
+        src: configure-apt-sources.j2
         dest: "/etc/apt/sources.list"
         backup: yes
       tags:
