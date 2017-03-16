@@ -18,7 +18,7 @@ def set_status(job, number, state, context){
 * parallel. It builds a sub job, then links that sub-job to the pull request
 * that triggered this build.
 */
-def makeBuildStep(job, parameters, context, trigger){
+def makeBuildStep(job, parameters, context, trigger, pushto){
   return {
     def number = 0
     def state = ""
@@ -58,8 +58,19 @@ def makeBuildStep(job, parameters, context, trigger){
       }catch (e){
         print("Failed to set PR status, error: ${e}")
       } // try
-    }else {
-        print("Not a PR build, so not updating PR status")
+    }else if(trigger == "periodic"
+             && pushto != ""
+             && state == "success"){
+      print "Attempting to push to ${pushto}"
+      dir("rpc-openstack"){
+        sshagent (credentials:['rpc-jenkins-svc-github-ssh-key']){
+          sh """
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git push -f git@github.com:rcbops/rpc-openstack HEAD:${pushto}
+            """
+        } // sshagent
+      } // dir
     } // if
   } // closure
 } // func
@@ -198,20 +209,23 @@ node(){
         aio_job_name(series, "swift", trigger),
         common_params,
         "continuous-integration/jenkins/aio/swift",
-        trigger
+        trigger,
+        ""
     )
     parallel_steps["ceph"] = makeBuildStep(
         aio_job_name(series, "ceph", trigger),
         common_params,
         "continuous-integration/jenkins/aio/ceph",
-        trigger
+        trigger,
+        ""
     )
     if (["newton", "master"].contains(series)){
       parallel_steps["xenial"] = makeBuildStep(
           aio_job_name(series, "xenial", trigger),
           common_params,
           "continuous-integration/jenkins/aio/xenial",
-          trigger
+          trigger,
+          ""
       )
     }
     if(series == "mitaka"){
@@ -219,7 +233,20 @@ node(){
           aio_job_name(series, "upgrade", trigger),
           common_params,
           "continuous-integration/jenkins/aio/upgrade",
-          trigger
+          trigger,
+          ""
+      )
+    }
+    /* Using branch name instead of series as we want to target builds
+    of the master branch, not PRs targetting the master branch
+    */
+    if(env.BRANCH_NAME == "master" && trigger == "periodic"){
+      parallel_steps["omna"] = makeBuildStep(
+          'OnMetal_Multi_Node_AIO_master-xenial',
+          common_params,
+          "continuous-integration/jenkins/aio/omna",
+          trigger,
+          "omna_approved"
       )
     }
     parallel parallel_steps
