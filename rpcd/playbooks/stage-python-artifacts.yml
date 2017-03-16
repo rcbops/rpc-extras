@@ -138,6 +138,7 @@
           {%-   if item.split('/')[0] == 'os-releases' -%}
           {%-     if not (item | match(".*\.whl")) -%}
           {%-       set _ = result_list.append(item) -%}
+          {%-     endif -%}
           {%-   endif -%}
           {%- endfor -%}
           {{- result_list -}}
