@@ -23,21 +23,24 @@
 - include: aptly-install-and-mirror.yml
   vars:
     aptly_mirror_do_updates: "True"
+# The behavior is changed if RECREATE_SNAPSHOTS is true.
 - include: aptly-snapshot-create.yml
   vars:
-    distribution_release: "trusty"
-- include: aptly-snapshot-create.yml
+    distribution_release: "{{ item }}"
+  with_items:
+    - trusty
+    - xenial
+- include: aptly-snapshot-publish.yml
+  when: "{{ (lookup('ENV','PUBLISH_SNAPSHOT') | default(True,True)) | bool }}"
   vars:
-    distribution_release: "xenial"
-- include: aptly-snapshot-merge-and-publish.yml
-  vars:
-    distribution_release: "trusty"
-- include: aptly-snapshot-merge-and-publish.yml
-  vars:
-    distribution_release: "xenial"
+    distribution_release: "{{ item }}"
+  with_items:
+    - trusty
+    - xenial
 - include: sync-with-mirror.yml
+  when: "{{ (lookup('ENV','PUSH_TO_MIRROR') | default(True,True)) | bool }}"
   vars:
-    action: "push-aptly"
-- include: sync-with-mirror.yml
-  vars:
-    action: "push-gpg"
+    action: "{{ item }}"
+  with_items:
+    - push-aptly
+    - push-gpg

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Publish Aptly Mirror
+- name: Publish Aptly Snapshots
   hosts: localhost
   connection: local
   gather_facts: no
@@ -29,16 +29,6 @@
           - artifacts_version is defined
           - distribution_release is defined
         msg: You need to define what you are releasing!
-    - name: Merge the snapshots together
-      shell: "aptly snapshot merge {{ aptly_snapshot_merge_flags }} miko-{{ artifacts_version }}-{{ distribution_release }} {{ aptly_miko_mapping.get(distribution_release) | join(' ') }}"
-      register: aptly_snapshot_merge_create
-      failed_when:
-        - aptly_snapshot_merge_create.rc != 0
-        - aptly_snapshot_merge_create.stderr.find('already exists') == -1
-      changed_when: aptly_snapshot_merge_create.stderr.find('already exists') == -1
-      tags:
-        - aptly_snapshot_merge
-        - aptly_snapshot
     - name: Publish snapshot into public/integrated/ folder
       shell: 'aptly publish snapshot -distribution="{{ artifacts_version }}-{{ distribution_release }}" miko-{{ artifacts_version }}-{{ distribution_release }} integrated'
       register: aptly_snapshot_publish
