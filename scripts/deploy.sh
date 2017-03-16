@@ -38,31 +38,8 @@ fi
 # Check the openstack-ansible submodule status
 check_submodule_status
 
-#################################################
-#
-# Begin: Temporary Hacks for artifacted deployment
-#
-
-# Ensure that we're using git checkouts instead of
-# the ansible-galaxy download.
-export ANSIBLE_ROLE_FETCH_MODE="git-clone"
-
 # Bootstrap Ansible
 source "$(dirname "${0}")/bootstrap-ansible.sh"
-
-# As the current testing is AIO only, and skips the
-# RPC-O bits in order to keep things simple. We will
-# enable those bits later once we've got a working
-# base OSA deployment.
-
-export DEPLOY_AIO="yes"
-export DEPLOY_ELK="no"
-export DEPLOY_RPC="no"
-
-#
-# End: Temporary Hacks for artifacted deployment
-#
-#################################################
 
 # bootstrap the AIO
 if [[ "${DEPLOY_AIO}" == "yes" ]]; then
