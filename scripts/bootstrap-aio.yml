@@ -40,6 +40,7 @@
     scenario: "{% if lookup('env', 'DEPLOY_MAGNUM') == 'yes' %}magnum{% else %}{{ lookup('env', 'DEPLOY_CEPH') |bool |ternary('ceph','swift') }}{%endif%}"
     bootstrap_host_user_variables_filename: "user_osa_variables_overrides.yml"
     bootstrap_host_user_secrets_filename: "user_osa_secrets.yml"
+    uca_enable: no
     confd_overrides:
       swift:
         - name: cinder.yml.aio
