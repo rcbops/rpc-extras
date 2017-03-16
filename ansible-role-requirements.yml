@@ -35,3 +35,15 @@
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-repo_build
   version: c53992c81b97a66da765f1757d699a64d7b880ef
+# Ensure that the log folder exists
+#   https://review.openstack.org/443061
+- name: os_keystone
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-os_keystone
+  version: 1210ef99af69119f2b8860548afb3247f1527666
+# Ensure the log folder exists
+#   https://review.openstack.org/443276
+- name: os_horizon
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-os_horizon
+  version: 1e5c7ae77c223647d3a41d5f0599115bee592d16
