@@ -13,11 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO(odyssey4me):
-# Remove this remark once the following work is complete:
-#  https://github.com/rcbops/u-suk-dev/issues/1332
-#container_skel:
-#  keystone_container:
-#    properties:
-#      service_name: keystone
-#      lxc_container_variant: "keystone-{{ rpc_release }}"
+container_skel:
+  keystone_container:
+    properties:
+      service_name: keystone
+      lxc_container_variant: "keystone-{{ rpc_release }}"
