@@ -83,3 +83,13 @@
     - name: Output the full list of tuples distribution/artifact version
       debug:
         msg: "Full list of snapshots for this distribution/artifact version: {{ aptly_snapshot_list.stdout_lines }}"
+    - name: Merge the snapshots together
+      shell: "aptly snapshot merge {{ aptly_snapshot_merge_flags }} miko-{{ artifacts_version }}-{{ distribution_release }} {{ aptly_miko_mapping.get(distribution_release) | join(' ') }}"
+      register: aptly_snapshot_merge_create
+      failed_when:
+        - aptly_snapshot_merge_create.rc != 0
+        - aptly_snapshot_merge_create.stderr.find('already exists') == -1
+      changed_when: aptly_snapshot_merge_create.stderr.find('already exists') == -1
+      tags:
+        - aptly_snapshot_merge
+        - aptly_snapshot
