@@ -506,6 +506,7 @@ maas_apt_packages:
 #
 maas_requires_pip_packages:
   - virtualenv
+  - lxc-python2
 
 #
 # maas_pip_packages: These packages are installed inside the virtualenv.
