@@ -76,11 +76,38 @@ function apt_sources_back_to_stock {
 }
 
 function apt_sources_use_rpc_apt_artifacts {
- source /etc/lsb-release
- # TODO(evrardjp): Replace the derive-artifact-version.py
- # when we have a single source of truth
- RPCO_VERSION=${RPCO_VERSION:-$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)}
- echo "deb $HOST_RCBOPS_REPO/integrated/ ${RPCO_VERSION}-$DISTRIB_CODENAME main" \
-   > /etc/apt/sources.list.d/rpco.list
- curl $HOST_RCBOPS_REPO/rcbops-release-signing-key.asc | apt-key add -
+  # TODO(odyssey4me):
+  # Remove this once we have published artifacts
+  # for a real tagged version.
+  #
+  # For the script which guesses the version to work
+  # it requires the checkout to be a local branch
+  # with a name of the form:
+  #   <whatever>-<major version>.<minor version>
+  # We therefore ensure that we have such a branch so
+  # that we can test PR's against the artifacts-14.0
+  # branch.
+  #
+
+  # There may be an existing branch with the right name,
+  # or there may be a detached head. We need to cover
+  # each possibility to handle periodic jobs and PR's.
+  current_branch_name=$(git branch | grep '^\* ' | tr -d '[\*() ]')
+
+  # If the branch name does not match the required naming
+  # scheme, then checkout a branch that will.
+  if [[ ! ${current_branch_name} =~ -[0-9]+.[0-9]+$ ]]; then
+    git checkout -b $(echo ${current_branch_name} | tr -dc '[:alnum:]')-14.0
+  fi
+
+  # Derive the rpc_release version from the branch name
+  RPCO_VERSION=${RPCO_VERSION:-$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)}
+
+  # Add the RPC-O apt repo source
+  source /etc/lsb-release
+  echo "deb $HOST_RCBOPS_REPO/integrated/ ${RPCO_VERSION}-$DISTRIB_CODENAME main" \
+    > /etc/apt/sources.list.d/rpco.list
+
+  # Install the RPC-O apt repo key
+  curl $HOST_RCBOPS_REPO/rcbops-release-signing-key.asc | apt-key add -
 }
