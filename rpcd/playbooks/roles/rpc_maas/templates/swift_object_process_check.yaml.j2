@@ -7,7 +7,7 @@ timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeou
 disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
     file    : run_plugin_in_venv.sh
-    args    : ["{{ maas_plugin_dir }}process_check.py", {% if inventory_hostname in groups['all_containers'] %} "-c", "{{ inventory_hostname }}", {% else %}{% endif %}"{{ swift_object_process_names|join("\", \"") }}"]
+    args    : ["{{ maas_plugin_dir }}process_check_{% if inventory_hostname in groups['all_containers'] %}container.py", "-c", "{{ inventory_hostname }}", "{% else %}host.py", "{% endif %}{{ swift_object_process_names|join("\", \"") }}"]
 alarms      :
 {% for process in swift_object_process_names %}
     {{ process }}_process_status:

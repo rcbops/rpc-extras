@@ -49,3 +49,17 @@
   retries: 5
   delay: 2
   with_items: "{{ maas_pip_packages }}"
+
+- name: Install pip packages for containers to venv
+  pip:
+    name: "{{ item }}"
+    state: present
+    extra_args: "{{ pip_install_options | default('') }}"
+    virtualenv: "{{ maas_venv_enabled | bool | ternary(maas_venv, omit) }}"
+  register: install_pip_container_packages
+  until: install_pip_container_packages|success
+  retries: 5
+  delay: 2
+  with_items: "{{ maas_pip_container_packages }}"
+  when:
+    - inventory_hostname in groups['lxc_hosts']
