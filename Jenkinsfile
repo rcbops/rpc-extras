@@ -246,7 +246,23 @@ node(){
           common_params,
           "continuous-integration/jenkins/aio/omna",
           trigger,
-          "omna_approved"
+          "omna_approved_master"
+      )
+    }
+    if(env.BRANCH_NAME == "newton-14.0" && trigger == "periodic"){
+      parallel_steps["omna"] = makeBuildStep(
+          'OnMetal_Multi_Node_AIO_newton-xenial',
+          common_params,
+          "continuous-integration/jenkins/aio/omna",
+          trigger,
+      )
+    }
+    if(env.BRANCH_NAME == "mitaka-13.1" && trigger == "periodic"){
+      parallel_steps["omna"] = makeBuildStep(
+          'OnMetal_Multi_Node_AIO_mitaka-trusty',
+          common_params,
+          "continuous-integration/jenkins/aio/omna",
+          trigger,
       )
     }
     parallel parallel_steps
