@@ -86,3 +86,7 @@
 - include: autocompletion.yml
 
 - include: configure_unattended_upgrades.yml
+
+- include: sos.yml
+  when:
+    - inventory_hostname in groups['hosts']

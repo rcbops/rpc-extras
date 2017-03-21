@@ -84,3 +84,11 @@ hwraid_apt_keys:
 hwraid_apt_packages:
   - megacli
   - lsiutil
+
+sos_git_repo: https://github.com/rcbops/sos.git
+sos_git_install_branch: "master"
+sos_git_dest: "/opt/sos"
+sos_packages:
+  - gettext
+sos_pip_dependencies:
+  - six

@@ -1,0 +1,48 @@
+---
+
+- name: Install packages required by sos
+  apt:
+    pkg: "{{ item }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: 600
+  with_items: "{{ sos_packages }}"
+  when: sos_packages is defined
+
+- name: Install sos pip dependencies
+  pip:
+    name: "{{ item }}"
+    state: latest
+    extra_args: "{{ pip_install_options|default('') }}"
+  with_items: "{{ sos_pip_dependencies }}"
+  when: sos_pip_dependencies is defined
+  register: pip_install
+  until: pip_install|success
+  retries: 3
+
+- name: Get sos package from git
+  git:
+    repo: "{{ sos_git_repo }}"
+    dest: "{{ sos_git_dest }}"
+    version: "{{ sos_git_install_branch }}"
+  register: git_clone
+  ignore_errors: yes
+  until: git_clone|success
+  retries: 5
+
+- name: Install sos binary
+  pip:
+    name: "{{ sos_git_dest }}"
+    state: latest
+    extra_args: "{{ pip_install_options|default('') }}"
+  register: pip_install
+  until: pip_install|success
+  retries: 5
+  async: 1800
+  delay: 5
+  poll: 5
+
+- name: Copy sos.conf to physical host
+  template:
+    src: sos.conf.j2
+    dest: /etc/sos.conf
