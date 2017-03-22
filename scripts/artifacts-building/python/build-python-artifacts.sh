@@ -20,6 +20,7 @@ set -e -u -x
 ## Vars ----------------------------------------------------------------------
 
 export DEPLOY_AIO=yes
+export PUSH_TO_MIRROR=${PUSH_TO_MIRROR:-no}
 
 ## Main ----------------------------------------------------------------------
 
@@ -61,32 +62,38 @@ openstack-ansible /opt/rpc-openstack/rpcd/playbooks/configure-apt-sources.yml -e
 openstack-ansible setup-hosts.yml -e container_group=repo_all
 openstack-ansible repo-install.yml
 
-if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
-  echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
-  exit 1
+# Only push to the mirror if PUSH_TO_MIRROR is set to "YES"
+# This enables PR-based tests which do not change the artifacts
+if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
+  if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
+    echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
+    exit 1
+  else
+    # Prep the ssh key for uploading to rpc-repo
+    mkdir -p ~/.ssh/
+    set +x
+    key=~/.ssh/repo.key
+    echo "-----BEGIN RSA PRIVATE KEY-----" > $key
+    echo "$REPO_KEY" \
+      |sed -e 's/\s*-----BEGIN RSA PRIVATE KEY-----\s*//' \
+           -e 's/\s*-----END RSA PRIVATE KEY-----\s*//' \
+           -e 's/ /\n/g' >> $key
+    echo "-----END RSA PRIVATE KEY-----" >> $key
+    chmod 600 ${key}
+    set -x
+    #Append host to [mirrors] group
+    echo '[mirrors]' > /opt/inventory
+    echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${key}' " >> /opt/inventory
+
+    # As we don't have access to the public key in this job
+    # we need to disable host key checking.
+    export ANSIBLE_HOST_KEY_CHECKING=False
+
+    # Upload the artifacts to rpc-repo
+    openstack-ansible -vvv -i /opt/inventory \
+                      /opt/rpc-openstack/scripts/artifacts-building/python/upload-python-artifacts.yml \
+                      -e repo_container_name=$(lxc-ls '.*_repo_' '|' head -n1)
+  fi
 else
-  # Prep the ssh key for uploading to rpc-repo
-  mkdir -p ~/.ssh/
-  set +x
-  key=~/.ssh/repo.key
-  echo "-----BEGIN RSA PRIVATE KEY-----" > $key
-  echo "$REPO_KEY" \
-    |sed -e 's/\s*-----BEGIN RSA PRIVATE KEY-----\s*//' \
-         -e 's/\s*-----END RSA PRIVATE KEY-----\s*//' \
-         -e 's/ /\n/g' >> $key
-  echo "-----END RSA PRIVATE KEY-----" >> $key
-  chmod 600 ${key}
-  set -x
-  #Append host to [mirrors] group
-  echo '[mirrors]' > /opt/inventory
-  echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${key}' " >> /opt/inventory
-
-  # As we don't have access to the public key in this job
-  # we need to disable host key checking.
-  export ANSIBLE_HOST_KEY_CHECKING=False
-
-  # Upload the artifacts to rpc-repo
-  openstack-ansible -vvv -i /opt/inventory \
-                    /opt/rpc-openstack/scripts/artifacts-building/python/upload-python-artifacts.yml \
-                    -e repo_container_name=$(lxc-ls '.*_repo_' '|' head -n1)
+  echo "Skipping upload to rpc-repo as the PUSH_TO_MIRROR env var is not set to 'YES'."
 fi

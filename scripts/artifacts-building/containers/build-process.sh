@@ -21,6 +21,7 @@ set -e -u -x
 
 export DEPLOY_AIO=yes
 export ANSIBLE_ROLE_FETCH_MODE=git-clone
+export PUSH_TO_MIRROR=${PUSH_TO_MIRROR:-no}
 
 ## Functions ----------------------------------------------------------------------
 
@@ -122,10 +123,13 @@ ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e ro
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=repo_server -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rsyslog_server -v" "install" "config"
 
-if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
+# Only push to the mirror if PUSH_TO_MIRROR is set to "YES"
+# This enables PR-based tests which do not change the artifacts
+if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
+  if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
     echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
     exit 1
-else
+  else
     # Prep the ssh key for uploading to rpc-repo
     mkdir -p ~/.ssh/
     set +x
@@ -148,4 +152,7 @@ else
 
     # Ship it!
     openstack-ansible containers/artifact-upload.yml -i /opt/inventory -v
+  fi
+else
+  echo "Skipping upload to rpc-repo as the PUSH_TO_MIRROR env var is not set to 'YES'."
 fi
