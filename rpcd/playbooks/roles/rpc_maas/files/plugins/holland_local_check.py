@@ -15,7 +15,6 @@
 # limitations under the License.
 import argparse
 import datetime
-import os
 import shlex
 import subprocess
 
@@ -90,27 +89,21 @@ def main():
     holland_bin = args.holland_binary
     holland_bs = args.holland_backupset
 
-    yesterday = datetime.date.today() - datetime.timedelta(days=1)
-    yesterday = yesterday.strftime('%Y%m%d')
-
-    # Guess machine age based on ctime of hostname, if machine is less than a
-    # day old it can't have a backup from yesterday so skip check.
-    hostname_ctime = datetime.datetime.fromtimestamp(
-        os.path.getctime('/etc/hostname'))
-    if (datetime.datetime.now() - hostname_ctime).days < 1:
-        status_ok()
-        metric_bool('holland_backup_status', True)
-        return
+    today = datetime.date.today().strftime('%Y%m%d')
+    yesterday = (datetime.date.today() -
+                 datetime.timedelta(days=1)).strftime('%Y%m%d')
 
     # Get completed Holland backup set
     backupsets = \
         container_holland_lb_check(galera_container, holland_bin, holland_bs)
 
-    if len([backup for backup in backupsets if yesterday in backup[0]]) > 0:
+    if len([backup for backup in backupsets
+            if yesterday or today in backup[0]]) > 0:
         status_ok()
         metric_bool('holland_backup_status', True)
     else:
-        status_err('Could not find Holland backup from %s' % (yesterday))
+        status_err('Could not find Holland backup from %s or %s'
+                   % (yesterday, today))
         metric_bool('holland_backup_status', False)
 
     # Print metric about last backup

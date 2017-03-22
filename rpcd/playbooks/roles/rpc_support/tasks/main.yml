@@ -87,6 +87,10 @@
   when: >
     inventory_hostname in groups['galera']
 
+- include: holland_create_backupset.yml
+  when: >
+    inventory_hostname in groups['galera']
+
 - include: neutron_debug.yml
   when: >
     inventory_hostname in groups['neutron_agent']
