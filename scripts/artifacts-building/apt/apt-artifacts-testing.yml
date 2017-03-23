@@ -1,0 +1,60 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    distro: "trusty"
+    rpc_version: "r14.0.0rc1"
+    platform: "amd64"
+    package_files_path: /tmp/Packages-files
+  tasks:
+    - file:
+        path: "{{ package_files_path }}"
+        state: directory
+    - name: Fetch rpc-repo package files
+      get_url:
+        url: "http://rpc-repo.rackspace.com/apt-mirror/integrated/dists/{{ rpc_version }}-{{ item[0] }}/{{ item[1] }}/binary-{{ item[2] }}/Packages"
+        dest: "{{ package_files_path }}/rpcrepo-{{ item[0] }}-{{ item[1] }}-{{ item[2] }}"
+      with_nested:
+        - ['trusty', 'xenial']
+        - ['main']
+        - ['amd64']
+    - name: Fetch ubuntu default release (compressed) package file
+      shell: |
+        wget http://mirror.rackspace.com/ubuntu/dists/{{ item[0] }}/{{ item[1] }}/binary-{{ item[2] }}/Packages.gz
+        gunzip Packages.gz
+        mv Packages ubuntu-{{ item[0] }}-{{ item[1] }}-{{ item[2] }}
+      args:
+        chdir: "{{ package_files_path }}"
+      with_nested:
+        - ['trusty','xenial']
+        - ['main','universe']
+        - ['amd64']
+    - set_fact:
+        # packages_file could take a list, but we'd need to build the list anyway, so it's easier this way.
+        all_packages: |
+          {% set package_list = []  %}
+          {% for key, value in lookup('packages_file',package_files_path ~ '/rpcrepo-trusty-main-amd64').iteritems() %}
+          {% set _ = package_list.append(key) %}
+          {% endfor %}
+          {% for key, value in lookup('packages_file',package_files_path ~ '/ubuntu-trusty-main-amd64').iteritems() %}
+          {% set _ = package_list.append(key) %}
+          {% endfor %}
+          {% for key, value in lookup('packages_file',package_files_path ~ '/ubuntu-trusty-universe-amd64').iteritems() %}
+          {% set _ = package_list.append(key) %}
+          {% endfor %}
+          {{ package_list }}
+        install_packages: []
+    - set_fact:
+        install_packages: "{{ install_packages }} + [ '{{ item }}' ]"
+      with_packages_to_install:
+        - from:
+            - /etc/ansible/roles
+          for: "{{ distro }}"
+          pkg_blacklist:
+            - "{% raw %}.*{{.*}}.*{% endraw %}"
+          var_blacklist:
+            - nova_compute_powervm_distro_packages
+    - name: List packages in install that aren't in all
+      debug:
+        msg: "{{ install_packages | difference(all_packages) }}"
