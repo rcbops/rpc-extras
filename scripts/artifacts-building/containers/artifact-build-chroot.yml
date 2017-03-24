@@ -74,6 +74,7 @@
     skip_tags:
       - config
     skip_handlers: True
+    image_name: "{{ role_name | replace('os_', '') }}"
   vars_files:
     - container-vars.yml
   pre_tasks:
@@ -105,6 +106,8 @@
   connection: local
   vars_files:
     - container-vars.yml
+  vars:
+    image_name: "{{ role_name | replace('os_', '') }}"
   tasks:
     - name: Set artifact facts
       set_fact:
@@ -142,7 +145,7 @@
     - name: Create release index entries
       lineinfile:
         dest: "{{ built_container_artifact_metadata_file }}"
-        line: "{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }};{{ build_id }};/{{ webserver_container_artifacts_uri }}/{{ lxc_index_path }}/{{ image_name }}-{{ rpc_release }}/{{ build_id }}"
+        line: "{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }};{{ build_id }};/{{ rpc_mirror_container_relative_image_location }}"
         create: yes
         state: present
     - name: create sha256sums
@@ -165,7 +168,7 @@
   vars_files:
     - container-vars.yml
   vars:
-    artifact_list: "{{ rpco_mirror_base_url }}/meta/1.0/index-system"
+    image_name: "{{ role_name | replace('os_', '') }}"
   tasks:
     - name: Check if the list exist to avoid re-hitting the server
       stat:
@@ -173,7 +176,7 @@
       register: metadata_file_locally_exists
     - name: get the container artifacts list
       get_url:
-        url: "{{ artifact_list }}"
+        url: "{{ rpc_mirror_container_images_list }}"
         dest: "/opt/list"
       when: not metadata_file_locally_exists.stat.exists
     - name: patch the current list with the new artifact
