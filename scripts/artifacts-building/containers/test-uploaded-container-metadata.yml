@@ -1,0 +1,54 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - container-vars.yml
+  vars:
+    image_name: "{{ lookup('env', 'CONTAINER_TYPE') | default('keystone', True) }}"
+    test_folder: /tmp/container-download
+    chksums: []
+  tasks:
+    - name: Ensure the test folder exists
+      file:
+        path: "{{ test_folder }}"
+        state: directory
+    - name: Pause for 10 minutes to let the mirrors process the sync
+      pause:
+        minutes: 10
+    - name: Fetching the "list index" metadata file
+      get_url:
+        url: "{{ rpc_mirror_container_images_list }}"
+        dest: "{{ test_folder }}/rpc-mirror-container-images-list"
+    - name: Ensuring the "list index" has the current container
+      command: |
+        grep '{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }};{{ build_id }}'  {{ test_folder }}/rpc-mirror-container-images-list
+    - name: Fetch chksum file
+      set_fact:
+        chksums: "{{ chksums }} + [ '{{ item }}' ]"
+      with_url:
+        - "{{ rpc_mirror_container_full_image_location }}/SHA256SUMS"
+    - name: Fetching the container files and checking their published checksum
+      get_url:
+        url: "{{ rpc_mirror_container_full_image_location }}/{{ item.filename }}"
+        dest: "{{ test_folder }}/{{ item.filename }}"
+        checksum: "sha256:{{ item.chksum }}"
+      with_items:
+        - filename: "rootfs.tar.xz"
+          chksum: "{{ chksums[0].split()[0] }}"
+        - filename: "meta.tar.xz"
+          chksum: "{{ chksums[1].split()[0] }}"
