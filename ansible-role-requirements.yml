@@ -14,3 +14,7 @@
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
   version: 1383d0db302c6fc400a50fae4f85e77bf1633581
+- name: keepalived
+  scm: git
+  src: https://github.com/evrardjp/ansible-keepalived
+  version: 2.6.0
