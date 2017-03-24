@@ -123,6 +123,10 @@ ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e ro
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=repo_server -v" "install" "config"
 ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rsyslog_server -v" "install" "config"
 
+# test one container build contents
+openstack-ansible containers/test-built-container.yml
+openstack-ansible containers/test-built-container-idempotency-test.yml | tee /tmp/output.txt; grep -q 'changed=0.*failed=0' /tmp/output.txt && { echo 'Idempotence test: pass';  } || { echo 'Idempotence test: fail' && exit 1; }
+
 # Only push to the mirror if PUSH_TO_MIRROR is set to "YES"
 # This enables PR-based tests which do not change the artifacts
 if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
@@ -152,7 +156,12 @@ if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
 
     # Ship it!
     openstack-ansible containers/artifact-upload.yml -i /opt/inventory -v
+
+    # test the uploaded metadata: fetching the metadata file, fetching a
+    # container, and checking integrity of the downloaded artifact.
+    openstack-ansible containers/test-uploaded-container-metadata.yml -v
   fi
 else
   echo "Skipping upload to rpc-repo as the PUSH_TO_MIRROR env var is not set to 'YES'."
 fi
+
