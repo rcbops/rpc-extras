@@ -38,6 +38,16 @@
         src: configure-apt-sources.j2
         dest: "/etc/apt/sources.list"
         backup: yes
+      register: apt_sources_configure
+      tags:
+        - always
+
+    - name: Update apt-cache
+      apt:
+        update_cache: yes
+      when:
+        - apt_sources_configure is defined
+        - apt_sources_configure | changed
       tags:
         - always
 
