@@ -30,11 +30,10 @@
         url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/get-pip.py"
         dest: /opt/get-pip.py
         force: yes #Ensure it's redownloaded for testing purposes, not directly ok.
-    - name: Check apt source is pointing to rax mirror
-      find:
-        paths: /etc/apt/sources.list.d
-        contains:
-          - ".*{{ rpco_mirror_base_url }}.*{{ rpc_release }}.*"
+    - name: Find active deb sources that don't contain a clear "trusty " string (like trusty-updates)
+      shell: find /etc/apt -type f -name "*.list" -exec grep "^deb " {} \; | grep -v "trusty "
+      failed_when: matching_files.rc == 0
+      changed_when: false
       register: matching_files
     - debug:
         var: matching_files
