@@ -48,6 +48,7 @@ sed -i.bak '/lxc_container_download_template_extra_options: /d' /etc/openstack_d
 echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
 echo "repo_build_wheel_selective: no" >> /etc/openstack_deploy/user_osa_variables_overrides.yml
 echo "repo_build_venv_selective: no" >> /etc/openstack_deploy/user_osa_variables_overrides.yml
+cp scripts/artifacts-building/user_rcbops_artifacts_building.yml /etc/openstack_deploy/
 
 # Prepare to run the playbooks
 cd /opt/rpc-openstack/openstack-ansible/playbooks
