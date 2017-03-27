@@ -13,16 +13,11 @@
       file:
         path: "/tmp/{{ image_name }}"
         state: directory
-    - name: Copy rootfs into test directory
-      copy:
-        src: "{{ image_path }}/rootfs.tar.xz"
-        dest: "/tmp/{{ image_name }}/rootfs.tar.xz"
-        remote_src: yes
     - name: Extract the archive with the container
       unarchive:
         #todo(evrardjp) move to remote_src in ansible 2.2
         copy: no
-        src: "/tmp/{{ image_name }}/rootfs.tar.xz"
+        src: "{{ image_path }}/rootfs.tar.xz"
         dest: "/tmp/{{ image_name }}/"
     - name: override the resolv.conf
       copy:
