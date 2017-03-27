@@ -3,9 +3,6 @@
   connection: local
   gather_facts: no
   vars:
-    distro: "trusty"
-    rpc_version: "r14.0.0rc1"
-    platform: "amd64"
     package_files_path: /tmp/Packages-files
   tasks:
     - file:
@@ -13,7 +10,7 @@
         state: directory
     - name: Fetch rpc-repo package files
       get_url:
-        url: "http://rpc-repo.rackspace.com/apt-mirror/integrated/dists/{{ rpc_version }}-{{ item[0] }}/{{ item[1] }}/binary-{{ item[2] }}/Packages"
+        url: "http://rpc-repo.rackspace.com/apt-mirror/integrated/dists/{{ rpc_release }}-{{ item[0] }}/{{ item[1] }}/binary-{{ item[2] }}/Packages"
         dest: "{{ package_files_path }}/rpcrepo-{{ item[0] }}-{{ item[1] }}-{{ item[2] }}"
       with_nested:
         - ['trusty', 'xenial']
@@ -30,31 +27,41 @@
         - ['trusty','xenial']
         - ['main','universe']
         - ['amd64']
-    - set_fact:
-        # packages_file could take a list, but we'd need to build the list anyway, so it's easier this way.
+    # Test trusty
+    - name: Init lists
+      set_fact:
+        install_packages: []
+        packages_files_list: []
+    - name: Build list of all the Packages files used in a trusty amd64
+      set_fact:
+        packages_files_list: "{{ packages_files_list }} + [ '{{ package_files_path }}/{{ item[0] }}-trusty-{{ item[1] }}-amd64' ]"
+      with_together:
+        - ['rpcrepo', 'ubuntu', 'ubuntu']
+        - ['main', 'main', 'universe']
+    - name: Creating a list of all the packages files existing for trusty based on the Packages files
+      set_fact:
         all_packages: |
           {% set package_list = []  %}
-          {% for key, value in lookup('packages_file',package_files_path ~ '/rpcrepo-trusty-main-amd64').iteritems() %}
-          {% set _ = package_list.append(key) %}
-          {% endfor %}
-          {% for key, value in lookup('packages_file',package_files_path ~ '/ubuntu-trusty-main-amd64').iteritems() %}
-          {% set _ = package_list.append(key) %}
-          {% endfor %}
-          {% for key, value in lookup('packages_file',package_files_path ~ '/ubuntu-trusty-universe-amd64').iteritems() %}
-          {% set _ = package_list.append(key) %}
+          {% for package_file in packages_files_list %}
+            {% for key, value in lookup('packages_file',package_file).iteritems() %}
+              {% set _ = package_list.append(key) %}
+            {% endfor %}
           {% endfor %}
           {{ package_list }}
-        install_packages: []
-    - set_fact:
+    - name: Create a list of the packages to install based on roles
+      set_fact:
         install_packages: "{{ install_packages }} + [ '{{ item }}' ]"
       with_packages_to_install:
         - from:
             - /etc/ansible/roles
-          for: "{{ distro }}"
+          for: trusty
           pkg_blacklist:
             - "{% raw %}.*{{.*}}.*{% endraw %}"
           var_blacklist:
             - nova_compute_powervm_distro_packages
-    - name: List packages in install that aren't in all
+    - name: How many packages have to be installed at max?
+      debug:
+        msg: "The answer is: {{ install_packages | length }}"
+    - name: List packages to be installed which are not in rpc-repo or ubuntu trusty release
       debug:
         msg: "{{ install_packages | difference(all_packages) }}"
