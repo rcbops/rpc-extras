@@ -2,6 +2,8 @@
 - hosts: localhost
   connection: local
   gather_facts: no
+  vars_files:
+    - artifacting-vars.yml
   vars:
     package_files_path: /tmp/Packages-files
   tasks:
@@ -9,9 +11,10 @@
         path: "{{ package_files_path }}"
         state: directory
     - name: Fetch rpc-repo package files
-      get_url:
-        url: "http://rpc-repo.rackspace.com/apt-mirror/integrated/dists/{{ rpc_release }}-{{ item[0] }}/{{ item[1] }}/binary-{{ item[2] }}/Packages"
+      copy:
+        src: "{{ artifacts_aptrepos_dest_folder }}/public/integrated/dists/{{ rpc_release }}-{{ item[0] }}/{{ item[1] }}/binary-{{ item[2] }}/Packages"
         dest: "{{ package_files_path }}/rpcrepo-{{ item[0] }}-{{ item[1] }}-{{ item[2] }}"
+        remote_src: yes
       with_nested:
         - ['trusty', 'xenial']
         - ['main']
