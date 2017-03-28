@@ -20,7 +20,6 @@ lxc_image_folder: "/var/cache/artifacts"
 built_container_artifact_metadata_file: "{{ lxc_image_folder }}/{{ image_name }}-{{ rpc_release }}-entry"
 webserver_container_artifacts_uri: "lxc-images"
 lxc_container_cache_path: "/var/cache/lxc/download"
-image_name: "{{ role_name | replace('os_', '') }}"
 compression_ratio: 7
 xz_bin:
   centos: xz
@@ -34,3 +33,6 @@ role_vars:
   developer_mode: False
 webserver_owner: "nginx"
 webserver_group: "www-data"
+rpc_mirror_container_images_list: "{{ rpco_mirror_base_url }}/meta/1.0/index-system"
+rpc_mirror_container_relative_image_location: "{{ webserver_container_artifacts_uri }}/{{ lxc_index_path }}/{{ image_name }}-{{ rpc_release }}/{{ build_id }}"
+rpc_mirror_container_full_image_location: "{{ rpco_mirror_base_url }}/{{ rpc_mirror_container_relative_image_location }}"

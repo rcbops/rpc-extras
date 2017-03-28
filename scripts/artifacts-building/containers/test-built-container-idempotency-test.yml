@@ -1,0 +1,54 @@
+---
+- name: Dynamic inclusion of container
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - container-vars.yml
+  vars:
+    image_name: "{{ lookup('env', 'CONTAINER_TYPE') | default('keystone', True) }}"
+  tasks:
+    - name: prepare group for integrity checking
+      add_host:
+        name: "/tmp/{{ image_name }}/"
+        groups: "lxc_container_artifact"
+        container_name: "LXC_NAME"
+        physical_host: "localhost"
+      changed_when: false
+
+- name: Check integrity
+  hosts: lxc_container_artifact
+  connection: chroot
+  # Gether facts is necessary
+  vars_files:
+    - container-vars.yml
+  vars:
+    image_name: "{{ lookup('env', 'CONTAINER_TYPE') | default('keystone', True) }}"
+    official_repos:
+      - "deb http://mirror.rackspace.com/ubuntu trusty main universe"
+      - "{{ rpco_mirror_apt_deb_line }}"
+  tasks:
+    - name: Fetch get-pip for comparison
+      get_url:
+        url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/get-pip.py"
+        dest: /opt/get-pip.py
+        force: yes #Ensure it's redownloaded for testing purposes, not directly ok.
+    - name: List all the active apt sources
+      command: find /etc/apt -type f -name "*.list" -exec grep "^deb " {} \;
+      failed_when: false
+      changed_when: false
+      register: findings
+    - name: Show the deb sources
+      debug:
+        msg: "{{ findings.stdout_lines }}"
+    - assert:
+        that:
+          findings.stdout_lines | difference(official_repos) == []
+        msg: "There are extra repos defined in the container"
+    # TODO(evrardjp): Refactor this to avoid being on the same codepath as the building.
+    - name: Fetch venv from pre-build venv artifact for comparison
+      get_url:
+        url: "{{ role_vars.venv_download_url }}"
+        dest: "/var/cache/{{ role_vars.venv_download_url | basename }}"
+        force: yes #Ensure it's redownloaded
+        checksum: "sha1:{{ lookup('url', role_vars.venv_download_url  | replace('tgz', 'checksum')) }}"

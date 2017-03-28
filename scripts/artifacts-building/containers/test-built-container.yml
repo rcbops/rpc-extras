@@ -1,0 +1,25 @@
+---
+- name: Prepare the testing env
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - container-vars.yml
+  vars:
+    image_name: "{{ lookup('env', 'CONTAINER_TYPE') | default('keystone', True) }}"
+    image_path: "{{ lxc_image_folder }}/{{ lxc_index_path }}/{{ image_name }}-{{ rpc_release }}/{{ build_id }}/"
+  tasks:
+    - name: Ensure test directory is created
+      file:
+        path: "/tmp/{{ image_name }}"
+        state: directory
+    - name: Extract the archive with the container
+      unarchive:
+        #todo(evrardjp) move to remote_src in ansible 2.2
+        copy: no
+        src: "{{ image_path }}/rootfs.tar.xz"
+        dest: "/tmp/{{ image_name }}/"
+    - name: override the resolv.conf
+      copy:
+        content: "nameserver 8.8.8.8"
+        dest: "/tmp/{{ image_name }}/etc/resolv.conf"
