@@ -66,29 +66,24 @@ openstack-ansible repo-install.yml
 # Only push to the mirror if PUSH_TO_MIRROR is set to "YES"
 # This enables PR-based tests which do not change the artifacts
 if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
-  if [ -z ${REPO_KEY+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_USER+x} ]; then
+  if [ -z ${REPO_USER_KEY+x} ] || [ -z ${REPO_USER+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_HOST_PUBKEY+x} ]; then
     echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
     exit 1
   else
     # Prep the ssh key for uploading to rpc-repo
     mkdir -p ~/.ssh/
     set +x
-    key=~/.ssh/repo.key
-    echo "-----BEGIN RSA PRIVATE KEY-----" > $key
-    echo "$REPO_KEY" \
-      |sed -e 's/\s*-----BEGIN RSA PRIVATE KEY-----\s*//' \
-           -e 's/\s*-----END RSA PRIVATE KEY-----\s*//' \
-           -e 's/ /\n/g' >> $key
-    echo "-----END RSA PRIVATE KEY-----" >> $key
-    chmod 600 ${key}
+    REPO_KEYFILE=~/.ssh/repo.key
+    cat $REPO_USER_KEY > ${REPO_KEYFILE}
+    chmod 600 ${REPO_KEYFILE}
     set -x
-    #Append host to [mirrors] group
-    echo '[mirrors]' > /opt/inventory
-    echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${key}' " >> /opt/inventory
 
-    # As we don't have access to the public key in this job
-    # we need to disable host key checking.
-    export ANSIBLE_HOST_KEY_CHECKING=False
+    # Ensure that the repo server public key is a known host
+    grep "${REPO_HOST}" ~/.ssh/known_hosts || echo "${REPO_HOST} $(cat $REPO_HOST_PUBKEY)" >> ~/.ssh/known_hosts
+
+    # Create the Ansible inventory for the upload
+    echo '[mirrors]' > /opt/inventory
+    echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_private_key_file='${REPO_KEYFILE}' " >> /opt/inventory
 
     # Upload the artifacts to rpc-repo
     openstack-ansible -vvv -i /opt/inventory \
