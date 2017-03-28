@@ -94,9 +94,9 @@ magnum_kubectl_url: 'https://storage.googleapis.com/kubernetes-release/release/{
 magnum_carina_version: 'v2.1.3'
 magnum_carina_url: 'https://download.getcarina.com/carina/{{ magnum_carina_version }}/Linux/x86_64/carina'
 
-sos_git_repo: https://github.com/rcbops/sos.git
-sos_git_install_branch: "master"
-sos_git_dest: "/opt/sos"
+sos_git_repo: https://github.com/sosreport/sos.git
+sos_git_install_branch: 4e7ecf0f2ffb6789247b4b742b154508f83bdc72
+sos_git_dest: /opt/sos
 sos_packages:
   - gettext
 sos_pip_dependencies:
