@@ -17,7 +17,7 @@
 # from rpc-repo.
 
 - name: Pull the current openstackgit folder from rpc-repo
-  hosts: mirrors
+  hosts: mirrors[0]
   vars:
     working_dir: "{{ lookup('ENV', 'PWD') }}"
   tasks:
