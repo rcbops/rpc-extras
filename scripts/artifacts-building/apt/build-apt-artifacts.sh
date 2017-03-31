@@ -20,6 +20,20 @@ set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
 
+# To provide flexibility in the jobs, we have the ability to set any
+# parameters that will be supplied on the ansible-playbook CLI.
+export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:--v}
+
+# Set this to NO if you do not want to pull any existing data from rpc-repo.
+export PULL_FROM_MIRROR=${PULL_FROM_MIRROR:-yes}
+
+# Set this to YES if you want to replace any existing artifacts for the current
+# release with those built in this job.
+export RECREATE_SNAPSHOTS=${REPLACE_ARTIFACTS:-no}
+
+# Set this to YES if you want to push any changes made in this job to rpc-repo.
+export PUSH_TO_MIRROR=${PUSH_TO_MIRROR:-no}
+
 # The BASE_DIR needs to be set to ensure that the scripts
 # know it and use this checkout appropriately.
 export BASE_DIR=${PWD}
@@ -28,13 +42,14 @@ export BASE_DIR=${PWD}
 # This ensures that there is no race condition with the artifacts-git job
 export ANSIBLE_ROLE_FETCH_MODE="git-clone"
 
-export ANSIBLE_VERBOSITY=${ANSIBLE_VERBOSITY:--v}
+# These are allowed to be flexible for the purpose of testing by hand.
+export PUBLISH_SNAPSHOT=${PUBLISH_SNAPSHOT:-yes}
 export RPC_ARTIFACTS_FOLDER=${RPC_ARTIFACTS_FOLDER:-/var/www/artifacts}
 export RPC_ARTIFACTS_PUBLIC_FOLDER=${RPC_ARTIFACTS_PUBLIC_FOLDER:-/var/www/repo}
-export RPC_REPO_BRANCH=${RPC_REPO_BRANCH:-artifacts-14.0}
 
 # We do not want to rewrite the host apt sources when executing bootstrap-ansible
 export HOST_SOURCES_REWRITE="no"
+
 
 ## Main ----------------------------------------------------------------------
 
@@ -45,20 +60,6 @@ elif [ -z ${GPG_PRIVATE+x} ] || [ -z ${GPG_PUBLIC+x} ]; then
   echo "ERROR: The required GPG_ environment variables are not set."
   exit 1
 fi
-
-# Jenkins uses a weird checkout mechanism which does not checkout
-# the local branch, but instead the latest SHA on the branch directly.
-# This breaks the way we derive the branch, so here we check it out
-# in the way we expect it.
-git checkout ${RPC_REPO_BRANCH}
-
-#Output some debug information
-echo "GIT_TAG: $(git describe --tags --abbrev=0)"
-echo "GIT_BRANCH: $(git branch --contains $(git rev-parse HEAD) | grep ^\* | sed 's/^\* //')"
-
-# Ensure that the openstack-ansible submodule is updated
-git submodule init
-git submodule update
 
 # The derive-artifact-version.py script expects the git clone to
 # be at /opt/rpc-openstack, so we link the current folder there.
@@ -91,8 +92,8 @@ echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_priva
 
 # Execute the playbooks
 cd ${BASE_DIR}/scripts/artifacts-building/apt
-ansible-playbook aptly-pre-install.yml ${ANSIBLE_VERBOSITY}
-ansible-playbook aptly-all.yml -i /opt/inventory ${ANSIBLE_VERBOSITY}
+ansible-playbook aptly-pre-install.yml ${ANSIBLE_PARAMETERS}
+ansible-playbook aptly-all.yml -i /opt/inventory ${ANSIBLE_PARAMETERS}
 
 # List the contents
 ls -R ${RPC_ARTIFACTS_FOLDER}
