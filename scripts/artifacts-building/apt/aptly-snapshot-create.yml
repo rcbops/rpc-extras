@@ -50,7 +50,7 @@
       shell: "aptly publish drop {{ item.split(' ')[1] }} {{ item.split(' ')[0] }}"
       with_items: "{{ aptly_existing_published_snapshots_list.stdout_lines }}"
       when:
-        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | default('NO') == 'YES' }}"
+        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | bool }}"
         - "item.find('{{ artifacts_version }}') != -1"
         - "item.find('{{ distribution_release }}') != -1"
       failed_when: false
@@ -58,14 +58,14 @@
       shell: "aptly snapshot drop {{ item }}"
       with_items: "{{ aptly_existing_snapshots_list.stdout_lines }}"
       when:
-        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | default('NO') == 'YES' }}"
+        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | bool }}"
         - "item.find('miko-{{ artifacts_version }}-{{ distribution_release }}') != -1"
       failed_when: false
     - name: Delete old snapshots for this distro/artifacts version
       shell: "aptly snapshot drop {{ item }}"
       with_items: "{{ aptly_existing_snapshots_list.stdout_lines }}"
       when:
-        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | default('NO') == 'YES' }}"
+        - "{{ lookup('ENV','RECREATE_SNAPSHOTS') | bool }}"
         - "item.find('slushie-{{ artifacts_version }}') != -1"
         - "item.find('{{ distribution_release }}') != -1 or item.find('ALL') != -1"
       failed_when: false
