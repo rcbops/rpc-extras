@@ -13,35 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This playbook's function is to update the git clones for all
-# git repositories use by the OpenStack-Ansible integrated build.
+# This playbook's function is to download the git clones for all
+# git repositories use by RPC-O, for the purpose of later uploading
+# them to rpc-repo.
 #
 # The playbook intentionally clones the full repository to ensure
 # that it's usable by all RPC releases, regardless of branch.
-#
-# The playbook also intentionally uses the OSA master branch as it
-# is expected to contain more repositories than RPC will need, but
-# will always have a complete set.
-
-- name: Pull the current openstackgit folder from rpc-repo
-  hosts: mirrors
-  vars:
-    working_dir: "{{ lookup('ENV', 'PWD') }}"
-  tasks:
-
-    - name: Pull the data from rpc-repo
-      synchronize:
-        src: "/var/www/repo/openstackgit"
-        dest: "{{ working_dir }}/"
-        mode: pull
-        delete: yes
-        recursive: yes
-      register: synchronize
-      until: synchronize | success
-      retries: 5
-      delay: 5
-
-
 
 - name: Update the openstackgit data
   hosts: localhost
@@ -66,27 +43,5 @@
       with_items: "{{ local_packages.results.0.item.remote_package_parts }}"
       register: git_clone
       until: git_clone | success
-      retries: 5
-      delay: 5
-
-
-
-- name: Push the updated clones to rpc-repo
-  hosts: mirrors
-  vars:
-    working_dir: "{{ lookup('ENV', 'PWD') }}"
-  tasks:
-
-    - name: Push updated git clones to rpc-repo
-      synchronize:
-        src: "{{ working_dir }}/openstackgit"
-        dest: "/var/www/repo/"
-        mode: push
-        delete: yes
-        recursive: yes
-        rsync_opts:
-          - "--chown=nginx:www-data"
-      register: synchronize
-      until: synchronize | success
       retries: 5
       delay: 5
