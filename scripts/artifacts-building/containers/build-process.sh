@@ -19,9 +19,24 @@ set -e -u -x
 
 ## Vars ----------------------------------------------------------------------
 
-export DEPLOY_AIO=yes
-export ANSIBLE_ROLE_FETCH_MODE=git-clone
+# To provide flexibility in the jobs, we have the ability to set any
+# parameters that will be supplied on the ansible-playbook CLI.
+export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:--v}
+
+# Set this to YES if you want to replace any existing artifacts for the current
+# release with those built in this job.
+export REPLACE_ARTIFACTS=${REPLACE_ARTIFACTS:-no}
+
+# Set this to YES if you want to push any changes made in this job to rpc-repo.
 export PUSH_TO_MIRROR=${PUSH_TO_MIRROR:-no}
+
+# The BASE_DIR needs to be set to ensure that the scripts
+# know it and use this checkout appropriately.
+export BASE_DIR=${PWD}
+
+# We want the role downloads to be done via git
+# This ensures that there is no race condition with the artifacts-git job
+export ANSIBLE_ROLE_FETCH_MODE="git-clone"
 
 ## Functions ----------------------------------------------------------------------
 
@@ -32,30 +47,22 @@ function patch_all_roles {
     done
 }
 
-function ansible_tag_filter {
-    TAGS=$($1 --list-tags | grep -o '\s\[.*\]' | sed -e 's|,|\n|g' -e 's|\[||g' -e 's|\]||g')
-    echo "TAG LIST IS $TAGS"
-    INCLUDE_TAGS_LIST=$(echo -e "${TAGS}" | grep -w "$2")
-    INCLUDE_TAGS=$(echo "always" ${INCLUDE_TAGS_LIST} | sed 's|\s|,|g')
-    echo "INCLUDED TAGS: ${INCLUDE_TAGS}"
-    SKIP_TAGS_LIST=$(echo -e "${TAGS}" | grep -w "$3" )
-    SKIP_TAGS=$(echo ${SKIP_TAGS_LIST} | sed 's|\s|,|g')
-    echo "SKIPPED TAGS: ${SKIP_TAGS}"
-    $1 --tags "${INCLUDE_TAGS}" --skip-tags "${SKIP_TAGS}"
-}
-
 ## Main ----------------------------------------------------------------------
-
-# Ensure no role is present before starting
-rm -rf /etc/ansible/roles/
 
 # Ensure no remnants (not necessary if ephemeral host, but useful for dev purposes
 rm -f /opt/list
 
-# bootstrap Ansible and the AIO config
+# The derive-artifact-version.py script expects the git clone to
+# be at /opt/rpc-openstack, so we link the current folder there.
+ln -sfn ${PWD} /opt/rpc-openstack
+
+# Bootstrap Ansible and the AIO config
 cd /opt/rpc-openstack
 ./scripts/bootstrap-ansible.sh
 ./scripts/bootstrap-aio.sh
+
+# Figure out the release version
+export RPC_RELEASE="$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)"
 
 # Remove the RPC-O default configurations that are necessary
 # for deployment, but cause the build to break due to the fact
@@ -68,19 +75,13 @@ sed -i.bak '/lxc_container_variant: /d' /etc/openstack_deploy/user_osa_variables
 sed -i.bak '/lxc_container_download_template_extra_options: /d' /etc/openstack_deploy/user_osa_variables_defaults.yml
 
 # Set override vars for the artifact build
-echo "rpc_release: $(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
+echo "rpc_release: ${RPC_RELEASE}" >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
 cd scripts/artifacts-building/
 cp user_*.yml /etc/openstack_deploy/
 
 # Prepare role patching
 git config --global user.email "rcbops@rackspace.com"
 git config --global user.name "RCBOPS gating"
-
-# TEMP WORKAROUND: CHECKOUT the version you need before patching!
-pushd /etc/ansible/roles/os_keystone
-git fetch --all
-git checkout stable/newton
-popd
 
 # Patch the roles
 cd containers/patches/
@@ -94,7 +95,9 @@ cd /opt/rpc-openstack/openstack-ansible/playbooks
 # The host sources are modified to ensure that when the containers are prepared
 # they have our mirror included as the default. This happens because in the
 # lxc_hosts role the host apt sources are copied into the container cache.
-openstack-ansible /opt/rpc-openstack/rpcd/playbooks/configure-apt-sources.yml -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu"
+openstack-ansible /opt/rpc-openstack/rpcd/playbooks/configure-apt-sources.yml \
+                  -e "host_ubuntu_repo=http://mirror.rackspace.com/ubuntu" \
+                  ${ANSIBLE_PARAMETERS}
 
 # Setup the host
 openstack-ansible setup-hosts.yml --limit lxc_hosts,hosts
@@ -102,33 +105,46 @@ openstack-ansible setup-hosts.yml --limit lxc_hosts,hosts
 # Move back to artifacts-building dir
 cd /opt/rpc-openstack/scripts/artifacts-building/
 
-# Build it!
-openstack-ansible containers/artifact-build-chroot.yml -e role_name=pip_install -e image_name=default -v
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=elasticsearch -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=galera_server -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=kibana -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=logstash -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=memcached_server -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_cinder -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_glance -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_heat -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_horizon -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_ironic -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_keystone -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_neutron -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_nova -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_swift -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=os_tempest -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rabbitmq_server -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=repo_server -v" "install" "config"
-ansible_tag_filter "openstack-ansible containers/artifact-build-chroot.yml -e role_name=rsyslog_server -v" "install" "config"
+# Build the base container
+openstack-ansible containers/artifact-build-chroot.yml \
+                  -e role_name=pip_install \
+                  -e image_name=default \
+                  ${ANSIBLE_PARAMETERS}
+
+# Build the list of roles to build containers for
+role_list=""
+role_list="${role_list} elasticsearch kibana galera_server logstash"
+role_list="${role_list} memcached_server os_cinder os_glance os_heat"
+role_list="${role_list} os_horizon os_ironic os_keystone os_neutron os_nova"
+role_list="${role_list} os_swift os_tempest rabbitmq_server repo_server"
+role_list="${role_list} rsyslog_server"
+
+# Build all the containers
+for cnt in ${container_list}; do
+  openstack-ansible containers/artifact-build-chroot.yml \
+                    -e role_name=${cnt} \
+                    ${ANSIBLE_PARAMETERS}
+done
 
 # test one container build contents
 openstack-ansible containers/test-built-container.yml
 openstack-ansible containers/test-built-container-idempotency-test.yml | tee /tmp/output.txt; grep -q 'changed=0.*failed=0' /tmp/output.txt && { echo 'Idempotence test: pass';  } || { echo 'Idempotence test: fail' && exit 1; }
 
-# Only push to the mirror if PUSH_TO_MIRROR is set to "YES"
-# This enables PR-based tests which do not change the artifacts
+# Check whether there are already containers for this release
+existing_artifacts=$(curl http://rpc-repo.rackspace.com/meta/1.0/index-system | grep "-${RPC_RELEASE};")
+
+# Only push to the mirror if PUSH_TO_MIRROR is set to "YES" and
+# REPLACE_ARTIFACTS is "YES" or there are no existing artifacts
+# for this release.
+#
+# This enables PR-based tests which do not change the artifacts,
+# and also prevents periodic tests from overwriting artifacts that
+# have already been published.
+#
+if ${existing_artifacts} && [[ "$(echo ${REPLACE_ARTIFACTS} | tr [a-z] [A-Z])" != "YES" ]]; then
+  export PUSH_TO_MIRROR="NO"
+fi
+
 if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
   if [ -z ${REPO_USER_KEY+x} ] || [ -z ${REPO_USER+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_HOST_PUBKEY+x} ]; then
     echo "Skipping upload to rpc-repo as the REPO_* env vars are not set."
