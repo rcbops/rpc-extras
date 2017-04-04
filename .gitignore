@@ -60,3 +60,6 @@ rpcd/playbooks/roles/ceph.ceph-osd
 
 # Files created by releasenotes build
 releasenotes/build
+
+# Editor files
+.idea
