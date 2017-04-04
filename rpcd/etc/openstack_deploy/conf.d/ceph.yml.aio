@@ -8,20 +8,3 @@ osds_hosts:
     ip: 172.29.236.100
     affinity:
       ceph_osd_container: 3
-
-storage_hosts:
-  aio1:
-    ip: 172.29.236.100
-    container_vars:
-      cinder_backends:
-        limit_container_types: cinder_volume
-        ceph:
-          volume_driver: cinder.volume.drivers.rbd.RBDDriver
-          rbd_pool: volumes
-          rbd_ceph_conf: /etc/ceph/ceph.conf
-          rbd_flatten_volume_from_snapshot: 'false'
-          rbd_max_clone_depth: 5
-          rbd_store_chunk_size: 4
-          rados_connect_timeout: -1
-          glance_api_version: 2
-          volume_backend_name: ceph

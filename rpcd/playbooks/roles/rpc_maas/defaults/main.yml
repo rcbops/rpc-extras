@@ -366,10 +366,32 @@ elasticsearch_process_names:
 filebeat_process_names:
   - filebeat
 
+swift_object_process_names:
+  - swift-object-server
+  - swift-object-replicator
+  - swift-object-updater
+  - swift-object-auditor
+  - swift-object-expirer
+
+swift_account_process_names:
+  - swift-account-server
+  - swift-account-replicator
+  - swift-account-reaper
+  - swift-account-auditor
+
+swift_container_process_names:
+  - swift-container-server
+  - swift-container-replicator
+  - swift-container-updater
+  - swift-container-auditor
+
 process_checks_list:
   - { name: "rsyslogd_process_check", group: "rsyslog_all" }
   - { name: "elasticsearch_process_check", group: "elasticsearch_all" }
   - { name: "filebeat_process_check", group: "all" }
+  - { name: "swift_object_process_check", group: "swift_obj" }
+  - { name: "swift_account_process_check", group: "swift_acc" }
+  - { name: "swift_container_process_check", group: "swift_cont" }
 
 ceph_checks_list:
   - { name: "ceph_osd_stats", group: "osds" }
@@ -482,8 +504,10 @@ maas_requires_pip_packages:
 # maas_pip_packages: Packages we need but are not built by openstack-ansible
 #
 maas_pip_packages:
-  - rackspace-monitoring-cli
   - ipaddr
+  - lxc-python2
+  - psutil
+  - rackspace-monitoring-cli
   - swift
   - waxeye
 
