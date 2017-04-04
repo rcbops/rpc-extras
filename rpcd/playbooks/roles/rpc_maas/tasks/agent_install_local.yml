@@ -49,16 +49,6 @@
   with_items: "{{ plugin_files.files|default({}) }}"
   when: plugin_files.files|length > 0
 
-# Ansible doesn't know how to not find symlinks in 2.1 so we need to create the
-# synlink after we chmod.  This works because we remove the file when we sync
-# in the 'Install MAAS Plugins' synchronize action.  It is then not registered
-# in the subsiquent find.  This should be fixed in Ansible 2.3.
-- name: Symlink process check
-  file:
-    src: "{{ maas_plugin_dir }}/process_check-{{ansible_distribution_release}}.py"
-    dest: "{{ maas_plugin_dir }}/process_check.py"
-    state: link
-
 - name: Create openrc file
   template:
     src: "openrc"

@@ -172,6 +172,17 @@ filebeat_logging_paths:
       pattern: "{{ multiline_openstack_pattern }}"
       negate: 'true'
       match: after
+  - paths:
+    - '/var/log/magnum/*.log'
+    document_type: openstack
+    tags:
+    - openstack
+    - oslofmt
+    - magnum
+    multiline:
+      pattern: "{{ multiline_openstack_pattern }}"
+      negate: 'true'
+      match: after
   # NOTE(sigmavirus24): Swift does not use oslo.log, so we cannot rely on our
   # oslo-based pattern
   - paths:
