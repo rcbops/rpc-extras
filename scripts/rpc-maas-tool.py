@@ -667,22 +667,19 @@ class RpcMassCli(object):
                         continue
                     checks.append(check)
         for check in checks:
-                validation_error = ""
-                try:
-                    result = self.rpcm.conn.test_existing_check(check)
-                except rackspace.RackspaceMonitoringValidationError as e:
-                    validation_error = " Validation Error: {s}:".format(
-                        s=e.message
-                    )
-                    break
-
+            try:
+                result = self.rpcm.conn.test_existing_check(check)
+            except rackspace.RackspaceMonitoringValidationError as e:
+                completed = False
+            else:
                 status = result[0]['status']
                 completed = result[0]['available']
                 check.state = (" Completed:%(completed)s Status:%(status)s"
                                % {'completed': completed, 'status': status})
-                if completed is False or validation_error != "":
-                    check.bullet = "!"
-                    failed_checks.append(check)
+
+            if not completed:
+                check.bullet = "!"
+                failed_checks.append(check)
 
         return (checks, failed_checks)
 
