@@ -120,7 +120,7 @@ role_list="${role_list} os_swift os_tempest rabbitmq_server repo_server"
 role_list="${role_list} rsyslog_server"
 
 # Build all the containers
-for cnt in ${container_list}; do
+for cnt in ${role_list}; do
   openstack-ansible containers/artifact-build-chroot.yml \
                     -e role_name=${cnt} \
                     ${ANSIBLE_PARAMETERS}
