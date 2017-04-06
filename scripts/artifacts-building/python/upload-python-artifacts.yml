@@ -78,7 +78,7 @@
         src: "{{ repo_local_path }}/os-releases/{{ rpc_release }}"
         dest: "{{ repo_remote_path }}/os-releases/"
         mode: push
-        delete: yes
+        delete: no
         recursive: yes
         rsync_opts:
           - "--chown=nginx:www-data"
