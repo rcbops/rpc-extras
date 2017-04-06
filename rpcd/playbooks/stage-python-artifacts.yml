@@ -22,6 +22,7 @@
     http_proxy_env: "{{ lookup('env', 'http_proxy') | default('not_set', true) }}"
     https_proxy_env: "{{ lookup('env', 'https_proxy') | default('not_set', true) }}"
     https_validate_certs: yes
+    distro: "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[:2] | join('.') }}-{{ ansible_architecture | lower }}"
   tasks:
 
     - name: Set the staging path
@@ -37,7 +38,7 @@
 
     - name: Fetch the upstream manifest file
       uri:
-        url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/MANIFEST.in"
+        url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/{{ distro }}/MANIFEST.in"
         return_content: yes
         validate_certs: "{{ https_validate_certs | bool }}"
       register: manifest
@@ -49,8 +50,8 @@
         #
         # The MANIFEST.in file gives us entries like this for wheels:
         #
-        # pools/alembic/alembic-0.8.7-py2.py3-none-any.whl
-        # os-releases/r14.0.0rc1/alembic-0.8.7-py2.py3-none-any.whl
+        # pools/ubuntu-14.04-x86_64/alembic/alembic-0.8.7-py2.py3-none-any.whl
+        # os-releases/r14.0.0rc1/ubuntu-14.04-x86_64/alembic-0.8.7-py2.py3-none-any.whl
         #
         # The first is the pool location, the second is the release
         # folder location. The wheel name is always the same.
@@ -64,7 +65,7 @@
         # for wheels only.
         #
         # The resulting list has entries such as:
-        # pools/alembic/alembic-0.8.7-py2.py3-none-any.whl
+        # pools/ubuntu-14.04-x86_64/alembic/alembic-0.8.7-py2.py3-none-any.whl
         #
         python_wheel_list: |
           {%- set content_list = manifest.content.split('\n') -%}
@@ -102,8 +103,8 @@
         # The MANIFEST.in file gives us entries like this for
         # python venvs:
         #
-        # venvs/r14.0.0rc1/ubuntu/aodh-r14.0.0rc1-x86_64.checksum
-        # venvs/r14.0.0rc1/ubuntu/aodh-r14.0.0rc1-x86_64.tgz
+        # venvs/r14.0.0rc1/ubuntu-14.04-x86_64/aodh-r14.0.0rc1-x86_64.checksum
+        # venvs/r14.0.0rc1/ubuntu-14.04-x86_64/aodh-r14.0.0rc1-x86_64.tgz
         #
         # Each file needs to be downloaded and placed in the same
         # relative path. The resulting list is therefore an
@@ -123,9 +124,9 @@
         # files in the releases folder that are not python
         # wheels:
         #
-        # os-releases/r14.0.0rc1/get-pip.py
-        # os-releases/r14.0.0rc1/requirements_absolute_requirements.txt
-        # os-releases/r14.0.0rc1/requirements_constraints.txt
+        # os-releases/r14.0.0rc1/ubuntu-14.04-x86_64/get-pip.py
+        # os-releases/r14.0.0rc1/ubuntu-14.04-x86_64/requirements_absolute_requirements.txt
+        # os-releases/r14.0.0rc1/ubuntu-14.04-x86_64/requirements_constraints.txt
         #
         # Each file needs to be downloaded and placed in the same
         # relative path. The resulting list is therefore an
@@ -152,8 +153,8 @@
       with_items:
         - "{{ staging_path }}/links"
         - "{{ staging_path }}/openstackgit"
-        - "{{ staging_path }}/os-releases/{{ rpc_release }}"
-        - "{{ staging_path }}/venvs/{{ rpc_release }}/ubuntu"
+        - "{{ staging_path }}/os-releases/{{ rpc_release }}/{{ distro }}"
+        - "{{ staging_path }}/venvs/{{ rpc_release }}/{{ distro }}"
       tags:
         - always
 
@@ -205,8 +206,8 @@
 
     - name: Python releases symlinks
       file:
-        src: "../../{{ item }}"
-        dest: "{{ staging_path }}/os-releases/{{ rpc_release }}/{{ item | basename }}"
+        src: "../../../{{ item }}"
+        dest: "{{ staging_path }}/os-releases/{{ rpc_release }}/{{ distro }}/{{ item | basename }}"
         state: "link"
       with_items: "{{ python_wheel_list }}"
       tags:
