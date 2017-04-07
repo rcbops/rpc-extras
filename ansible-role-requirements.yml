@@ -14,36 +14,3 @@
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
   version: 1383d0db302c6fc400a50fae4f85e77bf1633581
-# Allow the Trusty backport repo addition to be disabled
-#   https://review.openstack.org/442592
-#   https://review.openstack.org/445944
-# Cut down default lxc_cache_distro_packages
-#   https://review.openstack.org/446188
-- name: lxc_hosts
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-lxc_hosts
-  version: d82f26adf2a8f9f6cc930831b19301db7a21cf81
-# Ensure that the tags are appropriate
-#   https://review.openstack.org/444408
-- name: pip_install
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-pip_install
-  version: dc91246e5c825227db1083fba39a3b405fabf6eb
-# Add non *.whl files to MANIFEST.in
-#   https://review.openstack.org/441181
-- name: repo_build
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-repo_build
-  version: c53992c81b97a66da765f1757d699a64d7b880ef
-# Ensure that the log folder exists
-#   https://review.openstack.org/443061
-- name: os_keystone
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-os_keystone
-  version: 1210ef99af69119f2b8860548afb3247f1527666
-# Ensure the log folder exists
-#   https://review.openstack.org/443276
-- name: os_horizon
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-os_horizon
-  version: 1e5c7ae77c223647d3a41d5f0599115bee592d16
