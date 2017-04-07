@@ -41,6 +41,10 @@ export BASE_DIR=${PWD}
 # This ensures that there is no race condition with the artifacts-git job
 export ANSIBLE_ROLE_FETCH_MODE="git-clone"
 
+# We want to verify if artifacts exist for this OS and architecture
+export DISTRO=${DISTRO:-ubuntu-14.04}
+export ARCH=${ARCH:-x86_64}
+
 ## Main ----------------------------------------------------------------------
 
 # The derive-artifact-version.py script expects the git clone to
@@ -96,7 +100,7 @@ openstack-ansible repo-install.yml \
                   ${ANSIBLE_PARAMETERS}
 
 # Check whether there are already containers for this release
-existing_artifacts=$(curl http://rpc-repo.rackspace.com/os-releases/${RPC_RELEASE}/MANIFEST.in)
+existing_artifacts=$(curl http://rpc-repo.rackspace.com/os-releases/${RPC_RELEASE}/${DISTRO}-${ARCH}/MANIFEST.in)
 
 # Only push to the mirror if PUSH_TO_MIRROR is set to "YES" and
 # REPLACE_ARTIFACTS is "YES" or there are no existing artifacts
