@@ -99,9 +99,6 @@ openstack-ansible setup-hosts.yml \
 openstack-ansible repo-install.yml \
                   ${ANSIBLE_PARAMETERS}
 
-# Check whether there are already containers for this release
-existing_artifacts=$(curl --fail http://rpc-repo.rackspace.com/os-releases/${RPC_RELEASE}/${DISTRO}-${ARCH}/MANIFEST.in 1>&2 2>/dev/null)
-
 # Only push to the mirror if PUSH_TO_MIRROR is set to "YES" and
 # REPLACE_ARTIFACTS is "YES" or there are no existing artifacts
 # for this release.
@@ -110,7 +107,7 @@ existing_artifacts=$(curl --fail http://rpc-repo.rackspace.com/os-releases/${RPC
 # and also prevents periodic tests from overwriting artifacts that
 # have already been published.
 #
-if ${existing_artifacts} && [[ "$(echo ${REPLACE_ARTIFACTS} | tr [a-z] [A-Z])" != "YES" ]]; then
+if [[ "$(echo ${REPLACE_ARTIFACTS} | tr [a-z] [A-Z])" != "YES" ]] && curl --fail http://rpc-repo.rackspace.com/os-releases/${RPC_RELEASE}/${DISTRO}-${ARCH}/MANIFEST.in; then
   export PUSH_TO_MIRROR="NO"
 fi
 
