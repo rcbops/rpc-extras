@@ -131,7 +131,7 @@ fetch_directory: /etc/openstack_deploy/ceph_fetch
 # Use stable version of ceph
 ceph_stable: true
 # Specify ceph release name
-ceph_stable_release: hammer
+ceph_stable_release: jewel
 # Ceph stable repo URL
 ceph_stable_repo: "http://download.ceph.com/debian-{{ ceph_stable_release }}/"
 

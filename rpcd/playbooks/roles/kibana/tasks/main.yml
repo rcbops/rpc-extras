@@ -28,3 +28,4 @@
 - include: kibana_dashboards.yml
   tags:
     - kibana-dashboard
+    - kibana-config
