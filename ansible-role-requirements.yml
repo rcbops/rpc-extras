@@ -1,15 +1,15 @@
 - name: ceph.ceph-common
   scm: git
   src: https://github.com/ceph/ansible-ceph-common.git
-  version: 1c623611a1d43b4c9116d1a0c21f0bdbdd87a0e7
+  version: 2dd561256d4a6b582d0076f8baecbb6fdb3db0a6 #tag v2.1.9 as of 11.04.2017
 - name: ceph.ceph-mon
   scm: git
   src: https://github.com/ceph/ansible-ceph-mon.git
-  version: 01d3d6f0b06125b33b1e25745c06fa1d7137f7e9
+  version: 8d45bbd3c51a028fd9c4574e984f58dcf6aeaeb9 #tag v2.1.9 as of 11.04.2017
 - name: ceph.ceph-osd
   scm: git
   src: https://github.com/ceph/ansible-ceph-osd.git
-  version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
+  version: bff2eec3c611220c3546a17208e7baa1a24d3e18 #tag v2.1.9 as of 11.04.2017
 - name: rcbops_openstack-ops
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
