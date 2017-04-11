@@ -669,7 +669,7 @@ class RpcMassCli(object):
         for check in checks:
             try:
                 result = self.rpcm.conn.test_existing_check(check)
-            except rackspace.RackspaceMonitoringValidationError as e:
+            except rackspace.RackspaceMonitoringValidationError:
                 completed = False
             else:
                 status = result[0]['status']
