@@ -21,7 +21,7 @@
 # The release tag to use
 # Note that this is set here so that the openstack_release override in osa_defaults
 # is able to use it.
-rpc_release: "{{ lookup('pipe', 'cd /opt/rpc-openstack && git describe --tags --abbrev=0') }}"
+rpc_release: "r14.0.0rc1"
 
 ## Rackspace Cloud Details
 rackspace_cloud_auth_url: https://identity.api.rackspacecloud.com/v2.0
