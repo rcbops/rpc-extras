@@ -20,7 +20,7 @@ artifact_extradownloads_dest_folder: "{{ artifacts_root_folder }}/downloads"
 ansible_roles_folder: "/etc/ansible/roles"
 
 # Generic details
-artifacts_version: "{{ lookup('pipe', '/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py') }}"
+artifacts_version: "r14.0.0rc1"
 
 # rpc-repo mirror details
 webservice_owner: "nginx"
