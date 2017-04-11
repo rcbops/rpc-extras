@@ -18,7 +18,7 @@
     aptly_mirror_do_updates: "False"
 
 - include: sync-with-mirror.yml
-  when: "{{ (lookup('ENV','PULL_FROM_MIRROR') | bool }}"
+  when: "{{ lookup('ENV','PULL_FROM_MIRROR') | bool }}"
   vars:
     action: "pull-aptly"
 
@@ -36,21 +36,21 @@
     distribution_release: "xenial"
 
 - include: aptly-snapshot-publish.yml
-  when: "{{ (lookup('ENV','PUBLISH_SNAPSHOT') | bool }}"
+  when: "{{ lookup('ENV','PUBLISH_SNAPSHOT') | bool }}"
   vars:
     distribution_release: "trusty"
 
 - include: aptly-snapshot-publish.yml
-  when: "{{ (lookup('ENV','PUBLISH_SNAPSHOT') | bool }}"
+  when: "{{ lookup('ENV','PUBLISH_SNAPSHOT') | bool }}"
   vars:
     distribution_release: "xenial"
 
 - include: sync-with-mirror.yml
-  when: "{{ (lookup('ENV','PUSH_TO_MIRROR') | bool }}"
+  when: "{{ lookup('ENV','PUSH_TO_MIRROR') | bool }}"
   vars:
     action: "push-aptly"
 
 - include: sync-with-mirror.yml
-  when: "{{ (lookup('ENV','PUSH_TO_MIRROR') | bool }}"
+  when: "{{ lookup('ENV','PUSH_TO_MIRROR') | bool }}"
   vars:
     action: "push-gpg"
