@@ -64,6 +64,15 @@ cd /opt/rpc-openstack
 # Figure out the release version
 export RPC_RELEASE="$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.py)"
 
+# Force replace -> PUSH
+if [[ "$(echo ${REPLACE_ARTIFACTS} | tr [a-z] [A-Z])" == "YES" ]]; then
+  export PUSH_TO_MIRROR="YES"
+fi
+# No artifact for this release -> PUSH
+if curl http://rpc-repo.rackspace.com/meta/1.0/index-system | grep "${RPC_RELEASE}"; then
+  export PUSH_TO_MIRROR="YES"
+fi
+
 # Remove the RPC-O default configurations that are necessary
 # for deployment, but cause the build to break due to the fact
 # that they require the container artifacts to be available,
@@ -129,21 +138,6 @@ done
 # test one container build contents
 openstack-ansible containers/test-built-container.yml
 openstack-ansible containers/test-built-container-idempotency-test.yml | tee /tmp/output.txt; grep -q 'changed=0.*failed=0' /tmp/output.txt && { echo 'Idempotence test: pass';  } || { echo 'Idempotence test: fail' && exit 1; }
-
-# Check whether there are already containers for this release
-existing_artifacts=$(curl http://rpc-repo.rackspace.com/meta/1.0/index-system | grep "-${RPC_RELEASE};")
-
-# Only push to the mirror if PUSH_TO_MIRROR is set to "YES" and
-# REPLACE_ARTIFACTS is "YES" or there are no existing artifacts
-# for this release.
-#
-# This enables PR-based tests which do not change the artifacts,
-# and also prevents periodic tests from overwriting artifacts that
-# have already been published.
-#
-if ${existing_artifacts} && [[ "$(echo ${REPLACE_ARTIFACTS} | tr [a-z] [A-Z])" != "YES" ]]; then
-  export PUSH_TO_MIRROR="NO"
-fi
 
 if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
   if [ -z ${REPO_USER_KEY+x} ] || [ -z ${REPO_USER+x} ] || [ -z ${REPO_HOST+x} ] || [ -z ${REPO_HOST_PUBKEY+x} ]; then
