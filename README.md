@@ -1,5 +1,5 @@
 # rpc-openstack
-Optional add-ons for Rackspace Private Cloud
+Optional add-ons  for Rackspace Private Cloud
 
 # openstack-ansible integration
 
