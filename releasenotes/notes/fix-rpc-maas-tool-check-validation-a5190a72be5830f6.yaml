@@ -1,0 +1,6 @@
+---
+fixes:
+  - | 
+    `rpc-maas-tool.py` is modified so that validating the status of checks
+    correctly reports when there are failures. This tool is used by the
+    playbook `verify-maas.yml`.
