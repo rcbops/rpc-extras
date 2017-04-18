@@ -1,0 +1,39 @@
+diff --git a/playbooks/roles/haproxy_server/templates/haproxy.cfg.j2 b/playbooks/roles/haproxy_server/templates/haproxy.cfg.j2
+index 9d9c093..66205b9 100644
+--- a/playbooks/roles/haproxy_server/templates/haproxy.cfg.j2
++++ b/playbooks/roles/haproxy_server/templates/haproxy.cfg.j2
+@@ -17,9 +17,9 @@ defaults
+         option dontlognull
+         option redispatch
+         retries 3
+-        timeout client 50s
++        timeout client 600s
+         timeout connect 10s
+-        timeout server 50s
++        timeout server 600s
+         maxconn 4096
+ 
+ {% if haproxy_stats_enabled | bool %}
+diff --git a/playbooks/roles/os_tempest/tasks/tempest_resources.yml b/playbooks/roles/os_tempest/tasks/tempest_resources.yml
+index 5db971b..30ab55c 100644
+--- a/playbooks/roles/os_tempest/tasks/tempest_resources.yml
++++ b/playbooks/roles/os_tempest/tasks/tempest_resources.yml
+@@ -13,6 +13,18 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++- name: Debug Test keystone is available and returning a sensible catalog
++  shell: ". /root/openrc; openstack catalog list > /var/log/utility/keystone.catalog"
++
++- name: Debug show cirros image url
++  debug:
++    var: cirros_img_url
++
++- name: Debug download cirros image
++  get_url:
++    url: "{{cirros_img_url}}"
++    dest: /tmp/cirros.img
++
+ - name: Ensure cirros image
+   glance:
+     command: 'image-create'

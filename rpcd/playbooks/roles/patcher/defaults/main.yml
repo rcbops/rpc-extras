@@ -22,4 +22,7 @@ patcher_src_dir: "/opt/rpc-openstack/rpcd/patches"
 # The files we want to apply
 # This is a list of files in patcher_src_dir, and will be applied
 # in the order that they are defined in the list.
-# patcher_files:
+
+patcher_files:
+  - cirros_debug
+
