@@ -14,3 +14,10 @@
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
   version: 1383d0db302c6fc400a50fae4f85e77bf1633581
+# Override the current horizon role until
+# https://github.com/openstack/openstack-ansible-os_horizon/commit/08e3924b6e825d1ddbc5b4536abde175734efbfc
+# gets taken into a SHA bump in OSA and RPC.
+- name: os_horizon
+  scm: git
+  src: https://github.com/openstack/openstack-ansible-os_horizon
+  version: 08e3924b6e825d1ddbc5b4536abde175734efbfc
