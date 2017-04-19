@@ -75,6 +75,9 @@ keystone_token_driver: "sql"
 # Galera overrides
 galera_cluster_name: rpc_galera_cluster
 
+# Cinder overrides
+cinder_service_backup_program_enabled: True
+
 # Ceph overrides
 ceph_mons: >
   {% set _var = [] -%}
