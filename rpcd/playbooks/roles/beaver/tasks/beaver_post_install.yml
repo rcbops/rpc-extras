@@ -25,11 +25,3 @@
   tags:
     - beaver-post-install
     - beaver-conf
-
-- name: Ensure beaver is started on boot
-  service:
-    name: beaver
-    enabled: yes
-    state: started
-  tags:
-    - beaver-post-install
