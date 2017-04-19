@@ -13,6 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Include OSA pre-run playbooks
+- include: ../../openstack-ansible/scripts/upgrade-utilities/playbooks/ansible_fact_cleanup.yml
+- include: ../../openstack-ansible/scripts/upgrade-utilities/playbooks/deploy-config-changes.yml
+- include: ../../openstack-ansible/scripts/upgrade-utilities/playbooks/user-secrets-adjustment.yml
+- include: ../../openstack-ansible/scripts/upgrade-utilities/playbooks/repo-server-pip-conf-removal.yml
+- include: ../../openstack-ansible/scripts/upgrade-utilities/playbooks/old-hostname-compatibility.yml
+- include: ../../openstack-ansible/scripts/upgrade-utilities/playbooks/restart-rabbitmq-containers.yml
+
 - name: Run upgrade from Liberty to Mitaka
   hosts: all
   tasks: []
