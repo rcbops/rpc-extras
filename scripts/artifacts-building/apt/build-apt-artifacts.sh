@@ -67,6 +67,7 @@ ln -sfn ${PWD} /opt/rpc-openstack
 
 # Install Ansible
 ./scripts/bootstrap-ansible.sh
+cp scripts/artifacts-building/apt/lookup/* /etc/ansible/roles/plugins/lookup/
 
 # Ensure the required folders are present
 mkdir -p ${RPC_ARTIFACTS_FOLDER}
@@ -94,6 +95,7 @@ echo "repo ansible_host=${REPO_HOST} ansible_user=${REPO_USER} ansible_ssh_priva
 cd ${BASE_DIR}/scripts/artifacts-building/apt
 ansible-playbook aptly-pre-install.yml ${ANSIBLE_PARAMETERS}
 ansible-playbook aptly-all.yml -i /opt/inventory ${ANSIBLE_PARAMETERS}
+openstack-ansible apt-artifacts-testing.yml ${ANSIBLE_PARAMETERS}
 
 # List the contents
 ls -R ${RPC_ARTIFACTS_FOLDER}
