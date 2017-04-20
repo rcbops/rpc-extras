@@ -47,3 +47,9 @@
   when: inventory_hostname in groups['elasticsearch_container']
   tags:
     - elasticsearch
+
+# Run neutron verifciation tasks
+- include: post-upgrade-neutron-venv.yml
+  when: inventory_hostname in groups['neutron_all']
+  tags:
+    - neutron

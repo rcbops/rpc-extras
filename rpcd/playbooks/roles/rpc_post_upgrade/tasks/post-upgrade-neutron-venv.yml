@@ -13,8 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-elasticsearch_http_port: 9200
-swift_venv_tag: "{{ openstack_release }}"
-swift_venv_bin: "/openstack/venvs/swift-{{ swift_venv_tag }}/bin"
-neutron_venv_tag: "{{ openstack_release }}"
-neutron_venv_bin: "/openstack/venvs/neutron-{{ neutron_venv_tag }}/bin"
+- name: Find running neutron services not in venv
+  shell: |
+    pgrep -a "neutron" | awk '{print $2,$3}' | grep -vP "{{ neutron_venv_bin }}/\w+(\d\.\d)?\s{1}{{ neutron_venv_bin }}/\w+"
+  register: neutron_output
+  failed_when: "neutron_output.stdout_lines|length != 0"
+
+- name: Display output of neutron_output
+  debug: var=neutron_output
