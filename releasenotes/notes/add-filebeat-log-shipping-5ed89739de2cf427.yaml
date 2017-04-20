@@ -3,10 +3,10 @@ features:
   - Filebeat is now installed and configured on all hosts
     to provide lightweight log shipping to logstash.
 upgrade:
-  - Beaver is no longer managed by rpc-openstack. When
-    upgrading, operators should run ``ansible all -m
-    service -a "name=beaver state=stopped"`` to disable
-    Beaver.
+  - Beaver is removed from the environment as part of the
+    rpc-pre-upgrade playbook. For more information please
+    see
+    https://github.com/rcbops/rpc-openstack/pull/1427
 deprecations:
   - Beaver is no longer installed, configured, or managed
     by rpc-openstack for log shipping.
