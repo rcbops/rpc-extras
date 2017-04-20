@@ -483,7 +483,7 @@ infra_service_local_checks_list:
 # Checks will be setup but disabled on all but host[0] when this is 'true'.
 lb_check_on_single_host: true
 
-raxmon_repo_url: "http://stable.packages.cloudmonitoring.rackspace.com/ubuntu-14.04-x86_64"
+raxmon_repo_url: "http://unstable.packages.cloudmonitoring.rackspace.com/ubuntu-14.04-x86_64"
 
 maas_apt_keys:
   - { url: "https://monitoring.api.rackspacecloud.com/pki/agent/linux.asc", state: "present" }
