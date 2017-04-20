@@ -1,0 +1,9 @@
+---
+fixes:
+  - This release fixes a race condition where the
+    branding could be overriden depending on the playbook
+    execution order. Deployers have to make sure the
+    `horizon_custom_uploads` and the
+    `rackspace_static_files_folder` from
+    `rpcd/etc/user_variables.yml` are properly copied
+    into `/etc/openstack_deploy/user_variables.yml`.
