@@ -16,6 +16,7 @@ export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
 export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
+export UNAUTHENTICATED_APT=${UNAUTHENTICATED_APT:-no}
 
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
 RPCD_DIR='/opt/rpc-openstack/rpcd'
@@ -125,8 +126,13 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     run_ansible haproxy-install.yml
   fi
 
-  # setup the hosts and build the basic containers
-  run_ansible setup-hosts.yml
+  # We have to skip V-38462 when using an unauthenticated mirror
+  # V-38660 is skipped for compatibility with Ubuntu Xenial
+  if [[ ${UNAUTHENTICATED_APT} == "yes" && ${DEPLOY_HARDENING} == "yes" ]]; then
+    run_ansible setup-hosts.yml --skip-tags=V-38462,V-38660
+  else
+    run_ansible setup-hosts.yml
+  fi
 
   if [[ "$DEPLOY_CEPH" == "yes" ]]; then
     pushd ${RPCD_DIR}/playbooks/
