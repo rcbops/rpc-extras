@@ -135,7 +135,21 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
   fi
 
   # setup the infrastructure
-  run_ansible setup-infrastructure.yml
+  # the following section is equivalent to 'run_ansible setup-infrastructure.yml'
+  # the playbook rabbitmq-install.yml has been broken out to work around a RabbitMQ bug
+  # whereby creating the cluster fails if the nodes aren't added serially
+
+  run_ansible --limit 'all:!rabbitmq_all' setup-infrastructure.yml
+
+  # update fact cache to allow playbook to be limited to individual RabbitMQ hosts
+  ansible rabbitmq_all -m setup
+
+  rabbitmq_hosts=$(ansible rabbitmq_all --list-hosts)
+  if [ $(echo ${rabbitmq_hosts} | wc -w) -gt 0 ]; then
+    for rabbitmq_host in ${rabbitmq_hosts}; do
+      run_ansible rabbitmq-install.yml --limit $rabbitmq_host
+    done
+  fi
 
   # This section is duplicated from OSA/run-playbooks as RPC doesn't currently
   # make use of run-playbooks. (TODO: hughsaunders)
