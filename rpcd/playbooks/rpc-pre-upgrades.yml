@@ -80,3 +80,9 @@
       group:
         name: beaver
         state: absent
+
+    - name: Remove legacy beaver MaaS checks/alarms
+      file:
+        path: "/etc/rackspace-monitoring-agent.conf.d/beaver_process_check-{{ inventory_hostname }}.yaml"
+        state: absent
+      delegate_to: "{{ physical_host }}"
