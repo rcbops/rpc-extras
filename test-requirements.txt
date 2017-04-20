@@ -5,6 +5,8 @@ pep8==1.5.7
 pyflakes==0.8.1
 mccabe==0.2.1 # capped for flake8
 bashate>=0.2 # Apache-2.0
+# Fix for https://waffle.io/rcbops/u-suk-dev/cards/57f258cd31f3e3f8009eb355
+--no-binary pycparser
 
 
 # This is required for the docs build jobs
