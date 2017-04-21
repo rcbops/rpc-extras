@@ -6,8 +6,8 @@ period      : "{{ maas_check_period_override[label] | default(maas_check_period)
 timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
 disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
 details     :
-    file    : cinder_service_check.py
-    args    : ["--host", "{{ ansible_nodename }}", "{{ internal_vip_address }}"]
+    file    : run_plugin_in_venv.sh
+    args    : ["{{ maas_plugin_dir }}cinder_service_check.py", "--host", "{{ ansible_nodename }}", "{{ internal_vip_address }}"]
 alarms      :
     cinder_backup_status :
         label                   : cinder_backup_status--{{ ansible_hostname }}
