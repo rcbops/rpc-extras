@@ -32,10 +32,7 @@ pushd rpcd/playbooks/
   # Perform a lint check on all playbooks and roles.
   ansible-lint --version
   echo "Running ansible-lint"
-  # Lint playbooks and roles while skipping the ceph-* roles. They are not
-  # ours and so we do not wish to lint them and receive errors about code we
+  # They are not ours and so we do not wish to lint them and receive errors about code we
   # do not maintain.
-  ansible-lint -v ${PLAYBOOKS} --exclude ~/.ansible/roles/ceph.ceph-common \
-                               --exclude ~/.ansible/roles/ceph.ceph-mon \
-                               --exclude ~/.ansible/roles/ceph.ceph-osd
+  ansible-lint -v ${PLAYBOOKS}
 popd

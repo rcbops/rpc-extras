@@ -144,13 +144,6 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     run_ansible ${RPCD_DIR}/playbooks/configure-apt-sources.yml -e apt_target_group=all_containers
   fi
 
-  if [[ "$DEPLOY_CEPH" == "yes" ]]; then
-    pushd ${RPCD_DIR}/playbooks/
-      run_ansible ceph-all.yml
-    popd
-  fi
-
-
   # setup infrastructure
   run_ansible unbound-install.yml
 

@@ -36,11 +36,6 @@ captured server-side, for recording in MaaS and that each check has at least one
 alarm configured for it. This playbook can also be used to perform local checks
 and ignore remote API checks by specifing ``maas_use_api: False`` in the
 ``user_rpco_variables_overrides.yml`` file.
-* `ceph-all.yml` - Runs the `ceph-mon.yml` and `ceph-osd.yml` playbooks
-* `ceph-mon.yml` - Runs the `ceph.ceph-mon` Ansible role, which is an external role
-  located at https://github.com/ceph/ansible-ceph-mon to deploy the ceph monitor bits
-* `ceph-osd.yml` - Runs the `ceph.ceph-osd` Ansible role, which is an external role
-  located at https://github.com/ceph/ansible-ceph-osd to deploy the ceph OSD bits
 
 
 # Quick Start with an RPCO All-In-One(AIO)
@@ -119,7 +114,6 @@ DEPLOY_ELK         | yes                                | Deploy Logging Stack (
 DEPLOY_MAAS        | no                                 | Deploy Monitoring (MaaS)                             |
 DEPLOY_TEMPEST     | no                                 | Deploy Tempest                                       | Only used if DEPLOY_OA=yes
 DEPLOY_RALLY       | no                                 | Deploy Rally                                         | Only used if DEPLOY_OA=yes
-DEPLOY_CEPH        | no                                 | Deploy Ceph                                          | Only used if DEPLOY_OA=yes
 DEPLOY_SWIFT       | yes                                | Deploy swift                                         |
 DEPLOY_HARDENING   | yes                                | Deploy openstack-ansible-security role               |
 DEPLOY_RPC         | yes                                | Deploy the RPCO specific variables                   |

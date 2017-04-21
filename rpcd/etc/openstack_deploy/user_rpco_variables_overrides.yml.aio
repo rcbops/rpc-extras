@@ -22,14 +22,3 @@ elasticsearch_heap_size_mb: 1024
 lb_name: "{{ ansible_hostname }}"
 maas_notification_plan: "npTechnicalContactsEmail"
 net_max_speed: 1000
-
-{% if rpco_deploy_ceph | bool %}
-# Ceph settings
-journal_size: 1024
-monitor_interface: "eth1"
-public_network: "172.29.236.0/22"
-raw_multi_journal: false
-osd_directory: true
-osd_directories:
-  - "/var/lib/ceph/osd/mydir1"
-{% endif %}

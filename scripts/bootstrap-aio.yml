@@ -13,32 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Set facts for the AIO bootstrap process
-  hosts: localhost
-  user: root
-  tasks:
-    - name: Set ceph user_variables override
-      set_fact:
-        user_variables_overrides:
-          apply_security_hardening: "{{ rpco_deploy_hardening }}"
-          # Tempest is turned off to prevent the tests from running by default
-          tempest_run: no
-          tempest_install: no
-      when: "{{ not rpco_deploy_ceph | bool }}"
-    - name: Set ceph user_variables override
-      set_fact:
-        user_variables_overrides:
-          apply_security_hardening: "{{ rpco_deploy_hardening }}"
-          glance_default_store: rbd
-          nova_libvirt_images_rbd_pool: vms
-          # Tempest is turned off to prevent the tests from running by default
-          tempest_run: no
-          tempest_install: no
-      when: "{{ rpco_deploy_ceph | bool }}"
-  vars:
-    rpco_deploy_ceph: "{{ lookup('env', 'DEPLOY_CEPH') }}"
-    rpco_deploy_hardening: "{{ lookup('env', 'DEPLOY_HARDENING') }}"
-
 - name: Execute the OSA AIO bootstrap
   include: "{{ lookup('env', 'OA_DIR') }}/tests/bootstrap-aio.yml"
   vars:
@@ -68,17 +42,6 @@
         - name: neutron.yml.aio
         - name: nova.yml.aio
         - name: magnum.yml.aio
-      ceph:
-        - name: cinder.yml.aio
-        - name: glance.yml.aio
-        - name: heat.yml.aio
-        - name: horizon.yml.aio
-        - name: keystone.yml.aio
-        - name: neutron.yml.aio
-        - name: nova.yml.aio
-        - name: swift.yml.aio
-        - name: ceph.yml.aio
-          path: "{{ lookup('env', 'RPCD_DIR') ~ '/etc/openstack_deploy/conf.d' }}"
     openstack_user_config_overrides:
       shared-infra_hosts:
         aio1:
@@ -86,37 +49,6 @@
             galera_container: 3
             rabbit_mq_container: 3
           ip: 172.29.236.100
-
-- name: Execute the RPC-O AIO adjustments
-  hosts: localhost
-  user: root
-  tasks:
-    # We need to write out the cinder_backend block here, so we avoid
-    # running this block through the config_template module when the
-    # upstream bootstrap role puts the conf.d files into place.
-    - name: Write out storage hosts and cinder backends to conf.d/ceph.yml
-      lineinfile:
-        name: "/etc/openstack_deploy/conf.d/ceph.yml"
-        line: |
-          storage_hosts:
-            aio1:
-              ip: 172.29.236.100
-              container_vars:
-                cinder_backends:
-                  limit_container_types: cinder_volume
-                  ceph:
-                    volume_driver: cinder.volume.drivers.rbd.RBDDriver
-                    rbd_pool: volumes
-                    rbd_ceph_conf: /etc/ceph/ceph.conf
-                    rbd_flatten_volume_from_snapshot: 'false'
-                    rbd_max_clone_depth: 5
-                    rbd_store_chunk_size: 4
-                    rados_connect_timeout: -1
-                    glance_api_version: 2
-                    volume_backend_name: ceph
-                    rbd_user: "{%raw%}{{ cinder_ceph_client }}{%endraw%}"
-                    rbd_secret_uuid: "{%raw%}{{ cinder_ceph_client_uuid }}{%endraw%}"
-      when: "{{ rpco_deploy_ceph | bool }}"
 
     - name: Ensure that the env.d directory is present
       file:
@@ -165,13 +97,6 @@
           override:
             kibana_password: "{{ lookup('env', 'ADMIN_PASSWORD') }}"
         - name: "user_rpco_variables_overrides.yml.aio"
-        - name: "env.d/ceph.yml"
-          condition: "{{ rpco_deploy_ceph | bool }}"
-          override:
-            container_skel:
-              ceph_osd_container:
-                properties:
-                  is_metal: false
 
     - name: Update the RPC-O secrets
       shell: "{{ rpco_base_dir }}/scripts/update-secrets.sh"
@@ -193,6 +118,5 @@
     rpco_base_dir: "{{ lookup('env', 'BASE_DIR') }}"
     osa_cfg_src_path: "{{ lookup('env', 'OA_DIR') ~ '/etc/openstack_deploy' }}"
     rpco_cfg_src_path: "{{ lookup('env', 'RPCD_DIR') ~ '/etc/openstack_deploy' }}"
-    rpco_deploy_ceph: "{{ lookup('env', 'DEPLOY_CEPH') }}"
     rpco_deploy_elk: "{{ lookup('env', 'DEPLOY_ELK') }}"
     rpco_deploy_swift: "{{ lookup('env', 'DEPLOY_SWIFT') }}"
