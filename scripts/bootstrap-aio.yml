@@ -147,7 +147,6 @@
         - name: "env.d/magnum.yml"
         - name: "env.d/memcache.yml"
         - name: "env.d/neutron.yml"
-        - name: "env.d/nova.yml"
         - name: "env.d/pkg_repo.yml"
         - name: "env.d/rsyslog.yml"
         - name: "env.d/swift.yml"

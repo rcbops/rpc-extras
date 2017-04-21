@@ -59,15 +59,5 @@ Files in ``/etc/openstack_deploy/env.d/``
    Defines container groups and service mappings for the Logstash
    software components.
 
-``nova.yml``
-   This file is copied to ``/etc/openstack\_deploy/`` and overrides
-   the service mappings for the ``nova_compute_container`` group. This
-   is due to the way OSA creates these group/service mappings to
-   account for the openvswitch service. Because RPCO does not support
-   openvswitch, this group/service mapping must be overridden so that
-   the neutron agent containers do not get associated with the
-   ``nova_compute_container`` group. For information, see
-   https://bugs.launchpad.net/openstack-ansible/+bug/1645979.
-
 For more information about container groups, see
 http://docs.openstack.org/project-deploy-guide/openstack-ansible/newton/app-custom-layouts.html.
