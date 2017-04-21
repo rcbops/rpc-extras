@@ -13,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Gather mons facts for ceph.conf template
-  include: gen-facts.yml
-
 - name: Deploy osds
   hosts: osds
+  gather_facts: true
   pre_tasks:
     - name: Create log dir
       file:

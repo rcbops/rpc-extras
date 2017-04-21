@@ -13,16 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Gather mons facts for ceph.conf template
-  include: gen-facts.yml
-
 - name: Install Ceph dependencies
   hosts: osds_all:mons_all:&hosts
+  gather_facts: true
   roles:
     - ceph.ceph-common
 
 - name: Install MaaS
   hosts: shared-infra_hosts:compute_hosts:storage_hosts:swift_hosts:log_hosts:all_containers
+  gather_facts: true
   roles:
     - role: "rpc_maas"
-      tags: [ "maas-setup" ]
+  tags:
+    - maas-setup
