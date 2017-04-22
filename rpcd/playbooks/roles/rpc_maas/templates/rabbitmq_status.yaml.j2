@@ -84,5 +84,5 @@ alarms      :
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (rate(metric["rabbitmq_msgs_excl_notifications"]) > {{rabbitmq_queue_growth_rate_threshold / maas_check_period}}) {
-                return new AlarmStatus(CRITICAL, "RabbitMQ Queue growth rate is above configured threshold. Currently above {{ rabbitmq_queue_growth_rate_threshold }}");
+                return new AlarmStatus(WARNING, "RabbitMQ Queue growth rate is above configured threshold. Currently above {{ rabbitmq_queue_growth_rate_threshold }}");
             }
