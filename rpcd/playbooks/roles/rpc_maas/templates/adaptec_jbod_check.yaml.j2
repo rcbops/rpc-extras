@@ -1,0 +1,20 @@
+{% set label = "adaptec_jbod_check" %}
+{% set check_name = label+'--'+ansible_hostname %}
+type        : agent.plugin
+label       : "{{ check_name }}"
+period      : "{{ maas_check_period_override[label] | default(maas_check_period) }}"
+timeout     : "{{ maas_check_timeout_override[label] | default(maas_check_timeout) }}"
+disabled    : "{{ (check_name | match(maas_excluded_checks_regex)) | ternary('true', 'false') }}"
+details     :
+    file    : run_plugin_in_venv.sh
+    args    : ["{{ maas_plugin_dir }}disk_status.py", '--raid-type', 'adaptec']
+alarms      :
+    adaptec_jbod_check_status :
+        label                   : adaptec_jbod_check_status--{{ inventory_hostname|quote }}
+        notification_plan_id    : {{ maas_notification_plan }}
+        disabled                : {{ (('adaptec-jbod-disk-status--'+inventory_hostname|quote) | match(maas_excluded_alarms_regex)) | ternary('true', 'false') }}
+        criteria                : |
+            :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
+            if (metric["failing_disks"] != 0) {
+                return new AlarmStatus(CRITICAL, "Failing disks in JBOD connected to Adaptec HBA");
+            }
