@@ -36,6 +36,8 @@ def check(args):
     # gather nova service states
     if args.host:
         agents = neutron.list_agents(host=args.host)['agents']
+    elif args.fqdn:
+        agents = neutron.list_agents(host=args.fqdn)['agents']
     else:
         agents = neutron.list_agents()['agents']
 
