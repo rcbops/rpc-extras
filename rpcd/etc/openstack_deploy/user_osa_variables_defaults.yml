@@ -73,6 +73,7 @@ rabbitmq_ulimit: 65535
 # since memory utilization is primarily driven by the objects placed in memcached.
 memcached_connections: 16384
 
+#TODO (evrardjp): Remove this when ocata
 # Keystone overrides
 keystone_token_driver: "sql"
 
@@ -95,8 +96,6 @@ pkg_locations:
   - /etc/ansible/roles
   - /etc/openstack_deploy
   - /opt/rpc-openstack/rpcd
-
-horizon_venv_tag: "{{ openstack_release }}"
 
 # List of files to override using the OSA horizon role
 rackspace_static_files_folder: "/opt/rpc-openstack/logo_files"
@@ -132,6 +131,9 @@ neutron_neutron_conf_overrides:
   DEFAULT:
     l3_ha: False
 
+#Set the default for Neutron-HA-tool to true
+neutron_legacy_ha_tool_enabled: true
+
 cinder_service_backup_program_enabled: false
 
 # We need to override the OpenStack upper constraint for Mitaka which is version 1.9.0, We should be able to remove this in Newton as the upper constraint moves to 2.3.0
@@ -151,12 +153,6 @@ glance_glance_api_conf_overrides:
   DEFAULT:
     image_cache_dir: None
 
-# TODO(hughsaunders): remove this when https://bugs.launchpad.net/openstack-ansible/+bug/1656278
-# is fixed.
-neutron_metering_agent_ini_overrides:
-  DEFAULT:
-    interface_driver: neutron.agent.linux.interface.BridgeInterfaceDriver
-
 # Adding elastic search and kibana to haproxy_extra_services
 haproxy_extra_services:
   - service:
@@ -175,6 +171,3 @@ haproxy_extra_services:
       haproxy_balance_type: tcp
       haproxy_backend_options:
         - "ssl-hello-chk"
-
-#Set the default for Neutron-HA-tool to true
-neutron_legacy_ha_tool_enabled: true
