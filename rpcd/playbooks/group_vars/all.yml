@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is the location where the rpc repository was checked out
-rpc_repo_path: /opt/rpc-openstack/openstack-ansible
-
 # rpc-openstack version
 # Note that this is also set in the user_*.yml files so that the
 # openstack_release override in osa_defaults is able to use it.
