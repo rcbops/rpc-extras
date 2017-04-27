@@ -17,12 +17,12 @@
 import argparse
 import datetime
 import errno
+import logging
 import os
 import re
+import shutil
 import sys
 import yaml
-import logging
-import shutil
 
 import github3
 import sh
@@ -317,8 +317,7 @@ def chk_devel_version(repo, branch, expected_release):
 
 
 def update_repo_with_new_ver_number(repo, branch, new_version_number):
-    ''' Update the future_tag into repo, then git add, commit and push.
-    '''
+    """Update the future_tag into repo, then git add, commit and push."""
 
     repo.git.checkout(branch)
     repo.git.pull(repo.remote, branch)
@@ -525,8 +524,8 @@ def build_parser():
 
 
 def validate_args(args):
-    ''' Ensure the args are following expectations.
-    '''
+    """Ensure the args are following expectations."""
+
     # Store tag as a string on top of as a tag object
     args.tag_str = str(args.tag)
     # args.branch is always a string, discovered or not
@@ -613,6 +612,7 @@ def main():
                      .format(args.branch, release.next_release))
         update_repo_with_new_ver_number(rpco_repo, args.branch,
                                         str(release.next_release))
+
 
 if __name__ == '__main__':
     sys.exit(main())
