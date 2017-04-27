@@ -24,3 +24,6 @@
   user: root
   roles:
     - { role: "patcher", tags: [ "patcher" ] }
+  vars:
+    patcher_files:
+      - openstack-hosts-u-suk-dev-issues-1629.patch
