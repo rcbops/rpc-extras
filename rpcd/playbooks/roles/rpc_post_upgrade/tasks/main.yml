@@ -32,7 +32,7 @@
 
 # Run openstack services verification tasks
 - include: post-upgrade-utility.yml
-  when: inventory_hostname in groups['utility'][0]
+  when: inventory_hostname == groups['utility'][0]
   tags:
     - openstack_services
 
