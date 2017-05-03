@@ -65,9 +65,9 @@ cd /opt/rpc-openstack
 ## Deploying MaaS with an AIO
 1. Add the following variables to `/etc/openstack_deploy/user_rpco_variables_overrides.yml`:
 ```
-rackspace_cloud_tenant_id: YourTenantID
-rackspace_cloud_username: YourUsername
-rackspace_cloud_api_key: YourAPIKey
+maas_tenant_id: YourTenantID
+maas_username: YourUsername
+maas_api_key: YourAPIKey
 ```
 2. Run the MaaS setup plays:
  `cd /opt/rpc-openstack/rpcd/playbooks && openstack-ansible setup-maas.yml`
