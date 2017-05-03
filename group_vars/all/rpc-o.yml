@@ -13,4 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-openstack_release: "{{ rpc_release }}"
+# List of files to override using the OSA horizon role
+rackspace_static_files_folder: "/opt/rpc-openstack/logo_files"
+horizon_custom_uploads:
+  logo-splash:
+    src: "{{ rackspace_static_files_folder }}/logo-splash.png"
+    dest: img/logo-splash.png
+  logo:
+    src: "{{ rackspace_static_files_folder }}/logo.png"
+    dest: img/logo.png
+  favicon:
+    src: "{{ rackspace_static_files_folder }}/favicon.ico"
+    dest: img/favicon.ico
+
+# Use RPC python package index
+repo_build_pip_extra_indexes:
+  - "https://rpc-repo.rackspace.com/pools"

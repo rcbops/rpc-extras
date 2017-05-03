@@ -18,11 +18,6 @@
 # This file is controlled by the devs and will be overwritten on upgrade
 # If you wish to override the variables set here, use /etc/openstack_deploy/user_rpco_variables_overrides.yml
 
-# The release tag to use
-# Note that this is set here so that the openstack_release override in osa_defaults
-# is able to use it.
-rpc_release: "{{ lookup('pipe', 'cd /opt/rpc-openstack && git describe --tags --abbrev=0') }}"
-
 ## Rackspace Cloud Details
 rackspace_cloud_auth_url: https://identity.api.rackspacecloud.com/v2.0
 rackspace_cloud_tenant_id: SomeTenantID

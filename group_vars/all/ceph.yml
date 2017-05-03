@@ -13,4 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-openstack_release: "{{ rpc_release }}"
+# Ceph overrides
+ceph_mons: >
+  {% set _var = [] -%}
+  {% if 'mons' in groups -%}
+  {% for mon in groups.mons -%}
+  {% if _var.append(hostvars[mon]['ansible_ssh_host']) -%}{% endif -%}
+  {% endfor -%}
+  {% endif -%}
+  {{ _var }}
+
+# We pin download.ceph.com so ceph packages are not downloaded for the
+# UCA repository that was added in newton.
+# For more information please see https://github.com/rcbops/u-suk-dev/issues/747
+ceph_apt_pinned_packages:
+    - { package: "*", release: "RedHat", priority: 995 }
