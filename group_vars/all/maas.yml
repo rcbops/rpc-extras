@@ -1,5 +1,5 @@
 ---
-# Copyright 2016, Rackspace US, Inc.
+# Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,3 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#maas_tenant_id:
+#maas_username:
+#maas_api_key:
+
+# Set the LB device name in CORE
+#lb_name: 'unspecified'
+
+# Set the maas_scheme
+# Note: (alextricity25) This has been changed to https because
+# SSL termination is done by default since Newton per https://review.openstack.org/#/c/277199/
+maas_scheme: https
+
+# Set the following to skip a specific check
+# horizon_local_check is disabled until https://github.com/rcbops/u-suk-dev/issues/781
+# is resolved
+maas_excluded_checks:
+  - 'horizon_local_check.*'
+
+# Disable the following MaaS alarms
+# Issue: https://github.com/rcbops/u-suk-dev/issues/1081
+maas_excluded_alarms:
+  - '^idle_percent_average.*'
+  - '^memory_used.*'
+  - '^alarm-network-receive.*'
+  - '^alarm-network-transmit.*'
+
+# Set overrides for check periods
+# Issue: https://github.com/rcbops/u-suk-dev/issues/1081
+maas_check_period_override:
+  disk_utilisation: 900
+
+maas_monitor_cinder_backup: "{{ cinder_service_backup_program_enabled }}"
+
+# overrides for the nova_cloud_stats  maas plugin
+cloud_resource_cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
+cloud_resource_mem_allocation_ratio: "{{ nova_ram_allocation_ratio }}"

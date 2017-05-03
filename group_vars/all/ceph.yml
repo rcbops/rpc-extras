@@ -28,3 +28,41 @@ ceph_mons: >
 # For more information please see https://github.com/rcbops/u-suk-dev/issues/747
 ceph_apt_pinned_packages:
     - { package: "*", release: "RedHat", priority: 995 }
+
+# Ceph options
+# fsid is the unique identifier for your object store.
+fsid: '{{ fsid_uuid }}'
+# Since we assign our own fsid, we do not need ceph-ansible to auto-generate
+# an fsid for us.
+generate_fsid: false
+# directory for backing up ceph keys.
+fetch_directory: /etc/openstack_deploy/ceph_fetch
+# Specify ceph release name
+ceph_stable_release: jewel
+# Ceph stable repo URL
+ceph_stable_repo: "http://download.ceph.com/debian-{{ ceph_stable_release }}/"
+
+# Enable OpenStack support inside the ceph-ansible playbooks
+openstack_config: true
+# Use raw journal devices
+raw_multi_journal: true
+# Set the journal size to: "Size of journal device / number of devices for which it is a journal"
+# E.g. Given a 400G journal disk with 5 disks using it as their journal device, the journal size should be 80G each or 80000
+journal_size: 80000
+# Default number of replicas for a pool
+pool_default_size: 3
+# Default min number of replicas for ceph to consider the state to be not degraded.
+pool_default_min_size: 2
+# The % of disk used before an osd is considered full - Ceph will be marked critical and stop functioning if an OSD reaches this %
+mon_osd_full_ratio: .90
+# The % of disk used before an osd is considered nearfull - Ceph will still work but will return a HEALTH_WARN.
+mon_osd_nearfull_ratio: .80
+# Determines whether we use secure cluster flags.
+secure_cluster: true
+# List of secure flags to set on for a pool (options for the list are nodelete, nopgchange, nosizechange - prevents deletion, pg from changing and size from changing respectively).
+secure_cluster_flags:
+  - nodelete
+
+# this variable is required for ceph.ceph-common to function properly as our ceph playbooks
+# are not suppported by Ansible 2.1.5
+check_firewall: False
