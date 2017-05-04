@@ -38,8 +38,8 @@ export RPCD_DIR="${BASE_DIR}/rpcd"
 export RPCD_OVERRIDES='/etc/openstack_deploy/user_rpco_variables_overrides.yml'
 export RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
 
-export GROUP_VARS_PATH="${GROUP_VARS_PATH:-${BASE_DIR}/group_vars/:/etc/openstack_deploy/group_vars/}"
-export HOST_VARS_PATH="${HOST_VARS_PATH:-${BASE_DIR}/host_vars/:/etc/openstack_deploy/host_vars/}"
+export GROUP_VARS_PATH="${GROUP_VARS_PATH:-${OA_DIR}/playbooks/inventory/group_vars/:${BASE_DIR}/group_vars/:/etc/openstack_deploy/group_vars/}"
+export HOST_VARS_PATH="${HOST_VARS_PATH:-${OA_DIR}/playbooks/inventory/host_vars/:${BASE_DIR}/host_vars/:/etc/openstack_deploy/host_vars/}"
 
 export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-''}
 export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
