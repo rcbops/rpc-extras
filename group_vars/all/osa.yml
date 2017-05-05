@@ -68,13 +68,6 @@ memcached_connections: 16384
 # Galera overrides
 galera_cluster_name: rpc_galera_cluster
 
-# locations for the package builder to look for files that contain pip packages and git repos to build from
-pkg_locations:
-  - ../
-  - /etc/ansible/roles
-  - /etc/openstack_deploy
-  - /opt/rpc-openstack/rpcd
-
 ## Enable Neutron l2_population
 # We are overriding the default value for neutron_l2_population. Please see
 # https://github.com/rcbops/rpc-openstack/issues/973 for further details.
