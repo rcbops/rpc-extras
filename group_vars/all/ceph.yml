@@ -37,6 +37,8 @@ fsid: '{{ fsid_uuid }}'
 generate_fsid: false
 # directory for backing up ceph keys.
 fetch_directory: /etc/openstack_deploy/ceph_fetch
+# TODO(evrardjp): Remove this when pass OSA sha 06ede41645550b1260f0c457aeca7ab7feffe918
+ceph_stable: true
 # Specify ceph release name
 ceph_stable_release: jewel
 # Ceph stable repo URL
