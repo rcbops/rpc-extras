@@ -1,0 +1,7 @@
+---
+---
+features:
+  - Logstash role now sets in rcbops/rpc-role-logstash
+  - Additions added to rcpops/rpc-role-logstash to allow
+    filtered logs to be shipped to a central elasticsearch
+    cluster.

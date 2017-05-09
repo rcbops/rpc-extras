@@ -16,4 +16,4 @@
 - name: Setup Logstash host
   hosts: logstash_all
   roles:
-    - "logstash"
+    - "rpc-role-logstash"

@@ -149,3 +149,25 @@ secure_cluster_flags:
 # this variable is required for ceph.ceph-common to function properly as our ceph playbooks
 # are not suppported by Ansible 2.1.5
 check_firewall: False
+
+
+############################
+# Log aggregation additions
+############################
+
+# Disable by default
+log_aggr_enable: False
+
+# Centralized ElasticSearch IP
+log_aggr_central_es_host: SomeCentralElasticSearchVIP
+
+# Centralized ElasticSearch Port
+log_aggr_central_es_port: 9200
+
+# Enable if ssl terminated(should be true as we want customer logs secure in route)
+log_aggr_enable_ssl: True
+
+# Account id used to query logs for a specific customer
+log_aggr_account_id: 000000
+
+
