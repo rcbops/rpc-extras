@@ -1,0 +1,12 @@
+---
+other:
+  - |
+    RPC-O previously relied on user-space configuration files
+    to set variables used in playbooks across both
+    OpenStack-Ansible and RPC-O playbooks. These user-space
+    configuration files provided global overrides only and
+    could not be scoped to specific host groups. These defaults
+    have now been set in group_vars in the code tree, reducing
+    the need to overwrite user-space files, making them easier
+    to scope to host groups, and reducing their precedence level
+    to improve future development flexibility.
