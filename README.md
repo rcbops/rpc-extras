@@ -17,10 +17,10 @@ playbooks. These playbooks can be found in the rpcd/playbooks directory.
 * `filebeat.yml` - deploys the filebeat log shipper on all hosts
 * `kibana.yml` - Setup Kibana on the Kibana hosts for the logging dashboard.
 * `logstash.yml` - deploys a logstash host. If this play is used, be sure to
-copy the related block in user_rpco_variables_defaults.yml to
-user_rpco_variables_overrides before this play is run and then rerun the
-appropriate plays in openstack-ansible after this play to ensure that rsyslog
-ships logs to logstash. See steps 2-4 and 3-2 below for more.
+configure in your user variables the necessary values before this play is run
+and then rerun the appropriate plays in openstack-ansible after this play
+to ensure that rsyslog ships logs to logstash. See steps 2-4 and 3-2
+below for more.
 * `rpc-support.yml` - provides holland backup service, support SSH key
 distribution, custom security group rules, bashrc settings, and other
 miscellaneous tasks helpful to support personnel.
@@ -146,4 +146,4 @@ ANSIBLE_VERSION='>=2.0' tox -e ansible-lint
 ```
 
 # Gating
-Please see the documentation in [jenkins-rpc/README.md](https://github.com/rcbops/jenkins-rpc/blob/master/README.md)
+Please see the documentation in [rpc-gating/README.md](https://github.com/rcbops/rpc-gating/blob/master/README.md)

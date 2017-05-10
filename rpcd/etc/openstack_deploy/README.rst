@@ -10,12 +10,6 @@ Files in ``/etc/openstack_deploy``
    project that are overridden and become the default values for RPCO
    deployments. This file should not be modified by deployers.
 
-``user_rpco_variables_defaults.yml``
-   This file contains RPCO variables that are exclusive to the RPCO
-   playbooks and roles, such as ``rpc\_maas`` and ``rpc-support``. The
-   values defined in this file are used by default for RPCO
-   deployments. This file should not be modified by deployers.
-
 ``user_osa_variables_overrides.yml``
    Any OpenStack-Ansible variable that needs to be overridden by the
    deployer can be specified in this file.

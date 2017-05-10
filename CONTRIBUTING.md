@@ -190,7 +190,7 @@ It's also important to note that betas are:
 Once the feature is out of beta, it will go into LA status. LA features must have the following:
 
   * Ability to be deployed via our bootstrap and deployment scripts (This is currently being changed as part of https://github.com/rcbops/u-suk-dev/issues/834)
-  * All necessary addition of variables inserted in either [user_osa_varibles_defaults.yml](https://github.com/rcbops/rpc-openstack/blob/master/rpcd/etc/openstack_deploy/user_osa_variables_defaults.yml) and/or [user_rpco_variables_defaults.yml](https://github.com/rcbops/rpc-openstack/blob/master/rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml)
+  * All necessary addition of variables inserted in our group_vars/ or, for overrides of OSA existing group_vars, into [user_osa_varibles_defaults.yml](https://github.com/rcbops/rpc-openstack/blob/master/rpcd/etc/openstack_deploy/user_osa_variables_defaults.yml)
   * Integration with RPCO's ELK configurations
   * If the new project has a service that needs to be load-balanced, then f5 support for these services must be added into the [f5-config.py script](https://github.com/rcbops/rpc-openstack/tree/master/scripts#f5-configpy)
   * Must be monitored via a MaaS plugin

@@ -37,7 +37,7 @@
      ```
     git push REMOTE --delete OLD_BRANCH
     ```
-- [ ] Edit the rpc_release version number in ```rpcd/playbooks/group_vars/all.yml``` and ```rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml```, commit, and push. This is to prepare next development cycle.
+- [ ] Edit the rpc_release version number in ```/group_vars/all/release.yml```, commit, and push. This is to prepare next development cycle.
 - [ ] If creating or deleting a branch, update the [issue template](https://github.com/rcbops/rpc-openstack/blob/master/.github/ISSUE_TEMPLATE.md) to include it in the list.
 - [ ] Update the [GitHub release notes](https://github.com/rcbops/rpc-openstack/releases) with output from rpc-differ, remember to tick pre-release if the tag is for a release candidate.
 
