@@ -29,8 +29,7 @@ import sh
 from sh import git
 
 RELEASE_FILES = [
-    'rpcd/playbooks/group_vars/all.yml',
-    'rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml'
+    'rpcd/playbooks/group_vars/all/release.yml',
 ]
 
 
