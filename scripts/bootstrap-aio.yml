@@ -121,8 +121,6 @@
       with_items:
         - name: "user_osa_variables_defaults.yml"
           mode: "0440"
-        - name: "user_rpco_variables_defaults.yml"
-          mode: "0440"
         - name: "env.d/nova.yml"
 
     - name: Template the RPC-O config files
