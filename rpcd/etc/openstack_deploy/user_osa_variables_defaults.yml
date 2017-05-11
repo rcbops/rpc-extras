@@ -13,9 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO(evrardjp): Move this to group_vars/all/release.yml when possible
+# The release tag to use for the repo and venvs
+# This can't be overriden because OSA is using group_vars.
 openstack_release: "{{ rpc_release }}"
 
-# locations for the package builder to look for files that contain pip packages and git repos to build from
+# TODO(evrardjp): Move this to group_vars/all/osa.yml when
+# OSA has overridable group vars AND pkg_locations becomes a group
+# var. Alternatively, we can remove this variable when all
+# our roles will be outside /opt/rpc-openstack/
+# This var lists the locations for the package builder to
+# look for files that contain pip packages and git repos to build from
 pkg_locations:
   - ../
   - /etc/ansible/roles
