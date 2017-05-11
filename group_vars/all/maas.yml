@@ -13,13 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#maas_tenant_id:
-#maas_username:
-#maas_api_key:
-
-# Set the LB device name in CORE
-#lb_name: 'unspecified'
-
 # Set the maas_scheme
 # Note: (alextricity25) This has been changed to https because
 # SSL termination is done by default since Newton per https://review.openstack.org/#/c/277199/

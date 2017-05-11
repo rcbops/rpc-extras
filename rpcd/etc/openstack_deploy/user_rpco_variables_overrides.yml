@@ -18,4 +18,13 @@
 # This file is laid down only once and is used for overriding variables based on the file name.
 # This file will not be overwritten by upgrades.
 
+# this variable is here because vars files need to have at least ONE variable defined.
 this_file_is_also_reserved_for_support: True
+
+#maas_tenant_id:
+#maas_username:
+#maas_api_key:
+
+# Set the LB device name in CORE
+#lb_name: 'unspecified'
+
