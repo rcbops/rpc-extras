@@ -112,6 +112,8 @@ aptly_mirrors:
       - main
       - universe
     create_flags:
+      - "-filter='apparmor | cgmanager | lxc'"
+      - "-filter-with-deps"
       - "-keyring='trustedkeys.gpg'"
     update_flags:
       - "-keyring='trustedkeys.gpg'"
