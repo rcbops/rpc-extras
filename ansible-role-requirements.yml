@@ -26,3 +26,12 @@
   scm: git
   src: https://github.com/rcbops/rpc-maas
   version: 1701d34fcb106cec11ba00284ac462e78bef14e0
+- name: rpc-role-aggie
+  src: https://github.com/rcbops/rpc-role-aggie.git
+  scm: git
+  version: f169496d4d04ddac17b2fb4823d6a36f8bf6826f
+- name: rpc-role-aggie-build
+  src: https://github.com/rcbops/rpc-role-aggie-build.git
+  scm: git
+  version: 21f2fb66102200959298c3510804ed8a68b50965
+
