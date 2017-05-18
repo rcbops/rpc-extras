@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    This change is to address issue-942 to allow for pulling and filtering logs
+    from the local elks stack and forward them to a global elk cluster for 
+    support.

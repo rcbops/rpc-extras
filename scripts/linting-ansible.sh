@@ -30,8 +30,11 @@ pushd rpcd/playbooks/
   echo "Running ansible-lint"
   # Lint playbooks and roles while skipping the ceph-* roles. They are not
   # ours and so we do not wish to lint them and receive errors about code we
-  # do not maintain.
+  # do not maintain. Removing aggie roles as lint checks happen on repo PRs.
   ansible-lint -v *.yml --exclude ~/.ansible/roles/ceph.ceph-common \
                         --exclude ~/.ansible/roles/ceph.ceph-mon \
-                        --exclude ~/.ansible/roles/ceph.ceph-osd
+                        --exclude ~/.ansible/roles/ceph.ceph-osd \
+                        --exclude ~/.ansible/roles/rpc-role-aggie \
+                        --exclude ~/.ansible/roles/rpc-role-aggie-build
+
 popd
