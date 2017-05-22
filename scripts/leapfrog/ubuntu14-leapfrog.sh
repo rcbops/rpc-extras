@@ -159,7 +159,7 @@ pushd ${LEAPFROG_DIR}
             --for-testing-take-new-vars-only
         popd
       rm -f /etc/openstack_deploy/user_variables.yml
-      
+
       cp /etc/openstack_deploy/*_secrets.yml ./
       pushd ${RPCO_DEFAULT_FOLDER}/scripts
         python2.7 ./update-yaml.py \
