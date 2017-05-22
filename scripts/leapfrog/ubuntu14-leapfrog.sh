@@ -17,27 +17,6 @@
 set -e -u -x
 set -o pipefail
 
-#export ADMIN_PASSWORD=${ADMIN_PASSWORD:-"secrete"}
-#export DEPLOY_AIO=${DEPLOY_AIO:-"no"}
-#export DEPLOY_OA=${DEPLOY_OA:-"yes"}
-#export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
-#export DEPLOY_MAAS=${DEPLOY_MAAS:-"no"}
-#export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
-#export DEPLOY_RALLY=${DEPLOY_RALLY:-"no"}
-#export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
-#export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
-#export DEPLOY_MAGNUM=${DEPLOY_MAGNUM:-"no"}
-#export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"yes"}
-#export DEPLOY_RPC=${DEPLOY_RPC:-"yes"}
-#export DEPLOY_ARA=${DEPLOY_ARA:-"no"}
-#export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
-#export UNAUTHENTICATED_APT=${UNAUTHENTICATED_APT:-no}
-#export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
-#export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-''}
-#export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
-#export OA_DIR="${BASE_DIR}/openstack-ansible"
-#export RPCD_DIR="${BASE_DIR}/rpcd"
-
 ## Standard Vars --------------------------------------------------------------
 # BASE_DIR is where KILO is
 export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
@@ -51,7 +30,10 @@ export RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
 export NEWTON_BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../ && pwd)"
 export LEAPFROG_DIR=${LEAPFROG_DIR:-"/opt/rpc-leapfrog"}
 export OA_OPS_REPO=${OA_OPS_REPO:-'https://github.com/openstack/openstack-ansible-ops.git'}
-export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'master'}
+# Please bump the following when a patch for leapfrog is merged into osa-ops
+# If you are developping, just clone your ops repo into (by default)
+# /opc/rpc-leapfrog/osa-ops-leapfrog
+export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'b95e3c55f5e4dab0dc17c2e62d27e9665724c6c4'}
 export RPCO_DEFAULT_FOLDER="/opt/rpc-openstack"
 # Instead of storing the debug's log of run in /tmp, we store it in an
 # folder that will get archived for gating logs
@@ -71,7 +53,7 @@ export UPGRADE_LEAP_MARKER_FOLDER="/etc/openstack_deploy/upgrade-leap"
 function log {
     echo "Task: $1 status: $2" >> ${DEBUG_PATH}
     if [[ "$2" == "ok" ]]; then
-      touch /etc/openstack-deploy/upgrade-leap/${1}.complete
+      touch /etc/openstack_deploy/upgrade-leap/${1}.complete
     fi
 }
 
@@ -91,13 +73,13 @@ pushd ${LEAPFROG_DIR}
 
 
   # Get the OSA LEAPFROG
-  if [[ ! -d "osa-leapfrog" ]]; then
-      git clone ${OA_OPS_REPO} -b ${OA_OPS_REPO_BRANCH} osa-leapfrog
+  if [[ ! -d "osa-ops-leapfrog" ]]; then
+      git clone ${OA_OPS_REPO} -b ${OA_OPS_REPO_BRANCH} osa-ops-leapfrog
       log "clone" "ok"
   fi
 
   if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap.complete" ]]; then
-    pushd osa-leapfrog/leap-upgrades/
+    pushd osa-ops-leapfrog/leap-upgrades/
       ./run-stages.sh
     popd
     log "osa-leap" "ok"
