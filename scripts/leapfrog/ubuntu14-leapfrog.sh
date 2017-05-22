@@ -21,7 +21,9 @@ set -o pipefail
 # BASE_DIR is where KILO is
 export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
 export OA_OVERRIDES='/etc/openstack_deploy/user_osa_variables_overrides.yml'
+export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
 export RPCD_OVERRIDES='/etc/openstack_deploy/user_rpco_variables_overrides.yml'
+export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
 export RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
 
 ## Leapfrog Vars ----------------------------------------------------------------------
@@ -74,7 +76,10 @@ pushd ${LEAPFROG_DIR}
 
   # Get the OSA LEAPFROG
   if [[ ! -d "osa-ops-leapfrog" ]]; then
-      git clone ${OA_OPS_REPO} -b ${OA_OPS_REPO_BRANCH} osa-ops-leapfrog
+      git clone ${OA_OPS_REPO} osa-ops-leapfrog
+      pushd osa-ops-leapfrog
+          git checkout ${OA_OPS_REPO_BRANCH}
+      popd
       log "clone" "ok"
   fi
 
@@ -120,40 +125,59 @@ pushd ${LEAPFROG_DIR}
 
   if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/variable-migration.complete" ]]; then
     # Following docs: https://pages.github.rackspace.com/rpc-internal/docs-rpc/rpc-upgrade-internal/rpc-upgrade-v12-v13-perform.html#migrate-variables
-    mkdir variables-backup
+    if [[ ! -d variables-backup ]]; then
+      mkdir variables-backup
+    fi
     pushd variables-backup
-      cp /etc/openstack_deploy/user_extras_variables.yml ./user_extras_variables.yml.bak
-        pushd ${RPCO_DEFAULT_FOLDER}/scripts
-          ./migrate-yaml.py \
-            --defaults ${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml \
-            --overrides /etc/openstack_deploy/user_extras_variables.yml \
-            --output-file /etc/openstack_deploy/user_rpco_variables_overrides.yml \
-            --for-testing-take-new-vars-only
-        popd
-      rm -f /etc/openstack_deploy/user_extras_variables.yml
+      if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_extras_variables_migration.complete" ]]; then
+        cp /etc/openstack_deploy/user_extras_variables.yml ./
+          # Handle the weird newton case
+          if [[ ! -f "${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml" ]]; then
+             echo -e "---\ndelete_this_line: yes" >> ${RPCO_DEFAULT_FOLDER}/rpcd${RPCD_DEFAULTS}
+          fi
+          pushd ${RPCO_DEFAULT_FOLDER}/scripts
+            ./migrate-yaml.py \
+              --defaults ${RPCO_DEFAULT_FOLDER}/rpcd${RPCD_DEFAULTS} \
+              --overrides /etc/openstack_deploy/user_extras_variables.yml \
+              --output-file ${RPCD_OVERRIDES} \
+              --for-testing-take-new-vars-only
+          popd
+        rm -f /etc/openstack_deploy/user_extras_variables.yml
+        log "user_extras_variables_migration" "ok"
+      else
+        log "user_extras_variables_migration" "skipped"
+      fi
 
-      cp /etc/openstack_deploy/user_variables.yml ./user_variables.yml.bak
-        pushd ${RPCO_DEFAULT_FOLDER}/scripts
-          ./migrate-yaml.py \
-            --defaults ${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/user_osa_variables_defaults.yml \
-            --overrides /etc/openstack_deploy/user_variables.yml \
-            --output-file /etc/openstack_deploy/user_osa_variables_overrides.yml
-            --for-testing-take-new-vars-only
-        popd
-      rm -f /etc/openstack_deploy/user_variables.yml
+      if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_variables_migration.complete" ]]; then
+        cp /etc/openstack_deploy/user_variables.yml ./
+          pushd ${RPCO_DEFAULT_FOLDER}/scripts
+            ./migrate-yaml.py \
+              --defaults ${RPCO_DEFAULT_FOLDER}/rpcd${OA_DEFAULTS} \
+              --overrides /etc/openstack_deploy/user_variables.yml \
+              --output-file ${OA_OVERRIDES} \
+              --for-testing-take-new-vars-only
+          popd
+        rm -f /etc/openstack_deploy/user_variables.yml
+        log "user_variables_migration" "ok"
+      else
+        log "user_variables_migration" "skipped"
+      fi
 
-      cp /etc/openstack_deploy/*_secrets.yml ./
-      pushd ${RPCO_DEFAULT_FOLDER}/scripts
-        python2.7 ./update-yaml.py \
-          --defaults ${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/user_rpco_secrets.yml \
-          --overrides /etc/openstack_deploy/user_extras_secrets.yml \
-          --output-file /etc/openstack_deploy/user_rpco_secrets.yml \
-          --for-testing-take-new-vars-only
-      popd
-      rm -f /etc/openstack_deploy/user_extras_secrets.yml
+      if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_secrets_migration.complete" ]]; then
+        cp /etc/openstack_deploy/*_secrets.yml ./
+        pushd ${RPCO_DEFAULT_FOLDER}/scripts
+          python2.7 ./update-yaml.py \
+            ${RPCO_DEFAULT_FOLDER}/rpcd${RPCD_SECRETS} \
+            /etc/openstack_deploy/user_extras_secrets.yml >> ${RPCD_SECRETS}
+        popd
+        rm -f /etc/openstack_deploy/user_extras_secrets.yml
+        log "user_secrets_migration" "ok"
+      else
+        log "user_secrets_migration" "skipped"
+      fi
 
       python2.7 ${RPCO_DEFAULT_FOLDER}/openstack-ansible/scripts/pw-token-gen.py \
-        --file /etc/openstack_deploy/user_rpco_secrets.yml
+        --file ${RPCD_SECRETS}
       mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml
       rm -f /etc/openstack_deploy/user_extras_secrets.yml /etc/openstack_deploy/user_secrets.yml
       cp ${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/*defaults* /etc/openstack_deploy
@@ -164,8 +188,9 @@ pushd ${LEAPFROG_DIR}
   fi
 
   if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
-    pushd ${RPCO_DEFAULT_FOLDER}
-      scripts/deploy.sh
+    pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/
+      #scripts/deploy.sh
+      openstack-ansible site.yml
     popd
     log "deploy-rpc" "ok"
   else
