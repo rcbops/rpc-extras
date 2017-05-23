@@ -12,31 +12,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# 
+# (c) 2017, Jean-Philippe Evrard <jean-philippe.evrard@rackspace.co.uk>
 
 ## Shell Opts ----------------------------------------------------------------
 set -e -u -x
 set -o pipefail
 
 ## Standard Vars --------------------------------------------------------------
-# BASE_DIR is where KILO is
-export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
 export OA_OVERRIDES='/etc/openstack_deploy/user_osa_variables_overrides.yml'
 export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
 export RPCD_OVERRIDES='/etc/openstack_deploy/user_rpco_variables_overrides.yml'
 export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
 export RPCD_SECRETS='/etc/openstack_deploy/user_rpco_secrets.yml'
+export RPCO_DEFAULT_FOLDER="/opt/rpc-openstack"
 
 ## Leapfrog Vars ----------------------------------------------------------------------
+# BASE_DIR is where KILO is. It's the standard variable inherited from other jobs.
+export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
 # Location of the leapfrog tooling (where we'll do our checkouts and move the
 # code at the end)
 export NEWTON_BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../ && pwd)"
+# Temp location for the code and config files backups.
 export LEAPFROG_DIR=${LEAPFROG_DIR:-"/opt/rpc-leapfrog"}
+# OSA leapfrog tooling location
 export OA_OPS_REPO=${OA_OPS_REPO:-'https://github.com/openstack/openstack-ansible-ops.git'}
 # Please bump the following when a patch for leapfrog is merged into osa-ops
 # If you are developping, just clone your ops repo into (by default)
 # /opc/rpc-leapfrog/osa-ops-leapfrog
 export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'b95e3c55f5e4dab0dc17c2e62d27e9665724c6c4'}
-export RPCO_DEFAULT_FOLDER="/opt/rpc-openstack"
 # Instead of storing the debug's log of run in /tmp, we store it in an
 # folder that will get archived for gating logs
 export DEBUG_PATH="/var/log/osa-leapfrog-debug.log"
@@ -73,7 +77,6 @@ fi
 # Let's go
 pushd ${LEAPFROG_DIR}
 
-
   # Get the OSA LEAPFROG
   if [[ ! -d "osa-ops-leapfrog" ]]; then
       git clone ${OA_OPS_REPO} osa-ops-leapfrog
@@ -82,28 +85,6 @@ pushd ${LEAPFROG_DIR}
       popd
       log "clone" "ok"
   fi
-
-  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap.complete" ]]; then
-    pushd osa-ops-leapfrog/leap-upgrades/
-      ./run-stages.sh
-    popd
-    log "osa-leap" "ok"
-  else
-    log "osa-leap" "skipped"
-  fi
-
-  # Now that everything ran, you should have an OSA newton.
-  # Cleanup the leapfrog remnants
-  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap-cleanup.complete" ]]; then
-    mv /opt/leap42 ./
-    mv /opt/openstack-ansible* ./
-    touch /etc/openstack_deploy/upgrade-leap/osa-leap-cleanup.complete
-    log "osa-leap-cleanup" "ok"
-  else
-    log "osa-leap-cleanup" "skipped"
-  fi
-
-  # Re-deploy RPC.
 
   # Prepare rpc folder
   if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-prep.complete" ]]; then
@@ -122,78 +103,73 @@ pushd ${LEAPFROG_DIR}
   else
     log "rpc-prep" "skipped"
   fi
+  # Now the following directory structure is in place
+  # /opt            
+  #     /rpc-leapfrog
+  #                  /osa-ops-leapfrog # contains osa ops complete repo
+  #                  /rpc-openstack.pre-newton # contains old
+  #                                            # /opt/rpc-openstack
+  #     /rpc-openstack # contains rpc-openstack newton tooling
 
-  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/variable-migration.complete" ]]; then
-    # Following docs: https://pages.github.rackspace.com/rpc-internal/docs-rpc/rpc-upgrade-internal/rpc-upgrade-v12-v13-perform.html#migrate-variables
-    if [[ ! -d variables-backup ]]; then
-      mkdir variables-backup
-    fi
-    pushd variables-backup
-      if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_extras_variables_migration.complete" ]]; then
-        cp /etc/openstack_deploy/user_extras_variables.yml ./
-          # Handle the weird newton case
-          if [[ ! -f "${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml" ]]; then
-             echo -e "---\ndelete_this_line: yes" >> ${RPCO_DEFAULT_FOLDER}/rpcd${RPCD_DEFAULTS}
-          fi
-          pushd ${RPCO_DEFAULT_FOLDER}/scripts
-            ./migrate-yaml.py \
-              --defaults ${RPCO_DEFAULT_FOLDER}/rpcd${RPCD_DEFAULTS} \
-              --overrides /etc/openstack_deploy/user_extras_variables.yml \
-              --output-file ${RPCD_OVERRIDES} \
-              --for-testing-take-new-vars-only
-          popd
-        rm -f /etc/openstack_deploy/user_extras_variables.yml
-        log "user_extras_variables_migration" "ok"
-      else
-        log "user_extras_variables_migration" "skipped"
-      fi
-
-      if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_variables_migration.complete" ]]; then
-        cp /etc/openstack_deploy/user_variables.yml ./
-          pushd ${RPCO_DEFAULT_FOLDER}/scripts
-            ./migrate-yaml.py \
-              --defaults ${RPCO_DEFAULT_FOLDER}/rpcd${OA_DEFAULTS} \
-              --overrides /etc/openstack_deploy/user_variables.yml \
-              --output-file ${OA_OVERRIDES} \
-              --for-testing-take-new-vars-only
-          popd
-        rm -f /etc/openstack_deploy/user_variables.yml
-        log "user_variables_migration" "ok"
-      else
-        log "user_variables_migration" "skipped"
-      fi
-
-      if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_secrets_migration.complete" ]]; then
-        cp /etc/openstack_deploy/*_secrets.yml ./
-        pushd ${RPCO_DEFAULT_FOLDER}/scripts
-          python2.7 ./update-yaml.py \
-            ${RPCO_DEFAULT_FOLDER}/rpcd${RPCD_SECRETS} \
-            /etc/openstack_deploy/user_extras_secrets.yml >> ${RPCD_SECRETS}
-        popd
-        rm -f /etc/openstack_deploy/user_extras_secrets.yml
-        log "user_secrets_migration" "ok"
-      else
-        log "user_secrets_migration" "skipped"
-      fi
-
-      python2.7 ${RPCO_DEFAULT_FOLDER}/openstack-ansible/scripts/pw-token-gen.py \
-        --file ${RPCD_SECRETS}
-      mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml
-      rm -f /etc/openstack_deploy/user_extras_secrets.yml /etc/openstack_deploy/user_secrets.yml
-      cp ${RPCO_DEFAULT_FOLDER}/rpcd/etc/openstack_deploy/*defaults* /etc/openstack_deploy
-    popd
-    log "variable-migration" "ok"
-  else
-    log "variable-migration" "skipped"
+  # We probably want to migrate vars here, before the first deploy
+  # of OSA newton. We could also set exports to override the OSA
+  # ops tooling, for example to change the version of OSA
+  # we are deploying to (be in sync with RPC 's OSA sha), in order
+  # to avoid double leap
+  if [ ! -z "${PRE_LEAP_STEPS}" ]; then
+    # There is no way we can verify the integrity of the loaded steps,
+    # Therefore we shouldn't include a marker in this script.
+    source ${PRE_LEAP_STEPS}
+    # Arbitrary code execution is evil, we should do better when we
+    # know what we need.
   fi
 
-  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
-    pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/
-      #scripts/deploy.sh
-      openstack-ansible site.yml
+  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap.complete" ]]; then
+    pushd osa-ops-leapfrog/leap-upgrades/
+      ./run-stages.sh
     popd
-    log "deploy-rpc" "ok"
+    log "osa-leap" "ok"
   else
-    log "deploy-rpc" "skipped"
+    log "osa-leap" "skipped"
+  fi
+  # Now the following directory structure is in place
+  # /opt            
+  #     /rpc-leapfrog
+  #                  /osa-ops-leapfrog # contains osa ops complete repo
+  #                  /rpc-openstack.pre-newton # contains old
+  #                                            # /opt/rpc-openstack
+  #     /rpc-openstack     # contains rpc-openstack newton tooling
+  #     /leap42            # contains the remnants of the leap tooling
+  #     /openstack-ansible # contains the version the OSA leaped into
+
+  # Now that everything ran, you should have an OSA newton.
+  # Cleanup the leapfrog remnants
+  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap-cleanup.complete" ]]; then
+    mv /opt/leap42 ./
+    mv /opt/openstack-ansible* ./
+    log "osa-leap-cleanup" "ok"
+  else
+    log "osa-leap-cleanup" "skipped"
+  fi
+  # Now the following directory structure is in place
+  # /opt            
+  #     /rpc-leapfrog
+  #                  /osa-ops-leapfrog         # contains osa ops
+  #                                            # complete repo
+  #                  /rpc-openstack.pre-newton # contains old
+  #                                            # /opt/rpc-openstack
+  #                  /leap42                   # contains the remnants of
+  #                                            # the leap tooling
+  #                  /openstack-ansible        # contains the version
+  #                                            # the OSA leaped into
+  #     /rpc-openstack     # contains rpc-openstack newton tooling
+
+  # Re-deploy RPC.
+  if [ ! -z "${POST_LEAP_STEPS}" ]; then
+    # There is no way we can verify the integrity of the loaded steps,
+    # Therefore we shouldn't include a marker in this script.
+    source ${POST_LEAP_STEPS}
+    # Arbitrary code execution is evil, we should do better when we
+    # know what we need.
   fi
 popd
