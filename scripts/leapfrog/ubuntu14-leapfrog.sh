@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 # (c) 2017, Jean-Philippe Evrard <jean-philippe.evrard@rackspace.co.uk>
 
 ## Shell Opts ----------------------------------------------------------------
@@ -86,7 +86,12 @@ pushd ${LEAPFROG_DIR}
       log "clone" "ok"
   fi
 
+  # Prepare rpc folder
   if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-prep.complete" ]]; then
+    # If newton was cloned into a different folder than our
+    # standard location (leapfrog folder?), we should make sure we
+    # deploy the checked in version. If any remnabt RPC folder exist,
+    # keep it under the LEAPFROG_DIR.
     if [[ ${NEWTON_BASE_DIR} != ${RPCO_DEFAULT_FOLDER} ]]; then
       # Cleanup existing RPC, replace with new RPC
       if [[ -d ${RPCO_DEFAULT_FOLDER} ]]; then
@@ -98,6 +103,26 @@ pushd ${LEAPFROG_DIR}
   else
     log "rpc-prep" "skipped"
   fi
+  # Now the following directory structure is in place
+  # /opt
+  #     /rpc-leapfrog
+  #                  /osa-ops-leapfrog # contains osa ops complete repo
+  #                  /rpc-openstack.pre-newton # contains old
+  #                                            # /opt/rpc-openstack
+  #     /rpc-openstack # contains rpc-openstack newton tooling
+
+  # We probably want to migrate vars here, before the first deploy
+  # of OSA newton. We could also set exports to override the OSA
+  # ops tooling, for example to change the version of OSA
+  # we are deploying to (be in sync with RPC 's OSA sha), in order
+  # to avoid double leap
+  if [ ! -z "${PRE_LEAP_STEPS}" ]; then
+    # There is no way we can verify the integrity of the loaded steps,
+    # Therefore we shouldn't include a marker in this script.
+    source ${PRE_LEAP_STEPS}
+    # Arbitrary code execution is evil, we should do better when we
+    # know what we need.
+  fi
 
   if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap.complete" ]]; then
     pushd osa-ops-leapfrog/leap-upgrades/
@@ -106,5 +131,45 @@ pushd ${LEAPFROG_DIR}
     log "osa-leap" "ok"
   else
     log "osa-leap" "skipped"
+  fi
+  # Now the following directory structure is in place
+  # /opt
+  #     /rpc-leapfrog
+  #                  /osa-ops-leapfrog # contains osa ops complete repo
+  #                  /rpc-openstack.pre-newton # contains old
+  #                                            # /opt/rpc-openstack
+  #     /rpc-openstack     # contains rpc-openstack newton tooling
+  #     /leap42            # contains the remnants of the leap tooling
+  #     /openstack-ansible # contains the version the OSA leaped into
+
+  # Now that everything ran, you should have an OSA newton.
+  # Cleanup the leapfrog remnants
+  if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap-cleanup.complete" ]]; then
+    mv /opt/leap42 ./
+    mv /opt/openstack-ansible* ./
+    log "osa-leap-cleanup" "ok"
+  else
+    log "osa-leap-cleanup" "skipped"
+  fi
+  # Now the following directory structure is in place
+  # /opt
+  #     /rpc-leapfrog
+  #                  /osa-ops-leapfrog         # contains osa ops
+  #                                            # complete repo
+  #                  /rpc-openstack.pre-newton # contains old
+  #                                            # /opt/rpc-openstack
+  #                  /leap42                   # contains the remnants of
+  #                                            # the leap tooling
+  #                  /openstack-ansible        # contains the version
+  #                                            # the OSA leaped into
+  #     /rpc-openstack     # contains rpc-openstack newton tooling
+
+  # Re-deploy RPC.
+  if [ ! -z "${POST_LEAP_STEPS}" ]; then
+    # There is no way we can verify the integrity of the loaded steps,
+    # Therefore we shouldn't include a marker in this script.
+    source ${POST_LEAP_STEPS}
+    # Arbitrary code execution is evil, we should do better when we
+    # know what we need.
   fi
 popd
