@@ -20,12 +20,15 @@ set -e -u -x
 set -o pipefail
 
 echo "POST LEAP STEPS"
-#if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
-#  pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/
-#    #scripts/deploy.sh
-#    openstack-ansible site.yml
-#  popd
-#  log "deploy-rpc" "ok"
-#else
-#  log "deploy-rpc" "skipped"
-#fi
+if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
+  pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/
+    unset ANSIBLE_INVENTORY
+    sed -i 's#export ANSIBLE_INVENTORY=.*#export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY:-/opt/rpc-openstack/openstack-ansible/playbooks/inventory}"#g' /usr/local/bin/openstack-ansible.rc
+    openstack-ansible setup-logging.yml
+    openstack-ansible setup-maas.yml
+    # TODO(add support role)
+  popd
+  log "deploy-rpc" "ok"
+else
+  log "deploy-rpc" "skipped"
+fi
