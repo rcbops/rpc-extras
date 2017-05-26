@@ -34,9 +34,6 @@ Plays:
 * `beaver.yml` - deploys the beaver log shipper on all hosts
 * `elasticsearch.yml` - deploys an elasticsearch host
 * `haproxy` - deploys haproxy configurations for elasticsearch and kibana
-* `horizon_extensions.yml` - rebrands the horizon dashboard for Rackspace,
-as well as adding a Rackspace tab and a Solutions tab, which provides
-Heat templates for commonly deployed applications.
 * `kibana.yml` - Setup Kibana on the Kibana hosts for the logging dashboard.
 * `logstash.yml` - deploys a logstash host. If this play is used, be sure to
 copy the related block in user_rpco_variables_defaults.yml to

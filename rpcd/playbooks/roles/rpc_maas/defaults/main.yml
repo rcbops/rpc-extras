@@ -297,6 +297,9 @@ rabbitmq_queue_growth_rate_threshold: 15
 disk_utilisation_warning_threshold: 90
 disk_utilisation_critical_threshold: 99
 
+# Set the container storage threshold
+percent_used_critical_threshold: 85
+
 # nf_conntrack threshold
 nf_conntrack_warning_threshold: 80
 nf_conntrack_critical_threshold: 90

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: horizon_extensions.yml
 - include: rpc-support.yml
 - include: setup-maas.yml
 - include: setup-logging.yml

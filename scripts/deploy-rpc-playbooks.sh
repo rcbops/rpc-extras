@@ -11,9 +11,6 @@ cd ${RPCD_DIR}/playbooks/
 # configure everything for RPC support access
 run_ansible rpc-support.yml
 
-# configure the horizon extensions
-run_ansible horizon_extensions.yml
-
 # deploy and configure RAX MaaS
 if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
   run_ansible setup-maas.yml

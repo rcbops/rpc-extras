@@ -76,6 +76,10 @@
     inventory_hostname in groups['ceph_all'] and
     groups['ceph_all'] is defined
 
+- include: container-storage-checks.yml
+  when:
+    - inventory_hostname in groups['hosts']
+
 - include: restart_raxmon.yml
   when: >
     inventory_hostname in groups['hosts']

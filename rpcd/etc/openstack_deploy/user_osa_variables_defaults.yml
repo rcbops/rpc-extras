@@ -108,7 +108,7 @@ keystone_ceilometer_enabled: False
 tempest_service_available_ceilometer: False
 
 # List of files to override using the OSA horizon role
-rackspace_static_files_folder: "/opt/rpc-openstack/rpcd/playbooks/roles/horizon_extensions/files"
+rackspace_static_files_folder: "/opt/rpc-openstack/logo_files"
 horizon_custom_uploads:
   logo-splash:
     src: "{{ rackspace_static_files_folder }}/logo-splash.png"
