@@ -32,7 +32,7 @@
 
 # Run openstack services verification tasks
 - include: post-upgrade-utility.yml
-  when: inventory_hostname in groups['utility'][0]
+  when: inventory_hostname == groups['utility'][0]
   tags:
     - openstack_services
 
@@ -47,3 +47,9 @@
   when: inventory_hostname in groups['elasticsearch_container']
   tags:
     - elasticsearch
+
+# Run neutron verifciation tasks
+- include: post-upgrade-neutron-venv.yml
+  when: inventory_hostname in groups['neutron_all']
+  tags:
+    - neutron
