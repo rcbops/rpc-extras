@@ -1,0 +1,15 @@
+---
+
+#- name: Set the snat pool address(es)
+#  set_fact:
+#    snat_pool_address: "{{ container_cidr.split('/')[0].split(".")[1]}}."
+#  when: snat_pool_address is not defined
+
+- name: Superman
+  debug:
+    msg: "{{ superman.split('\n') }}"
+
+- name: Write out f5 file
+  template:
+    src: f5_setup.sh.j2
+    dest: "{{ f5_destination_output_file }}"
