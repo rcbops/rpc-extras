@@ -1,0 +1,9 @@
+---
+upgrade:
+  - The HA policy for RabbitMQ is changed to replicate to two nodes,
+    instead of three nodes, in order to increase performance and
+    scalability of the RabbitMQ service. The override `rabbitmq_policies`
+    set the new default value via the `group_vars/all/osa.yml`
+    configuration.
+    The replication count ideally resembles the number of RabbitMQ
+    nodes necessary to maintain quorum (2 for 3 nodes, 3 for 5 nodes).

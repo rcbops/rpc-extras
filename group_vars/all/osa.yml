@@ -58,6 +58,19 @@ nova_console_type: novnc
 # RabbitMQ overrides
 rabbitmq_ulimit: 65535
 
+# Set RabbitMQ message replication count to 2
+# The desired setting would be {{ (groups.rabbitmq|length /2 +1)|round(0,'floor') |int }}
+# but can't be used due to https://github.com/ansible/ansible/issues/9362
+rabbitmq_policies:
+  - name: "HA"
+    pattern: '^(?!amq\.).*'
+    tags:
+      ha-mode: exactly
+      ha-params: 2
+      ha-sync-mode: automatic
+
+
+
 # Memcached overrides
 # https://github.com/rcbops/rpc-openstack/issues/1048
 # memcached_memory is calculated via https://github.com/openstack/openstack-ansible-memcached_server/blob/master/defaults/main.yml#L33
