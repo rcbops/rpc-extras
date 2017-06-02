@@ -166,7 +166,7 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
     run_ansible os-tempest-install.yml
   fi
 
-  if [[ "$DEPLOY_RALLY}" == "yes" ]]; then
+  if [[ "${DEPLOY_RALLY}" == "yes" ]]; then
     # Deploy rally
     run_ansible os-rally-install.yml
   fi
