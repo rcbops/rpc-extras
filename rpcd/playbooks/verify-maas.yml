@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Verify MaaS setup
-  hosts: hosts
+  hosts: shared-infra_hosts:compute_hosts:storage_hosts:swift_hosts:log_hosts
   tasks:
     - name: ensure remote directory
       file:
