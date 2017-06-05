@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Gather mons facts for ceph.conf template
-  hosts: mons
-
-- name: Install Ceph dependencies
-  hosts: osds_all:mons_all:&hosts
-  roles:
-    - role: ceph.ceph-common
-
-- include: maas-get.yml
-- include: /opt/rpc-maas/playbooks/site.yml
+- name: Clone MaaS
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Clone RPC-MaaS
+      git:
+        repo: "https://github.com/rcbops/rpc-maas"
+        dest: "/opt/rpc-maas"
+        version: "{{ maas_release }}"
+  tags:
+    - maas

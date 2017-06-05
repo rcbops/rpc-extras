@@ -1,0 +1,77 @@
+---
+# Copyright 2016-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# MAAS
+# Set the maas_scheme
+# Note: (alextricity25) This has been changed to https because
+# SSL termination is done by default since Newton per https://review.openstack.org/#/c/277199/
+maas_scheme: https
+
+# Set the following to skip a specific check
+# horizon_local_check is disabled until https://github.com/rcbops/u-suk-dev/issues/781
+# is resolved
+maas_excluded_checks:
+  - 'horizon_local_check.*'
+  - 'cinder_backup_check.*'
+
+# Disable the following MaaS alarms
+# Issue: https://github.com/rcbops/u-suk-dev/issues/1081
+maas_excluded_alarms:
+  - '^idle_percent_average.*'
+  - '^memory_used.*'
+  - '^memory_check.*'
+  - '^alarm-network-receive.*'
+  - '^alarm-network-transmit.*'
+  - '^Network receive rate.*'
+  - '^Network transmit rate.*'
+  - '^percentage_disk_utilisation.*'
+
+# Set overrides for check periods
+# Issue: https://github.com/rcbops/u-suk-dev/issues/1081
+maas_check_period_override:
+  disk_utilisation: 900
+
+# overrides for the nova_cloud_stats  maas plugin
+maas_cloud_resource_cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio | default(2.0) }}"
+maas_cloud_resource_mem_allocation_ratio: "{{ nova_ram_allocation_ratio | default(1.0) }}"
+
+#
+# maas_fqdn_extension: Sets the fully-qualified domain name (FQDN) extension that will be appended
+#                      to the short names for hosts that are specified in rpc_user_config. This
+#                      avoids the need to specify extremely long container names.
+#
+#   For example, if this variable was not set, a device called 12345-node1.mytestcluster.com would
+#   have to be named in openstack_user_config.yml as 12345-node1.mytestcluster.com for MaaS checks
+#   to be created correctly. However, if maas_fqdn_extension is set as .mytestcluster.com, the
+#   device can be named 12345-node1 in openstack_user_config.yml. This enables shorter container
+#   names while still enabling MaaS checks and alarms to be created properly.
+#
+# maas_fqdn_extension: .example.com
+maas_fqdn_extension: ""
+
+# MaaS pathing and versions
+maas_release: master
+maas_venv: "/openstack/venvs/maas-{{ maas_release }}"
+maas_venv_bin: "{{ maas_venv }}/bin"
+
+# Ansible 1.9 compatibility used within MaaS
+ansible_host: "{{ ansible_ssh_host }}"
+
+#maas_tenant_id:
+#maas_username:
+#maas_api_key:
+
+# Set the LB device name in CORE
+#lb_name: 'unspecified

@@ -15,5 +15,4 @@
 
 - include: horizon_extensions.yml
 - include: rpc-support.yml
-- include: setup-maas.yml
 - include: setup-logging.yml

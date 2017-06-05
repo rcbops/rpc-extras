@@ -13,37 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Verify MaaS setup
-  hosts: hosts
-  user: root
-  tasks:
-    - name: "Verify Checks & Alarms are registered"
-      script: >
-        {{ maas_rpc_scripts_dir }}/rpc-maas-tool.py verify-created
-        --entity {{ inventory_hostname }}{{ maas_fqdn_extension }}
-        {% for ec in maas_excluded_checks %} --excludedcheck {{ec}}
-        {% endfor %}
-      register: verify_maas
-      failed_when: verify_maas.rc != 0
-      changed_when: False
-      until: verify_maas.rc == 0
-      retries: 10
-      delay: 60
-
-    - name: "Allow MAAS time to run checks before verifying their status"
-      pause:
-        minutes: 2
-
-    - name: "Verify Check & Alarm Status"
-      script: >
-        {{ maas_rpc_scripts_dir }}/rpc-maas-tool.py verify-status
-        --entity {{ inventory_hostname }}{{ maas_fqdn_extension }}
-      register: verify_status
-      failed_when: verify_status.rc != 0
-      changed_when: False
-      until: verify_status.rc == 0
-      retries: 10
-      delay: 60
-
-  vars_files:
-    - "roles/rpc_maas/defaults/main.yml"
+- include: /opt/rpc-maas/playbooks/maas-verify.yml
