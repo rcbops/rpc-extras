@@ -21,6 +21,8 @@ export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
 export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
 export UNAUTHENTICATED_APT=${UNAUTHENTICATED_APT:-no}
 
+export RPCM_VARIABLES='/etc/openstack_deploy/user_rpcm_variables.yml'
+
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
 RPCD_DIR='/opt/rpc-openstack/rpcd'
 RPCD_VARS='/etc/openstack_deploy/user_extras_variables.yml'
@@ -158,6 +160,10 @@ fi
 cd ${RPCD_DIR}/playbooks
 openstack-ansible -i "localhost," patcher.yml
 
+if [[ ! -f "${RPCM_VARIABLES}" ]]; then
+  cp "${RPCD_DIR}/etc/openstack_deploy/user_rpcm_variables.yml" "${RPCM_VARIABLES}"
+fi
+
 # begin the openstack installation
 if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
@@ -281,11 +287,6 @@ if [[ "${DEPLOY_RPC}" == "yes" ]]; then
   # configure the horizon extensions
     RUN_TASKS+=("horizon_extensions.yml")
 
-  # deploy and configure RAX MaaS
-    if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
-      RUN_TASKS+=("setup-maas.yml")
-    fi
-
   # deploy and configure the ELK stack
     if [[ "${DEPLOY_ELK}" == "yes" ]]; then
       RUN_TASKS+=("setup-logging.yml")
@@ -296,8 +297,13 @@ if [[ "${DEPLOY_RPC}" == "yes" ]]; then
       fi
     fi
 
+  # Get MaaS: This will always run which will get the latest code but do
+  # nothing with it unless setup-maas.yml is run.    
+    RUN_TASKS+=("maas-get.yml")
+ 
   # verify RAX MaaS
     if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
+      RUN_TASKS+=("setup-maas.yml")
       RUN_TASKS+=("verify-maas.yml")
     fi
 

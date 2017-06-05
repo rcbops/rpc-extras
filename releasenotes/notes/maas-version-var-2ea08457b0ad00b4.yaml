@@ -1,0 +1,10 @@
+---
+features:
+  - RPC-MaaS has been seperated out into it's own repo. This
+    change allows maas to be developed outside of rpc and
+    maintained as an OpenStack version agnostic deployment
+    for all things monitoring.
+  - A variable has been added to allow RPC-MaaS to locked
+    down to a specific version of the repo as needed. This
+    variable is ``maas_version`` which has a default of 
+    "master".

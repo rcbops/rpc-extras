@@ -13,19 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-galaxy_info:
-  author: rcbops
-  description: Installation and setup of Rackspace MaaS
-  company: Rackspace
-  license: Apache2
-  min_ansible_version: 1.6.6
-  platforms:
-    - name: Ubuntu
-      versions:
-        - trusty
-  categories:
-    - cloud
-    - monitoring
-    - MaaS
-    - development
-    - openstack
+- name: Clone MaaS
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Clone RPC-MaaS
+      git:
+        repo: "https://github.com/rcbops/rpc-maas"
+        dest: "/opt/rpc-maas"
+        version: "{{ maas_release }}"
+    - name: Ensure openstack_deploy exists
+      file:
+        dest: "/etc/openstack_deploy"
+        state: directory
+    - name: Copy over base maas vars
+      copy:
+        src: "/opt/rpc-maas/tests/user_liberty_vars.yml"
+        dest: "/etc/openstack_deploy/user_rpcm_default_variables.yml"
+  tags:
+    - maas
