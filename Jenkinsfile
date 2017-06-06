@@ -118,8 +118,18 @@ def aio_job_name(series, context, trigger){
 
 properties([
   parameters([
-    string(name: 'RPC_GATING_BRANCH', defaultValue: 'master'),
-    string(name: 'RPC_GATING_REPO', defaultValue: 'https://github.com/rcbops/rpc-gating')
+    string(name: 'RPC_GATING_BRANCH',
+           defaultValue: 'master',
+           description: 'Branch of the RPC-Gating repo to use'),
+    string(name: 'RPC_GATING_REPO',
+           defaultValue: 'https://github.com/rcbops/rpc-gating',
+           description: 'Url of RPC-Gating repo'),
+    string(name: 'AIO_SCENARIOS',
+           defaultValue: 'swift ceph upgrade xenial',
+           description: """AIO scenarios are picked according to the branch
+                        being tested, so not all scenarios in this list will
+                        be run. This list is useful for excluding scenarios by
+                        removing them, eg for rechecking only one scneario""")
   ])
 ])
 node(){
@@ -131,6 +141,7 @@ node(){
     print ("Parameter not supplied: ${e}. Using rcbops/rpc-gating@master")
     env.RPC_GATING_BRANCH='master'
     env.RPC_GATING_REPO='https://github.com/rcbops/rpc-gating'
+    env.AIO_SCENARIOS='swift ceph upgrade xenial'
   }
   deleteDir()
   stage("Prepare"){
@@ -194,19 +205,24 @@ node(){
         value: RPC_GATING_BRANCH
       ]
     ]
-    parallel_steps["swift"] =  makeBuildStep(
-        aio_job_name(series, "swift", trigger),
-        common_params,
-        "continuous-integration/jenkins/aio/swift",
-        trigger
-    )
-    parallel_steps["ceph"] = makeBuildStep(
-        aio_job_name(series, "ceph", trigger),
-        common_params,
-        "continuous-integration/jenkins/aio/ceph",
-        trigger
-    )
-    if (["newton", "master"].contains(series)){
+    if (env.AIO_SCENARIOS.contains('swift')){
+      parallel_steps["swift"] =  makeBuildStep(
+          aio_job_name(series, "swift", trigger),
+          common_params,
+          "continuous-integration/jenkins/aio/swift",
+          trigger
+      )
+    }
+    if(env.AIO_SCENARIOS.contains('ceph')){
+      parallel_steps["ceph"] = makeBuildStep(
+          aio_job_name(series, "ceph", trigger),
+          common_params,
+          "continuous-integration/jenkins/aio/ceph",
+          trigger
+      )
+    }
+    if (["newton", "master"].contains(series)
+        && env.AIO_SCENARIOS.contains('xenial')){
       parallel_steps["xenial"] = makeBuildStep(
           aio_job_name(series, "xenial", trigger),
           common_params,
@@ -214,7 +230,7 @@ node(){
           trigger
       )
     }
-    if(series == "mitaka"){
+    if(series == "mitaka" && env.AIO_SCENARIOS.contains('upgrade')){
       parallel_steps["upgrade"] = makeBuildStep(
           aio_job_name(series, "upgrade", trigger),
           common_params,
