@@ -75,4 +75,8 @@ pushd ${OA_DIR}
   # path for Ansible to search.
   sed -i "s|/etc/ansible/roles:|/etc/ansible/roles:${RPCD_DIR}/playbooks/roles:|" /usr/local/bin/openstack-ansible.rc
 
+  # Now use GROUP_VARS of OSA and RPC
+  sed -i "s|GROUP_VARS_PATH=.*|GROUP_VARS_PATH=\"\${GROUP_VARS_PATH:-${OA_DIR}/playbooks/inventory/group_vars/:${BASE_DIR}/group_vars/:/etc/openstack_deploy/group_vars/}\"|" /usr/local/bin/openstack-ansible.rc
+  sed -i "s|HOST_VARS_PATH=.*|HOST_VARS_PATH=\"\${HOST_VARS_PATH:-${OA_DIR}/playbooks/inventory/host_vars/:${BASE_DIR}/host_vars/:/etc/openstack_deploy/host_vars/}\"|" /usr/local/bin/openstack-ansible.rc
+
 popd

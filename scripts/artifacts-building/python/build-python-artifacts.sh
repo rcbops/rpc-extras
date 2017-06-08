@@ -53,10 +53,6 @@ source scripts/bootstrap-ansible.sh
 # Bootstrap the AIO configuration
 ./scripts/bootstrap-aio.sh
 
-# Now use GROUP_VARS of OSA and RPC
-sed -i "s|GROUP_VARS_PATH=.*|GROUP_VARS_PATH=\"\${GROUP_VARS_PATH:-${BASE_DIR}/openstack-ansible/playbooks/inventory/group_vars/:${BASE_DIR}/group_vars/:/etc/openstack_deploy/group_vars/}\"|" /usr/local/bin/openstack-ansible.rc
-sed -i "s|HOST_VARS_PATH=.*|HOST_VARS_PATH=\"\${HOST_VARS_PATH:-${BASE_DIR}/openstack-ansible/playbooks/inventory/host_vars/:${BASE_DIR}/host_vars/:/etc/openstack_deploy/host_vars/}\"|" /usr/local/bin/openstack-ansible.rc
-
 # Remove the AIO configuration relating to the use
 # of container artifacts. This needs to be done
 # because the container artifacts do not exist yet.
