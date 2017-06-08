@@ -4,7 +4,7 @@ before_script:
 - pip install 'tox!=2.4.0,>=2.3'
 
 # By default travis clones the rpc-openstack repo
-# with --depth set to 50, creating a shallow clone. 
+# with --depth set to 50, creating a shallow clone.
 # However, reno typically needs more (or all) of the
 # history to properly traverse the commit history
 # and generate release notes. This section deletes
@@ -13,8 +13,7 @@ before_script:
 install:
   - git clone --recursive https://github.com/rcbops/rpc-openstack.git rcbops/rpc-openstack
   - cd rcbops/rpc-openstack
-  - "if [ $TRAVIS_PULL_REQUEST != 'false' ];then git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge;fi"
-  - git checkout -qf $TRAVIS_COMMIT
+  - "if [[ $TRAVIS_PULL_REQUEST != 'false' ]]; then git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge && git checkout -qf FETCH_HEAD; else git checkout -qf $TRAVIS_COMMIT; fi"
 
 script: tox
 
