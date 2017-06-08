@@ -26,8 +26,12 @@
 
 # Run rabbitmq post upgrade tasks
 - include: post-upgrade-rabbitmq.yml
-  when: inventory_hostname in groups['rabbitmq']
+  when: inventory_hostname in groups['glance_api'] or
+        inventory_hostname == groups['utility'][0] or
+        inventory_hostname in groups['rabbitmq_all']
+  serial: 1
   tags:
+    - glance
     - rabbitmq
 
 # Run openstack services verification tasks

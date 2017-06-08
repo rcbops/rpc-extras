@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Run post-upgrade tasks
-  hosts: galera_all:rabbitmq:utility:swift_proxy:elasticsearch_container:neutron_all:nova_all
+  hosts: galera_all:rabbitmq_all:utility:swift_proxy:elasticsearch_container:neutron_all:nova_all:glance_api
   any_errors_fatal: true
   roles:
     - rpc_post_upgrade

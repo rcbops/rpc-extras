@@ -13,17 +13,109 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Grab full output of rabbitmqctl cluster_status
+- name: Check if rabbit partitions are empty
   command: "rabbitmqctl cluster_status"
   register: rabbitmqctl_output
-  failed_when: "rabbitmqctl_output.rc != 0"
+  when:  inventory_hostname in groups['rabbitmq_all']
+  failed_when:
+    - "rabbitmqctl_output.rc != 0"
+    - "'{partitions,[]}' not in rabbitmqctl_output.stdout"
 
 - name: Display output of rabbitmqctl cluster_status
+  when: inventory_hostname in groups['rabbitmq_all']
   debug: var=rabbitmqctl_output
 
-# Verify rabbit is not partitioned
-# Here we check to see if partitions is empty
-- name: Fail if network partitions are detected
-  fail:
-    msg: "Rabbitmq network partitions have been detected."
-  when: "'{partitions,[]}' not in rabbitmqctl_output.stdout"
+# - Verify message counts increase
+# Overview of process:
+# - Get number of existing glance notifications (should be zero)
+# - Configure glance to issue notifications on actions
+# - Perform actions for glance to report
+# - Verify messages are waiting in rabbitmq for glance and not the same as previous
+# - Clean up
+- name: Get current notification count
+  shell: "rabbitmqctl list_queues -q -p /glance | awk '{print $2}'"
+  register: prenotification_count
+  failed_when: "prenotification_count.rc !=0"
+  when: inventory_hostname in groups['rabbitmq_all']
+
+- name: Copy glance configuration
+  command: "cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.bak"
+  args:
+    creates: /etc/glance/glance-api.conf.bak
+  when: inventory_hostname in groups['glance_api']
+
+- name: Enable glance notifications
+  shell: |
+    echo "" >> /etc/glance/glance-api.conf
+    echo "[oslo_messaging_notifications]" >> /etc/glance/glance-api.conf
+    echo "driver = messagingv2" >> /etc/glance/glance-api.conf
+    echo "rabbit_notification_topic = notifications" >> /etc/glance/glance-api.conf
+  when: inventory_hostname in groups['glance_api']
+
+- name: Restart glance services
+  service:
+    name: "{{ item }}"
+    state: restarted
+  when: inventory_hostname in groups['glance_api']
+  with_items:
+    - glance-api
+    - glance-registry
+
+- name: Generate image notifications
+  shell: |
+    cd /root
+    . /root/openrc
+    wget http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-i386-disk.img
+    openstack image create --file cirros-0.3.5-i386-disk.img glance_test
+    sleep 60
+    openstack image delete glance_test
+  when: inventory_hostname == groups['utility'][0]
+
+- name: Removed downloaded cirros image
+  file:
+    path: /root/cirros-0.3.5-i386-disk.img
+    state: absent
+  when: inventory_hostname == groups['utility'][0]
+
+- name: Verify notifications received
+  shell: "rabbitmqctl list_queues -q -p /glance | awk '{print $2}'"
+  register: postnotification_count
+  failed_when: "prenotification_count.stdout == postnotification_count.stdout"
+  when: inventory_hostname in groups['rabbitmq_all']
+
+- name: Display output of notification count
+  debug: var=postnotification_count
+
+- name: Purge created notifications
+  command: "rabbitmqctl purge_queue -p /glance notifications.info"
+  when: inventory_hostname in groups['rabbitmq_all']
+
+- name: Restore glance configuration
+  shell: |
+    mv /etc/glance/glance-api.conf.bak /etc/glance/glance-api.conf
+    chown root:glance /etc/glance/glance-api.conf
+  args:
+    removes: /etc/glance/glance-api.conf.bak
+  when: inventory_hostname in groups['glance_api']
+
+- name: Restart glance services
+  service:
+    name: "{{ item }}"
+    state: restarted
+  when: inventory_hostname in groups['glance_api']
+  with_items:
+    - glance-api
+    - glance-registry
+
+# Verify consumers
+# Consumers expected for neutron, heat, cinder, and nova
+- name: Verify consumers on rabbitmq vhost /{{ item }}
+  command: "rabbitmqctl list_consumers -q -p /{{ item }}"
+  register: consumers
+  failed_when: consumers.stdout_lines|length == 0
+  when: inventory_hostname in groups["rabbitmq"]
+  with_items:
+    - neutron
+    - heat
+    - cinder
+    - nova
