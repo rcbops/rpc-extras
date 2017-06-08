@@ -65,10 +65,6 @@ source scripts/bootstrap-ansible.sh
 # Bootstrap the AIO configuration
 ./scripts/bootstrap-aio.sh
 
-# Now use GROUP_VARS of OSA and RPC
-sed -i "s|GROUP_VARS_PATH=.*|GROUP_VARS_PATH=\"\${GROUP_VARS_PATH:-${BASE_DIR}/openstack-ansible/playbooks/inventory/group_vars/:${BASE_DIR}/group_vars/:/etc/openstack_deploy/group_vars/}\"|" /usr/local/bin/openstack-ansible.rc
-sed -i "s|HOST_VARS_PATH=.*|HOST_VARS_PATH=\"\${HOST_VARS_PATH:-${BASE_DIR}/openstack-ansible/playbooks/inventory/host_vars/:${BASE_DIR}/host_vars/:/etc/openstack_deploy/host_vars/}\"|" /usr/local/bin/openstack-ansible.rc
-
 # If there are artifacts for this release, then set PUSH_TO_MIRROR to NO
 if container_artifacts_available; then
   export PUSH_TO_MIRROR="NO"
