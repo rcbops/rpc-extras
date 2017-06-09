@@ -13,8 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Identify the target host to stage to
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Create the staging_hosts group with the appropriate member
+      add_host:
+        name: "{{ staging_host | default(hostvars[groups['repo_all'][0]]['physical_host']) }}"
+        groups: staging_hosts
+
 - name: Stage the git and python artifacts
-  hosts: "{{ staging_host | default('localhost') }}"
+  hosts: staging_hosts
   user: root
   vars:
     aria_input_file: "/tmp/python_artifact_list.txt"
