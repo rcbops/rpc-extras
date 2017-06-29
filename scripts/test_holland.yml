@@ -1,0 +1,21 @@
+---
+
+- hosts: galera
+  user: root
+  vars:
+    # This fallback for when rpc_release is not defined is to cater for older releases
+    # where rpc_release is not available as a variable, but is instead derived by the
+    # execution of a module. If we are no longer testing branches older than Newton,
+    # the fallback mechanism can be removed.
+    latest_tag: "{{ lookup('pipe', 'cd /opt/rpc-openstack && git describe --tags --abbrev=0') }}"
+    holland_venv_bin: "/openstack/venvs/holland-{{ rpc_release | default(latest_tag) }}/bin"
+  tasks:
+    - name: Test for holland venv
+      stat:
+        path: "{{ holland_venv_bin }}"
+      register: holland_venv
+
+    - name: Test the functionality of the holland bk command
+      register: command_result
+      failed_when: "command_result.rc > 0"
+      command: "{{ holland_venv.stat.exists | bool | ternary(holland_venv_bin + '/python2.7', '') }} {{ holland_venv.stat.exists | bool | ternary(holland_venv_bin + '/', '') }}holland bk"
