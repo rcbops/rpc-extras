@@ -17,21 +17,142 @@
   hosts: localhost
   user: root
   tasks:
-    - name: Set ceph user_variables override
+    - name: Set user_variables_overrides fact
       set_fact:
         user_variables_overrides:
+          ## Three vars below migrated from existing boostrap-aio task.
           apply_security_hardening: "{{ rpco_deploy_hardening }}"
-      when: "{{ not rpco_deploy_ceph | bool }}"
-    - name: Set ceph user_variables override
+          # Tempest is turned off to prevent the tests from running by default
+          tempest_run: no
+          tempest_install: no
+          # This version is proposed to openstack-ansible-os_tempest
+          # master, but won't be backported all the way, so overridden here.
+          cirros_version: 0.3.5
+          # needs to be overridden to ensure that SHAs match cirros_version
+          # escaped jinja markup so that its not templated during bootstrap.
+          tempest_images:
+            - url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
+              sha256: "e137062a4dfbb4c225971b67781bc52183d14517170e16a3841d16f962ae7470"
+            - url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-uec.tar.gz"
+              sha256: "32ca0867f4099f33537625a2fcb1bc5fea1621c62833cdc58eaef2f93e10f154"
+
+
+    # migrated from rpc-gating/playbooks/vars/all.yml
+    - name: Set gating overrides fact
       set_fact:
-        user_variables_overrides:
-          apply_security_hardening: "{{ rpco_deploy_hardening }}"
-          glance_default_store: rbd
-          nova_libvirt_images_rbd_pool: vms
-      when: "{{ rpco_deploy_ceph | bool }}"
+        gating_user_variables_overrides:
+          maas_notification_plan: npTechnicalContactsEmail
+          nova_virt_type: qemu
+          maas_auth_method: "token"
+          maas_auth_token: "{{lookup('env', 'MAAS_AUTH_TOKEN')}}"
+          maas_api_url: "{{lookup('env', 'MAAS_API_URL')}}"
+          tempest_swift_container_sync: False
+          tempest_swift_discoverable_apis:
+            - bulk
+            - object
+            - container_quotas
+            - slo
+            - tempurl
+          # NOTE(mattt): This can be removed once we drop gating osa's stable/mitaka
+          tempest_tempest_conf_overrides:
+            object-storage:
+              reseller_admin_role: ResellerAdmin
+            compute-feature-enabled:
+              personality: false
+              attach_encrypted_volume: false
+            volume-feature-enabled:
+              snapshot: true
+          # This is being increased from the default of 85 as the default value may be
+          # too low for the liberty->mitaka upgrade job where more space is used by
+          # additional packages, venvs, logs, etc.
+          percent_used_critical_threshold: 95
+      when:
+        - lookup ('env', 'JOB_NAME') != ""
+    - name: Add gating user vars to user_variables_overrides
+      set_fact:
+        user_variables_overrides: "{{ user_variables_overrides|combine(gating_user_variables_overrides)}}"
+      when:
+        - lookup ('env', 'JOB_NAME') != ""
+
+    # migrated from rpc-gating/rpc_jobs/rpc_aio.yml
+    - name: Set scenario specific user variables
+      set_fact:
+        scenario_user_variables_overrides:
+          ceph:
+            ceph_stable_release: "hammer"
+            cinder_cinder_conf_overrides:
+                DEFAULT:
+                    default_volume_type: ceph
+            cinder_service_backup_driver: cinder.backup.drivers.ceph
+            tempest_service_available_swift: false
+            glance_default_store: rbd
+            nova_libvirt_images_rbd_pool: vms
+    - name: Add scenario user vars to user_variables_overrides
+      set_fact:
+        user_variables_overrides: "{{ user_variables_overrides|combine(scenario_user_variables_overrides[SCENARIO])}}"
+      when:
+        - SCENARIO is defined
+        - SCENARIO in scenario_user_variables_overrides
+
+    # migrated from rpc-gating/rpc_jobs/rpc_aio.yml
+    - name: Set trigger specific user variables
+      set_fact:
+        trigger_user_variables_overrides:
+          pr:
+            maas_use_api: false
+    - name: Add trigger user vars to user_variables_overrides
+      set_fact:
+        user_variables_overrides: "{{ user_variables_overrides|combine(trigger_user_variables_overrides[TRIGGER])}}"
+      when:
+        - TRIGGER is defined
+        - TRIGGER in trigger_user_variables_overrides
+
+    # migrated from rpc-gating/playbooks/vars/{aio,onmetal}.yml
+    - name: Set target specific user variables
+      set_fact:
+        target_user_variables_overrides:
+          aio:
+            # Ensure raw_multi_journal is False for upgrades.
+            # This is because of the way migrate-yaml.py behaves with the
+            # '--for-testing-take-new-vars-only'; meaning that the new
+            # default variables will be set in the user_*_variables_overrides.yml
+            # file. Since raw_multi_journal is set to False as part of the deploy.sh
+            # process, but is set to True in Mitaka's
+            # user_rpco_user_variables_defaults.yml file, this will result in
+            # migrate-yaml.py adding 'raw_multi_journal: True' in the overrides.
+            # To avoid this behavior in gate, it is overridden here.
+            # The same is true for journal_size, and maas_notification_plan.
+            raw_multi_journal: false
+            journal_size: 1024
+            osd_directory: true
+            tempest_test_sets: "scenario defcore"
+            tempest_run_tempest_opts:
+              - "--serial"
+          mnaio:
+            apply_security_hardening: false
+            maas_fqdn_extension: ".{{ lookup('env', 'NODE_NAME') }}"
+            memory_used_percentage_warning_threshold: 99.0
+            memory_used_percentage_critical_threshold: 99.5
+            net_max_speed: 1000
+            lb_name: "{{ lookup('env', 'NODE_NAME') }}"
+            maas_external_ip_address: "{{ ansible_default_ipv4.address }}"
+            tempest_testr_opts:
+              - '--concurrency 3'
+            tempest_run_tempest_opts: []
+
+    - name: Add target user vars to user_variables_overrides
+      set_fact:
+        user_variables_overrides: "{{ user_variables_overrides|combine(target_user_variables_overrides[TARGET])}}"
+      when:
+        - TARGET is defined
+        - TARGET in target_user_variables_overrides
+
   vars:
-    rpco_deploy_ceph: "{{ lookup('env', 'DEPLOY_CEPH') }}"
     rpco_deploy_hardening: "{{ lookup('env', 'DEPLOY_HARDENING') }}"
+    TRIGGER: "{{ lookup('env', 'TRIGGER')}}"
+    SCENARIO: "{{ lookup('env', 'SCENARIO')}}"
+    TARGET: "{{ lookup('env', 'TARGET')}}"
+
 
 - name: Execute the OSA AIO bootstrap
   include: "{{ lookup('env', 'OA_DIR') }}/tests/bootstrap-aio.yml"
@@ -153,19 +274,6 @@
 
     - name: Update the RPC-O secrets
       shell: "{{ rpco_base_dir }}/scripts/update-secrets.sh"
-
-    - name: Check for the existance of a gating settings file
-      stat:
-        path: "{{ rpco_cfg_src_path }}/user_zzz_gating_variables.yml"
-      register: gating_vars
-
-    - name: Copy gating settings file into place
-      copy:
-        src: "{{ rpco_cfg_src_path }}/user_zzz_gating_variables.yml"
-        dest: "/etc/openstack_deploy/user_zzz_gating_variables.yml"
-      when:
-        - gating_vars.stat.exists is defined
-        - gating_vars.stat.exists | bool
 
   vars:
     rpco_base_dir: "{{ lookup('env', 'BASE_DIR') }}"
