@@ -15,10 +15,24 @@
 #
 # (c) 2017, Jean-Philippe Evrard <jean-philippe.evrard@rackspace.co.uk>
 
+## Notice:
+# Please do not run this script separately. This script is meant to run
+# Inside the OSA Leapfrog.
+
 ## Shell Opts ----------------------------------------------------------------
 set -e -u -x
 set -o pipefail
 
+# These variables should have been defined in the main script, with a
+# conditional value depending on if this run is inside our gates or not
+# For safety, we ensure that these variables are defined, and set
+# to the safest value if not already defined.
+# The following must be TRUE to skip questions
+export IS_GATING="${IS_GATING:-FALSE}"
+# The following must be "--for-testing-take-new-vars-only" to skip questions
+export AUTOMATIC_VAR_MIGRATE_FLAG="${AUTOMATIC_VAR_MIGRATE_FLAG:-}"
+
+warning "Please DO NOT interrupt this process."
 notice "Pre redeploy steps"
 pushd ${LEAPFROG_DIR}
     if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/variable-migration.complete" ]]; then
@@ -30,7 +44,7 @@ pushd ${LEAPFROG_DIR}
             if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_extras_variables_migration.complete" ]]; then
                 cp /etc/openstack_deploy/user_extras_variables.yml ./
                 pushd ${RPCO_DEFAULT_FOLDER}/scripts
-                    "${RPCO_DEFAULT_FOLDER}"/scripts/migrate-yaml.py ${AUTOMATIC_VAR_MIGRATE_FLAG:-''} \
+                    "${RPCO_DEFAULT_FOLDER}"/scripts/migrate-yaml.py ${AUTOMATIC_VAR_MIGRATE_FLAG} \
                         --defaults "${RPCD_DIR}${RPCD_DEFAULTS}" \
                         --overrides /etc/openstack_deploy/user_extras_variables.yml \
                         --output-file ${RPCD_OVERRIDES}
@@ -45,7 +59,7 @@ pushd ${LEAPFROG_DIR}
             if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_variables_migration.complete" ]]; then
                 cp /etc/openstack_deploy/user_variables.yml ./
                 pushd ${RPCO_DEFAULT_FOLDER}/scripts
-                    "${RPCO_DEFAULT_FOLDER}"/scripts/migrate-yaml.py ${AUTOMATIC_VAR_MIGRATE_FLAG:-''} \
+                    "${RPCO_DEFAULT_FOLDER}"/scripts/migrate-yaml.py ${AUTOMATIC_VAR_MIGRATE_FLAG} \
                         --defaults "${RPCD_DIR}${OA_DEFAULTS}" \
                         --overrides /etc/openstack_deploy/user_variables.yml \
                         --output-file ${OA_OVERRIDES}
@@ -74,6 +88,14 @@ pushd ${LEAPFROG_DIR}
             fi
         popd
         log "variable-migration" "ok"
+        # This message only needs to appears the first time the user variable migration was successful
+        # This way, if a user mistakenly Ctrl-C, the variable migration process will be skipped on
+        # the next run
+        if [[ "${IS_GATING}" != "TRUE" ]]; then
+            notice "Please verify your migrated secrets in /etc/openstack_deploy"
+            warning "DO NOT CTRL-C this process to verify your secrets."
+            read -p "Press enter to continue when ready"
+        fi
     else
         log "variable-migration" "skipped"
     fi
