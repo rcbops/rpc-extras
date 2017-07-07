@@ -26,5 +26,5 @@ alarms      :
         criteria                : |
             :set consecutiveCount={{ maas_alarm_local_consecutive_count }}
             if (metric["cluster_health"] == 1) {
-                return new AlarmStatus(WARNING, "Ceph cluster warning.");
+                return new AlarmStatus(CRITICAL, "Ceph cluster warning.");
             }
