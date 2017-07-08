@@ -18,7 +18,7 @@ ceph_mons: >
   {% set _var = [] -%}
   {% if 'mons' in groups -%}
   {% for mon in groups.mons -%}
-  {% if _var.append(hostvars[mon]['ansible_ssh_host']) -%}{% endif -%}
+  {% if _var.append(hostvars[mon]['ansible_host']) -%}{% endif -%}
   {% endfor -%}
   {% endif -%}
   {{ _var }}

@@ -22,5 +22,13 @@
         repo: "https://github.com/rcbops/rpc-maas"
         dest: "/opt/rpc-maas"
         version: "{{ maas_release }}"
+    - name: Ensure openstack_deploy exists
+      file:
+        dest: "/etc/openstack_deploy"
+        state: directory
+    - name: Copy over base maas vars
+      copy:
+        src: "/opt/rpc-maas/tests/user_master_vars.yml"
+        dest: "/etc/openstack_deploy/user_rpcm_default_variables.yml"
   tags:
     - maas
