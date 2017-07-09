@@ -22,6 +22,6 @@ set -o pipefail
 # Branches lower than Newton may have ansible_host: ansible_ssh_host mapping
 # that will fail because ansible_ssh_host is undefined on ansible 2.1
 # Strip it.
-if [[ -f /etc/openstack_deploy/user_rpcm_variables.yml ]]; then
-    sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpcm_variables.yml
+if [[ -f /etc/openstack_deploy/user_rpcm_default_variables.yml ]]; then
+    sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpcm_default_variables.yml
 fi
