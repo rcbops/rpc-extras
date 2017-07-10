@@ -28,7 +28,6 @@ determine what services to deploy. At the time of this writing, there are two sc
 for as to what services are deployed:
 
 * The swift scenario, which deploys all of the basic openstack services, along with swift
-* The ceph scenario, which deploys all of the basic openstack services, along with ceph
 
 
 checksha.py
@@ -51,13 +50,6 @@ deploy.sh script is used to deploy RPCO with certain features turned on
 or off. These are toggled via environment variables described
 `here <https://github.com/rcbops/rpc-openstack/tree/master#environment-variables-for-deploysh>`__.
 
-When adding a new feature into RPCO, there might be a need to add a
-corresponding DEPLOY variable into this script so the feature can be
-toggled on or off. Please follow the same pattern outlined in this
-script, and enclose any instructions specific to deploying the new
-feature with a conditional similar to what is done
-`https://github.com/rcbops/rpc-openstack/blob/master/scripts/deploy.sh#L111`__
-for ceph.
 These deploy variables are defined in the [``functions.sh``](https://github.com/rcbops/rpc-openstack/blob/master/scripts/functions.sh#L19) script, which
 is then sourced in ``deploy.sh`` to make them available.
 

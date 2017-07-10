@@ -51,13 +51,6 @@ pushd ${OA_DIR}
 
   ./scripts/bootstrap-ansible.sh
 
-  # This removes legacy roles which were downloaded into the
-  # rpc-o folder structure, dirtying the git tree.
-  ansible-galaxy remove --roles-path /opt/rpc-openstack/rpcd/playbooks/roles/ \
-                        ceph-common ceph-mon ceph-osd \
-                        ceph.ceph-common ceph.ceph-mon ceph.ceph-osd \
-                        rcbops_openstack-ops
-
   if [[ "${ANSIBLE_ROLE_FETCH_MODE}" == 'galaxy' ]];then
     # Pull all required roles.
     ansible-galaxy install --role-file="${BASE_DIR}/ansible-role-requirements.yml" \

@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    The ``check_firewall`` variable is now set to false because the 
-    ``check firewall`` tasks are incompatible with Ansible 2.1.5. This 
-    fix allows for our ceph playbooks to run successfully.

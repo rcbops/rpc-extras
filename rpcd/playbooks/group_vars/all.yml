@@ -1,0 +1,34 @@
+# Copyright 2014, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This is the location where the rpc repository was checked out
+rpc_repo_path: /opt/rpc-openstack/openstack-ansible
+
+# rpc-openstack version
+# Note that this is also set in the user_*.yml files so that the
+# openstack_release override in osa_defaults is able to use it.
+rpc_release: "{{ lookup('pipe', 'cd /opt/rpc-openstack && git describe --tags --abbrev=0') }}"
+
+# Definitions for the repo server, these should match your openstack-ansible
+# deployment
+repo_server_port: 8181
+openstack_repo_url: "http://{{ internal_lb_vip_address }}:{{ repo_server_port }}"
+
+# Location to store a catalog of migrations completed
+migrations_dir: /etc/openstack_deploy/migrations
+
+# Cross roles configurations
+holland_venv_enabled: True
+holland_venv_bin: "/openstack/venvs/holland-{{ rpc_release }}/bin"
+holland_venv: "/openstack/venvs/holland-{{ rpc_release }}"

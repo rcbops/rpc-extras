@@ -33,19 +33,8 @@ Files in ``/etc/openstack_deploy``
 Files in ``/etc/openstack_deploy/conf.d/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``ceph.yml.aio``
-   This file contains target host configurations for an AIO ceph
-   infrastructure. It defines ceph monitor hosts, OSD hosts, and
-   storage hosts for an AIO ceph deployment. For more information, see
-   https://pages.github.rackspace.com/rpc-internal/docs-rpc/rpc-install-internal/ch-ceph.html#deploy-ceph.
-
-
 Files in ``/etc/openstack_deploy/env.d/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``ceph.yml``
-   Defines container groups and service mappings for the ceph software
-   components.
 
 ``elasticsearch.yml``
    Defines container groups and service mappings for the Elasticsearch

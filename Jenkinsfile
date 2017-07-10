@@ -200,12 +200,6 @@ node(){
         "continuous-integration/jenkins/aio/swift",
         trigger
     )
-    parallel_steps["ceph"] = makeBuildStep(
-        aio_job_name(series, "ceph", trigger),
-        common_params,
-        "continuous-integration/jenkins/aio/ceph",
-        trigger
-    )
     if (["newton", "master"].contains(series)){
       parallel_steps["xenial"] = makeBuildStep(
           aio_job_name(series, "xenial", trigger),
