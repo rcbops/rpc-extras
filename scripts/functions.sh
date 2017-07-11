@@ -15,11 +15,19 @@
 
 ## Vars ----------------------------------------------------------------------
 
+# Gating
+export BUILD_TAG=${BUILD_TAG:-}
+export INFLUX_IP=${INFLUX_IP:-}
+export INFLUX_PORT=${INFLUX_IP:-"8086"}
+
+# Other
 export ADMIN_PASSWORD=${ADMIN_PASSWORD:-"secrete"}
 export DEPLOY_AIO=${DEPLOY_AIO:-"no"}
 export DEPLOY_OA=${DEPLOY_OA:-"yes"}
 export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
 export DEPLOY_MAAS=${DEPLOY_MAAS:-"no"}
+export DEPLOY_TELEGRAF=${DEPLOY_TELEGRAF:-"no"}
+export DEPLOY_INFLUX=${DEPLOY_INFLUX:-"no"}
 export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_RALLY=${DEPLOY_RALLY:-"no"}
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
