@@ -30,13 +30,21 @@ fi
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
   pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/
     unset ANSIBLE_INVENTORY
+
+    # update the support role.
+    ansible-galaxy install git+https://github.com/rsoprivatecloud/openstack-ops
+
     sed -i 's#export ANSIBLE_INVENTORY=.*#export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY:-/opt/rpc-openstack/openstack-ansible/playbooks/inventory}"#g' /usr/local/bin/openstack-ansible.rc
     # TODO(remove the following hack to restart the neutron agents, when fixed upstream)
     ansible -m shell -a "restart neutron-linuxbridge-agent" nova_compute -i /opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     openstack-ansible setup-logging.yml
     openstack-ansible maas-get.yml
     openstack-ansible setup-maas.yml
-    # TODO(add support role)
+
+    # Failures ignored, as this role often fails and we only require it to
+    # install holland. If holland is not installed the holland test will
+    # fail later in the process.
+    openstack-ansible rpc-support.yml ||:
   popd
   log "deploy-rpc" "ok"
 else
