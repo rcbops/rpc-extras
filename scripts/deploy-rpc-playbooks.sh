@@ -67,19 +67,17 @@ fi
 # to define its influxdb servers.
 # These playbooks need maas-get to have run previously.
 if [[ "${DEPLOY_TELEGRAF}" == "yes" ]]; then
-    # BUILD_TAG is used as reference for gating, to allow
-    if [[ -z "${BUILD_TAG}" ]]; then
-        # user_zzz_variables are generated at every build, so
+    # BUILD_TAG is used as reference for gating.
+    if [[ -n "${BUILD_TAG}" ]]; then
+        # user_rpco_variables_overrides are generated at every build, so
         # we are fine to just echo it.
-        echo 'maas_job_reference: "${BUILD_TAG}"' >> /etc/openstack_deploy/user_zzz_gating_metrics_variables.yml
+        echo 'maas_job_reference: "${BUILD_TAG}"' >> /etc/openstack_deploy/user_rpco_variables_overrides.yml
         # Telegraph shipping is done to influx nodes belonging to
         # influx_telegraf_targets | union(influx_all)
-        if [[ -z "${INFLUX_IP}" ]]; then
-            cat >> /etc/openstack_deploy/user_zzz_gating_metrics_variables.yml << EOF
+        cat >> /etc/openstack_deploy/user_rpco_variables_overrides.yml << EOF
 influx_telegraf_targets:
   - "http://$INFLUX_IP:$INFLUX_PORT"
 EOF
-        fi
     fi
     run_ansible /opt/rpc-maas/playbooks/maas-tigkstack-telegraf.yml
 fi
