@@ -102,8 +102,6 @@ pushd ${LEAPFROG_DIR}
     if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rebootstrap-ansible-for-rpc.complete" ]]; then
         pushd ${RPCO_DEFAULT_FOLDER}
             ansible-galaxy install -r ansible-role-requirements.yml
-            sed -i "s|GROUP_VARS_PATH=.*|GROUP_VARS_PATH=\"\${GROUP_VARS_PATH:-${RPCO_DEFAULT_FOLDER}/openstack-ansible/playbooks/inventory/group_vars/:${RPCO_DEFAULT_FOLDER}/group_vars/:/etc/openstack_deploy/group_vars/}\"|" /usr/local/bin/openstack-ansible.rc
-            sed -i "s|HOST_VARS_PATH=.*|HOST_VARS_PATH=\"\${HOST_VARS_PATH:-${RPCO_DEFAULT_FOLDER}/openstack-ansible/playbooks/inventory/host_vars/:${RPCO_DEFAULT_FOLDER}/host_vars/:/etc/openstack_deploy/host_vars/}\"|" /usr/local/bin/openstack-ansible.rc
             source /usr/local/bin/openstack-ansible.rc
         popd
         log "rebootstrap-ansible-for-rpc" "ok"
