@@ -77,7 +77,7 @@ if [[ "${DEPLOY_TELEGRAF}" == "yes" ]]; then
         if [[ -z "${INFLUX_IP}" ]]; then
             cat >> /etc/openstack_deploy/user_zzz_gating_metrics_variables.yml << EOF
 influx_telegraf_targets:
-  - 'http://$INFLUX_IP:$INFLUX_PORT'
+  - "http://$INFLUX_IP:$INFLUX_PORT"
 EOF
         fi
     fi
