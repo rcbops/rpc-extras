@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Configure and finish deploying Ironic
-  hosts: localhost
-  max_fail_percentage: 20
-  roles:
-    - "configure_ironic"
+
+- include: cleaning_network.yml
+  when: ironic_ironic_conf_overrides.neutron.cleaning_network_uuid is not defined
