@@ -13,8 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Configure and finish deploying Ironic
-  hosts: localhost
-  max_fail_percentage: 20
-  roles:
-    - "configure_ironic"
+
+- name: Get cleaning_network_uuid
+  pause:
+    prompt: "What is the ironic cleaning network uuid from neutron?"
+  register: cleaning_network_uuid
+
+- name: Register cleaning_network_uuid
+  config_template:
+    src: /etc/openstack_deploy/user_osa_variables_overrides.yml
+    dest: /etc/openstack_deploy/user_osa_variables_overrides.yml
+    config_type: yaml
+    config_overrides:
+      ironic_ironic_conf_overrides:
+        neutron:
+          cleaning_network_uuid: "{{ cleaning_network_uuid.user_input }}"

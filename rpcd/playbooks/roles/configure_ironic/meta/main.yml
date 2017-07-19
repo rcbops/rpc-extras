@@ -1,0 +1,16 @@
+galaxy_info:
+  author: rcbops
+  description: Role to configure Ironic
+  company: Rackspace
+  license: Apache 2
+
+  min_ansible_version: 1.9
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+    - xenial
+
+  galaxy_tags: []
+
+dependencies: []
