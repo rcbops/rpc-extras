@@ -42,6 +42,10 @@ and ignore remote API checks by specifing ``maas_use_api: False`` in the
 * `ceph-osd.yml` - Runs the `ceph.ceph-osd` Ansible role, which is an external role
   located at https://github.com/ceph/ansible-ceph-osd to deploy the ceph OSD bits
 
+# Ironic suplimental guide
+
+Ironic has it's own set of configuration and post-deployment instructions.  If
+you wish to deploy Ironic please view [IRONIC.md](https://github.com/rcbops/rpc-openstack/blob/master/IRONIC.md).
 
 # Quick Start with an RPCO All-In-One(AIO)
 
