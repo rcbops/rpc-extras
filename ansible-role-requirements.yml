@@ -19,9 +19,9 @@
   src: https://github.com/openstack/openstack-ansible-os_octavia.git
   version: master
 # TODO(odyssey4me):
-# Remove this override once https://review.openstack.org/485592 merges
+# Remove this override once https://review.openstack.org/486754/ merges
 # and is included in the RPC-O SHA bump.
 - name: plugins
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-plugins
-  version: f49519df7f07a4b0ab487479598fa150d7ed7e1a
+  version: 782460644902f391cadb83e61c882956c0e569ee
