@@ -12,7 +12,7 @@ RPCO supports leapfrog upgrades from kilo to newton-14.1.
 * [Newton-14.1](https://github.com/rcbops/rpc-openstack/tree/newton-14.1): The second RPCO release of OpenStack Newton. This version includes Leapfrog upgrade tools.
 
 ## Pre Leapfrog Tasks
-* Verify that the kilo deployment is healthy.
+* Verify that the kilo deployment is healthy and at the latest version.
 * Perform Database housekeeping to prevent unnecessary migrations.
 
 ## Executing a leapfrog upgrade
@@ -98,6 +98,8 @@ If a leapfrog upgrade is interrupted, it can be resumed. Each major step of the
 leapfrog upgrade process creates a marker file, which will be used to skip
 completed tasks on subsequent runs.
 
+To resume, run scripts/leapfrog/ubuntu14-leapfrog.sh.
+
 If a step fails information about that step will be printed along with all the
 remaining steps. The operator must fix the failure before re-running the
 leapfrog or completing the remaining steps manually.
@@ -132,6 +134,7 @@ of interruption are not as dire as implied. The process can be resumed by
 re-running the top level script, which will skip the steps that have already
 been completed by checking for the existence of marker files.
 
+#### Restarting the leap after the OSA ops upgrade.sh gives a wrong prompt
 One of the confirmation prompts requires the operator to confirm the version that
 they are upgrading from, this is compared against a detected source version.
 When resuming the leapfrog process after an Interruption the files used to check

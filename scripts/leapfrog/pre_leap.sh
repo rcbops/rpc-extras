@@ -16,7 +16,7 @@
 # (c) 2017, Jean-Philippe Evrard <jean-philippe.evrard@rackspace.co.uk>
 
 ## Shell Opts ----------------------------------------------------------------
-set -e -u -x
+set -e -u
 set -o pipefail
 
 # Branches lower than Newton may have ansible_host: ansible_ssh_host mapping
