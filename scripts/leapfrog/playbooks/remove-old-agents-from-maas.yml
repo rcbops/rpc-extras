@@ -2,8 +2,13 @@
 - hosts: hosts
   gather_facts: no
   tasks:
-    - shell: "rm -f {% raw %}/etc/rackspace-monitoring-agent.conf.d/*${{% endraw %}{{ item }}{% raw %}}*{% endraw %}"
-      args:
-        executable: /bin/bash
-      with_file:
-        - "/etc/openstack_deploy/leapfrog_remove_remaining_old_containers"
+    - name: Get list of old containers
+      command: "cat /etc/openstack_deploy/leapfrog_remove_remaining_old_containers"
+      run_once: true
+      delegate_to: localhost
+      register: old_containers
+
+    - name: Remove old MaaS neutron container config files
+      shell: "rm /etc/rackspace-monitoring-agent.conf.d/*{{ item }}*"
+      with_items: old_containers.stdout_lines
+      ignore_errors: true
