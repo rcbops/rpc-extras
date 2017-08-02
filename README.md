@@ -102,6 +102,8 @@ maas_api_key: YourAPIKey
        `openstack_user_config.yml.aio`
     2. There is a tool to generate the inventory for RAX datacenters, otherwise
        it will need to be coded by hand.
+  6. If deploying ironic set up the `ironic-infra_hosts` and
+    `ironic-compute_hosts` parameters in `/etc/openstack_deploy/conf.d/ironic.yml`
 3. Run the RPC deploy script: `cd /opt/rpc-openstack && ./scripts/deploy.sh`
   1. If building without the ELK stack, set `DEPLOY_ELK=no` before running
 
