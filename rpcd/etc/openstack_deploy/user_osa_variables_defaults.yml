@@ -196,3 +196,29 @@ hwraid_apt_repos:
     state: "present"
     filename: "hwraid"
 hwraid_apt_keys: "{{ rpco_apt_gpg_keys }}"
+
+openstack_kernel_options:
+  - { key: 'fs.inotify.max_user_watches', value: 36864 }
+  - { key: 'net.ipv4.conf.all.rp_filter', value: 0 }
+  - { key: 'net.ipv4.conf.default.rp_filter', value: 0 }
+  - { key: 'net.ipv4.ip_forward', value: 1 }
+  - { key: 'net.netfilter.nf_conntrack_max', value: 262144 }
+  - { key: 'vm.dirty_background_ratio', value: 5 }
+  - { key: 'vm.dirty_ratio', value: 10 }
+  - { key: 'vm.swappiness', value: 5 }
+  - { key: 'net.bridge.bridge-nf-call-ip6tables', value: 1 }
+  - { key: 'net.bridge.bridge-nf-call-iptables', value: 1 }
+  - { key: 'net.bridge.bridge-nf-call-arptables', value: 1 }
+  - { key: 'net.ipv4.neigh.default.gc_thresh1', value: "{{ set_gc_val | int // 2 }}" }
+  - { key: 'net.ipv4.neigh.default.gc_thresh2', value: "{{ set_gc_val | int }}" }
+  - { key: 'net.ipv4.neigh.default.gc_thresh3', value: "{{ set_gc_val | int * 2 }}" }
+  - { key: 'net.ipv4.route.gc_thresh', value: "{{ set_gc_val | int * 2 }}" }
+  - { key: 'net.ipv4.neigh.default.gc_interval', value: 60 }
+  - { key: 'net.ipv4.neigh.default.gc_stale_time', value: 120 }
+  - { key: 'net.ipv6.neigh.default.gc_thresh1', value: "{{ set_gc_val | int // 2 }}" }
+  - { key: 'net.ipv6.neigh.default.gc_thresh2', value: "{{ set_gc_val | int }}" }
+  - { key: 'net.ipv6.neigh.default.gc_thresh3', value: "{{ set_gc_val | int * 2 }}" }
+  - { key: 'net.ipv6.route.gc_thresh', value: "{{ set_gc_val | int * 2 }}" }
+  - { key: 'net.ipv6.neigh.default.gc_interval', value: 60 }
+  - { key: 'net.ipv6.neigh.default.gc_stale_time', value: 120 }
+  - { key: 'fs.aio-max-nr', value: 131072 }
