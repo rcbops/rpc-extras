@@ -42,7 +42,7 @@ maas_target_alias: public0_v4
 maas_monitor_cinder_backup: "{{ cinder_service_backup_program_enabled | default(false) }}"
 
 # MaaS pathing and versions
-maas_release: master
+maas_release: "1.0.0"
 maas_venv: "/openstack/venvs/maas-{{ maas_release }}"
 maas_venv_bin: "{{ maas_venv }}/bin"
 
