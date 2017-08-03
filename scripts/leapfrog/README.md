@@ -45,7 +45,7 @@ Two variables will need to be set in `/etc/openstack_deploy/user_variabls.yml`
 before proceeding with the upgrade
 
 ```
-lxc_container_backing_store: "dir"
+lxc_container_backing_store: "dir" # 'dir' is the tested value. Other options are "lvm" and "overlayfs"
 neutron_legacy_ha_tool_enabled: "yes"
 ```
 
