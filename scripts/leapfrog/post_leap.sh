@@ -31,6 +31,7 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
   pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/
     unset ANSIBLE_INVENTORY
     sed -i 's#export ANSIBLE_INVENTORY=.*#export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY:-/opt/rpc-openstack/openstack-ansible/playbooks/inventory}"#g' /usr/local/bin/openstack-ansible.rc
+    sed -i 's#\*"/opt/openstack-ansible"\*#\*"/opt/rpc-openstack/openstack-ansible"\*#' /usr/local/bin/ansible
     # TODO(remove the following hack to restart the neutron agents, when fixed upstream)
     ansible -m shell -a "restart neutron-linuxbridge-agent" nova_compute -i /opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     openstack-ansible ${RPCO_DEFAULT_FOLDER}/scripts/leapfrog/playbooks/remove-old-agents-from-maas.yml
