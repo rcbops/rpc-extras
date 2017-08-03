@@ -41,6 +41,15 @@ page](https://github.com/rcbops/rpc-openstack/tree/r14.1.0) shows both SHAs,
 the RPCO SHA is the latest commit, and the OSA SHA is shown as an annotation
 after @ on the openstack-ansible submodule.
 
+Two variables will need to be set in `/etc/openstack_deploy/user_variabls.yml`
+before proceeding with the upgrade
+
+```
+lxc_container_backing_store: "dir"
+neutron_legacy_ha_tool_enabled: "yes"
+```
+
+These variables are required by later versions, but are not defined in Kilo or Liberty.
 
 
 The next step is to execute the leapfrog upgrade script
