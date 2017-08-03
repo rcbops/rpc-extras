@@ -41,7 +41,7 @@ page](https://github.com/rcbops/rpc-openstack/tree/r14.1.0) shows both SHAs,
 the RPCO SHA is the latest commit, and the OSA SHA is shown as an annotation
 after @ on the openstack-ansible submodule.
 
-Two variables will need to be set in `/etc/openstack_deploy/user_variabls.yml`
+Two variables will need to be set in `/etc/openstack_deploy/user_variables.yml`
 before proceeding with the upgrade
 
 ```
