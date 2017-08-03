@@ -147,8 +147,6 @@ neutron_neutron_conf_overrides:
 lxc_container_template_main_apt_repo: "https://mirror.rackspace.com/ubuntu"
 lxc_container_template_security_apt_repo: "https://mirror.rackspace.com/ubuntu"
 
-cinder_service_backup_program_enabled: false
-
 # We need to override the OpenStack upper constraint for Mitaka which is version 1.9.0, We should be able to remove this in Newton as the upper constraint moves to 2.3.0
 repo_build_upper_constraints_overrides:
   - "elasticsearch==2.3.0"

@@ -46,6 +46,24 @@
   when: "'xxx' in '{{ item.split(' ')[-1] }}'"
   with_items: neutron_output.stdout_lines|default([])
 
+- name: Grab relevant output of neutron port-list
+  shell: |
+    . ~/openrc && neutron port-list -c id -c binding:host_id -c device_owner -c status -f value
+  register: neutron_port_output
+
+- name: Warn if any neutron ports are in the build state
+  fail:
+    msg: "One or more of the neutron ports are in the build state"
+  when: "'build' in (item.split(' ')[-1]|lower)"
+  with_items: "{{ neutron_port_output.stdout|default([]) }}"
+  ignore_errors: yes
+
+- name: Write file listing ports in build status
+  template:
+    src: "neutron-port-status.txt.j2"
+    dest: "{{ backup_dir }}/neutron_ports_in_build_status-{{ datetime_stamp }}.post-upgrade"
+  delegate_to: localhost
+
 # Note: As part of https://github.com/rcbops/u-suk-dev/issues/348,
 # it has been realized that cinder services with the old hostname
 # cannot be deleted. Because of this, any services
@@ -82,3 +100,37 @@
     msg: "One or more of the orchestration services are down. Check the output above for more detail."
   when: "'down' in '{{ item.split(' ')[-1] }}'"
   with_items: "{{ orchestration_output.stdout_lines | default([]) }}"
+
+- name: Obtain a list of neutron routers
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    neutron router-list -f value --column id
+  register: neutron_routers
+
+- name: Check agent assigned to each neutron router
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    neutron l3-agent-list-hosting-router -f value --column host {{ item }}
+  with_items: "{{ neutron_routers.stdout_lines|default([]) }}"
+  register: neutron_routers_agents
+
+- name: Write file containing agent for each router
+  copy:
+    content: "{{ item.stdout }}"
+    dest: "{{ backup_dir }}/{{ item.item }}.post-upgrade"
+  with_items: "{{ neutron_routers_agents.results|default([]) }}"
+  delegate_to: localhost
+
+- name: Get content of pre-upgrade files
+  slurp:
+    src: "{{ backup_dir }}/{{ item }}.pre-upgrade"
+  register: neutron_routers_pre_slurp
+  with_items: "{{ neutron_routers.stdout_lines|default([]) }}"
+  delegate_to: localhost
+  failed_when: false
+
+- name: Render router status template
+  template:
+    src: "neutron-router-status.txt.j2"
+    dest: "{{ backup_dir }}/neutron-router-status-{{ datetime_stamp }}.txt"
+  delegate_to: localhost

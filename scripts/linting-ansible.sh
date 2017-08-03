@@ -22,16 +22,20 @@ if [[ -z "$VIRTUAL_ENV" ]] ; then
 fi
 
 pushd rpcd/playbooks/
+  # NOTE(cloudnull): Gather the playbooks for lint checks skipping maas. The
+  #                  MaaS Playbook is skipped because it's included and not
+  #                  present on the system until after ansible is bootstrapped. 
+  PLAYBOOKS="$(ls -1 *.yml | grep -v maas) "
   echo "Running ansible-playbook syntax check"
   # Do a basic syntax check on all playbooks and roles.
-  ansible-playbook -i 'localhost,' --syntax-check *.yml --list-tasks -e "roles_folder=~/.ansible/roles"
+  ansible-playbook -i 'localhost,' --syntax-check ${PLAYBOOKS} --list-tasks -e "roles_folder=~/.ansible/roles"
   # Perform a lint check on all playbooks and roles.
   ansible-lint --version
   echo "Running ansible-lint"
   # Lint playbooks and roles while skipping the ceph-* roles. They are not
   # ours and so we do not wish to lint them and receive errors about code we
   # do not maintain.
-  ansible-lint *.yml --exclude ~/.ansible/roles/ceph.ceph-common \
-                     --exclude ~/.ansible/roles/ceph.ceph-mon \
-                     --exclude ~/.ansible/roles/ceph.ceph-osd
+  ansible-lint ${PLAYBOOKS} --exclude ~/.ansible/roles/ceph.ceph-common \
+                            --exclude ~/.ansible/roles/ceph.ceph-mon \
+                            --exclude ~/.ansible/roles/ceph.ceph-osd
 popd

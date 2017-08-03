@@ -25,8 +25,8 @@
   tasks:
     - name: Execute tempest tests
       shell: |
-        export RUN_TEMPEST_OPTS={{ tempest_run_tempest_opts | join(' ') }}
-        export TESTR_OPTS={{ tempest_testr_opts | join(' ') }}
+        export RUN_TEMPEST_OPTS='{{ tempest_run_tempest_opts | join(' ') }}'
+        export TESTR_OPTS='{{ tempest_testr_opts | join(' ') }}'
         bash /opt/openstack_tempest_gate.sh {{ tempest_test_sets }}
       changed_when: false
   tags:

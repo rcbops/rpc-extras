@@ -1,0 +1,33 @@
+apply_security_hardening: "{{ lookup('env', 'DEPLOY_HARDENING') }}"
+cirros_version: 0.3.5
+tempest_images:
+  - url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
+    sha256: "e137062a4dfbb4c225971b67781bc52183d14517170e16a3841d16f962ae7470"
+  - url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-uec.tar.gz"
+    sha256: "32ca0867f4099f33537625a2fcb1bc5fea1621c62833cdc58eaef2f93e10f154"
+
+maas_notification_plan: npTechnicalContactsEmail
+nova_virt_type: qemu
+maas_auth_method: "token"
+maas_auth_token: "{{lookup('env', 'MAAS_AUTH_TOKEN')}}"
+maas_api_url: "{{lookup('env', 'MAAS_API_URL')}}"
+tempest_swift_container_sync: False
+tempest_swift_discoverable_apis:
+  - bulk
+  - object
+  - container_quotas
+  - slo
+  - tempurl
+# NOTE(mattt): This can be removed once we drop gating osa's stable/mitaka
+tempest_tempest_conf_overrides:
+  object-storage:
+    reseller_admin_role: ResellerAdmin
+  compute-feature-enabled:
+    personality: false
+    attach_encrypted_volume: false
+  volume-feature-enabled:
+    snapshot: true
+# This is being increased from the default of 85 as the default value may be
+# too low for the liberty->mitaka upgrade job where more space is used by
+# additional packages, venvs, logs, etc.
+percent_used_critical_threshold: 95

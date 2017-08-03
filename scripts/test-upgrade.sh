@@ -72,6 +72,8 @@ ansible-galaxy install --role-file=${BASE_DIR}/ansible-role-requirements.yml --f
 # Issue: We need to analyze support's maintenance plan to determine which
 # pieces we can orchestrate with ansible. This should be added to a
 # pre-upgrade task list.
+touch ${UPGRADE_VARIABLES_FILE}
+grep -q 'backup_dir' ${UPGRADE_VARIABLES_FILE} || echo "backup_dir: \"{{ local_home }}/rpc13-upgrade-$(date '+%Y-%m-%d')\"" >> ${UPGRADE_VARIABLES_FILE}
 cd ${RPCD_DIR}/playbooks
 openstack-ansible rpc-pre-upgrades.yml
 
@@ -147,7 +149,6 @@ popd
 # Set upgrade variables for the RPCO playbooks
 # The variables are put into a temporary user_variables file, then deleted
 # at the end of this script.
-touch ${UPGRADE_VARIABLES_FILE}
 if grep -q 'logging_upgrade' ${UPGRADE_VARIABLES_FILE}; then
   sed -i "s/logging_upgrade:.*$/logging_upgrade: true/" ${UPGRADE_VARIABLES_FILE}
 else

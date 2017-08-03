@@ -1,0 +1,19 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "true"
+{% for post in neutron_routers_agents.results %}
+  {% for pre in neutron_routers_pre_slurp.results %}
+    {% if post.item == pre.item %}
+      {% if 'content' in pre %}
+        {% if post.stdout == pre.content | b64decode %}
+  [OK] Router {{ post.item }} did not move agents during the migration and is assigned an agent
+        {% else %}
+          {% if post.stdout == "" %}
+          {# if router post upgrade has no agent assigned but did prior to the upgrade #}
+[WARN] Router {{ post.item }} is currently not assigned to an agent
+          {% else %}
+[WARN] Router {{ post.item }} appears to have moved agents during the migration
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}

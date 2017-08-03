@@ -1,7 +1,0 @@
-#!/bin/bash
-
-{% if maas_venv_enabled | bool %}
-source {{ maas_venv_bin }}/activate
-{% endif %}
-
-python2.7 "$@"

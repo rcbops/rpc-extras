@@ -86,3 +86,17 @@
         path: "/etc/rackspace-monitoring-agent.conf.d/beaver_process_check-{{ inventory_hostname }}.yaml"
         state: absent
       delegate_to: "{{ physical_host }}"
+
+- name: Remove legacy nova-spicehtml5proxy MaaS checks/alarms
+  hosts: nova_console
+  user: root
+  tags:
+    - rpc-pre-upgrades
+    - remove-nova-spice-console-maas-config
+  tasks:
+    - file:
+        path: "/etc/rackspace-monitoring-agent.conf.d/nova_spice_console_check--{{ inventory_hostname }}.yaml"
+        state: absent
+      delegate_to: "{{ physical_host }}"
+      when:
+        - nova_console_type == "novnc"

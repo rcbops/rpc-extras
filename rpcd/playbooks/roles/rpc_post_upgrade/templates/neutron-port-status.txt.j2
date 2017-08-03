@@ -1,0 +1,6 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "true"
+{% for port in neutron_port_output.stdout.split('\n')|default([]) %}
+  {% if 'build' in port|lower  %}
+    [WARN] neutron-port {{ port.split(' ')[0] }} on {{ port.split(' ')[1] }} in 'build' status
+  {% endif %}
+{% endfor %}

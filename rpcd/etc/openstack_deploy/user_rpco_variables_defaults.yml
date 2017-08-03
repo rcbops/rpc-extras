@@ -25,88 +25,8 @@ rackspace_cloud_username: SomeUserName
 rackspace_cloud_password: SomeUsersPassword
 rackspace_cloud_api_key: SomeAPIKey
 
-## MaaS Options
-# rpc_maas/defaults/main.yml contains vars that can be overridden here.
-
-# Set maas_auth_method to 'token' to use maas_auth_token/maas_api_url
-# instead of maas_username/maas_api_key
-maas_auth_method: password
-maas_tenant_id: "{{ rackspace_cloud_tenant_id }}"
-maas_auth_url: "{{ rackspace_cloud_auth_url }}"
-maas_username: "{{ rackspace_cloud_username }}"
-maas_api_key: "{{ rackspace_cloud_api_key }}"
-maas_auth_token: some_token
-maas_notification_plan: npManaged
-
 # Where is the openstack-ansible repo?
 rpc_repo_path: /opt/rpc-openstack/openstack-ansible
-
-# By default we will create an agent token for each entity, however if you'd
-# prefer to use the same agent token for all entities then specify it here
-#maas_agent_token: some_token
-maas_target_alias: public0_v4
-
-# Set whether checks should be enabled or disabled
-ssl_check: false
-host_check: false
-remote_check: true
-
-# Set the LB device name in CORE
-#lb_name: 'unspecified'
-
-# Set the maas_scheme
-maas_scheme: http
-# Specify per service if required, as an example:
-# maas_nova_scheme: https
-
-# Set the cehck time settings/count
-# Check this number of times before registering state change
-maas_alarm_local_consecutive_count: 3
-maas_alarm_remote_consecutive_count: 1
-
-# Set the fqdn extension if required, sample only
-# maas_fqdn_extension: .example.com
-
-# Set the following to skip creating alarms for this device for disk utilisation monitoring
-# maas_excluded_devices: ['xvde']
-
-# Set the following to skip a specific check
-# horizon_local_check is disabled until https://github.com/rcbops/u-suk-dev/issues/781
-# is resolved
-maas_excluded_checks:
-  - 'horizon_local_check.*'
-
-# Disable the following MaaS alarms
-# Issue: https://github.com/rcbops/u-suk-dev/issues/1081
-maas_excluded_alarms:
-  - '^idle_percent_average.*'
-  - '^memory_used.*'
-  - '^alarm-network-receive.*'
-  - '^alarm-network-transmit.*'
-
-# Set overrides for check periods
-# Issue: https://github.com/rcbops/u-suk-dev/issues/1081
-maas_check_period_override:
-  disk_utilisation: 900
-
-# Set the threshold for filesystem monitoring when you are not specifying specific filesystems.
-maas_filesystem_warning_threshold: 80.0
-maas_filesystem_critical_threshold: 90.0
-# Explicitly set the filesystems to set up monitors/alerts for.
-# NB You can override these in rpc_user_config per device using "maas_filesystem_overrides"
-# maas_filesystem_monitors:
-#  - filesystem: /
-#    warning_threshold: 80.0
-#    critical_threshold: 90.0
-#  - filesystem: /boot
-#    warning_threshold: 80.0
-#    critical_threshold: 90.0
-
-maas_monitor_cinder_backup: "{{ cinder_service_backup_program_enabled }}"
-
-# overrides for the nova_cloud_stats  maas plugin
-cloud_resource_cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
-cloud_resource_mem_allocation_ratio: "{{ nova_ram_allocation_ratio }}"
 
 # For an AIO it's recommended to set the following to limit the expected RAM
 # usage of elasticsearch.

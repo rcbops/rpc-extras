@@ -80,3 +80,25 @@
     - status
     - instance-volume-mappings
     - running-instances
+
+- name: Obtain a list of neutron routers
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    neutron router-list -f value --column id
+  register: neutron_routers
+  delegate_to: "{{ groups['utility_all'][0] }}"
+
+- name: Check agent assigned to each neutron router
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    neutron l3-agent-list-hosting-router -f value --column host {{ item }}
+  with_items: "{{ neutron_routers.stdout_lines }}"
+  register: neutron_routers_agents
+  delegate_to: "{{ groups['utility_all'][0] }}"
+
+- name: Write file containing agent for each router
+  copy:
+    content: "{{ item.stdout|replace('_','-') }}" # we replace here since containers will get renamed during upgrade
+    dest: "{{ backup_dir }}/{{ item.item }}.pre-upgrade"
+  with_items: "{{ neutron_routers_agents.results }}"
+  delegate_to: localhost

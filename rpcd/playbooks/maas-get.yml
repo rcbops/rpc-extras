@@ -13,5 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: rpc-support.yml
-- include: setup-logging.yml
+- name: Clone MaaS
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Clone RPC-MaaS
+      git:
+        repo: "https://github.com/rcbops/rpc-maas"
+        dest: "/opt/rpc-maas"
+        version: "{{ maas_release }}"
+    - name: Ensure openstack_deploy exists
+      file:
+        dest: "/etc/openstack_deploy"
+        state: directory
+    - name: Copy over base maas vars
+      copy:
+        src: "/opt/rpc-maas/tests/user_mitaka_vars.yml"
+        dest: "/etc/openstack_deploy/user_rpcm_default_variables.yml"
+  tags:
+    - maas

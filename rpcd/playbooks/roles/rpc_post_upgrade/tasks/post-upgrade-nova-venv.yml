@@ -18,7 +18,7 @@
 # of a venv
 - name: Find running nova services not in venv
   shell: |
-    pgrep -a "nova" | awk '{print $2,$3}' | grep -vP "{{ nova_venv_bin }}/\w+[\d\.\d]?\s{1}{{ nova_venv_bin }}/\w+"
+    pgrep -a "nova" | grep -v "nova-agent"| awk '{print $2,$3}' | grep -vP "{{ nova_venv_bin }}/\w+[\d\.\d]?\s{1}{{ nova_venv_bin }}/\w+"
   register: nova_output
   when: '"nova" in hostvars["{{ inventory_hostname }}"].properties.service_name'
   failed_when: "nova_output.stdout_lines|length != 0"

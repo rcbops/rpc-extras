@@ -21,21 +21,5 @@
   roles:
     - role: ceph.ceph-common
 
-- name: Install MaaS
-  hosts: hosts:all_containers
-  user: root
-  pre_tasks:
-    # This is needed to set the rpc_openstack_repo and rpc_release variables
-    # correctly
-    - name: Discover rpc-openstack version
-      git_repo_info:
-        path: "/opt/rpc-openstack"
-      delegate_to: localhost
-      run_once: true
-    - name: Display rpc_release variable
-      debug: var=rpc_release
-      run_once: true
-  roles:
-    - { role: "rpc_maas", tags: [ "maas-setup" ] }
-  vars:
-    nova_console_type: "spice"
+- include: maas-get.yml
+- include: /opt/rpc-maas/playbooks/site.yml

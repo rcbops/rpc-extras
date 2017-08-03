@@ -84,6 +84,15 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
         fi
       done
     popd
+
+    add_config all
+    if [[ "${TARGET:-}" == "aio" ]]; then
+      add_config aio
+    fi
+    if [[ "${TRIGGER:-}" == "pr" ]]; then
+      add_config pr
+    fi
+
     # ensure that the elasticsearch JVM heap size is limited
     sed -i 's/# elasticsearch_heap_size_mb/elasticsearch_heap_size_mb/' $RPCD_VARS
     # set the kibana admin password
@@ -92,8 +101,6 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
     sed -i "s/lb_name: .*/lb_name: '$(hostname)'/" $RPCD_VARS
     # set the notification_plan to the default for Rackspace Cloud Servers
     sed -i "s/maas_notification_plan: .*/maas_notification_plan: npTechnicalContactsEmail/" $RPCD_VARS
-    # the AIO needs this enabled to test the feature, but $RPCD_VARS defaults this to false
-    sed -i "s/cinder_service_backup_program_enabled: .*/cinder_service_backup_program_enabled: true/" /etc/openstack_deploy/user_osa_variables_defaults.yml
     # set network speed for vms
     echo "net_max_speed: 1000" >>$RPCD_VARS
 
@@ -104,16 +111,9 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
       # In production, the OSDs will run on bare metal however in the AIO we'll put them in containers
       # so the MONs think we have 3 OSDs on different hosts.
       sed -i 's/is_metal: true/is_metal: false/' /etc/openstack_deploy/env.d/ceph.yml
-
       sed -i "s/journal_size:.*/journal_size: 1024/" $RPCD_VARS
-      echo "monitor_interface: eth1" | tee -a $RPCD_VARS
-      echo "public_network: 172.29.236.0/22" | tee -a $RPCD_VARS
       sed -i "s/raw_multi_journal:.*/raw_multi_journal: false/" $RPCD_VARS
-      echo "osd_directory: true" | tee -a $RPCD_VARS
-      echo "osd_directories:" | tee -a $RPCD_VARS
-      echo "  - /var/lib/ceph/osd/mydir1" | tee -a $RPCD_VARS
-      echo "glance_default_store: rbd" | tee -a /etc/openstack_deploy/user_osa_variables_defaults.yml
-      echo "nova_libvirt_images_rbd_pool: vms" | tee -a $RPCD_VARS
+      add_config ceph
     else
       if [[ "$DEPLOY_SWIFT" == "yes" ]]; then
         echo "glance_default_store: swift" | tee -a /etc/openstack_deploy/user_osa_variables_defaults.yml
@@ -185,7 +185,6 @@ fi
 if [[ ! -f /etc/openstack_deploy/user_rpco_variables_overrides.yml ]]; then
   cp "${RPCD_DIR}"/etc/openstack_deploy/user_rpco_variables_overrides.yml /etc/openstack_deploy/user_rpco_variables_overrides.yml
 fi
-
 # begin the openstack installation
 if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
@@ -224,22 +223,6 @@ if [[ "${DEPLOY_OA}" == "yes" ]]; then
 
   # setup the infrastructure
   run_ansible setup-infrastructure.yml
-
-  # This section is duplicated from OSA/run-playbooks as RPC doesn't currently
-  # make use of run-playbooks. (TODO: hughsaunders)
-  # Note that switching to run-playbooks may inadvertently convert to repo build from repo clone.
-  # When running in an AIO, we need to drop the following iptables rule in any neutron_agent containers
-  # to ensure that instances can communicate with the neutron metadata service.
-  # This is necessary because in an AIO environment there are no physical interfaces involved in
-  # instance -> metadata requests, and this results in the checksums being incorrect.
-  if [ "${DEPLOY_AIO}" == "yes" ]; then
-    ansible neutron_agent -m command \
-                          -a '/sbin/iptables -t mangle -A POSTROUTING -p tcp --sport 80 -j CHECKSUM --checksum-fill'
-    ansible neutron_agent -m command \
-                          -a '/sbin/iptables -t mangle -A POSTROUTING -p tcp --sport 8000 -j CHECKSUM --checksum-fill'
-    ansible neutron_agent -m shell \
-                          -a 'DEBIAN_FRONTEND=noninteractive apt-get install iptables-persistent'
-  fi
 
   # setup openstack
   run_ansible setup-openstack.yml

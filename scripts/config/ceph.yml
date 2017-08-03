@@ -1,0 +1,13 @@
+ceph_stable_release: "hammer"
+cinder_cinder_conf_overrides:
+    DEFAULT:
+        default_volume_type: ceph
+cinder_service_backup_driver: cinder.backup.drivers.ceph
+tempest_service_available_swift: false
+osd_directory: true
+osd_directories:
+  - /var/lib/ceph/osd/mydir1
+glance_default_store: rbd
+nova_libvirt_images_rbd_pool: vms
+monitor_interface: eth1
+public_network: 172.29.236.0/22

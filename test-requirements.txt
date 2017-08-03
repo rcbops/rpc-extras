@@ -1,3 +1,5 @@
+# openstack-ansible ansible pin for stable/mitaka as at 16 June 2017
+git+https://github.com/ansible/ansible@819c51cd807061845ad5db9c5aaa8e05a623939b
 ansible-lint>=2.0.3,<=2.3.6
 flake8==2.2.4
 hacking>=0.10.0,<0.11
@@ -6,10 +8,10 @@ pyflakes==0.8.1
 mccabe==0.2.1 # capped for flake8
 bashate>=0.2 # Apache-2.0
 
-
 # This is required for the docs build jobs
 sphinx>=1.3.4,<1.6.0
 oslosphinx>=2.5.0 # Apache-2.0
+
 # TODO (alextricity25)
 # We need to investigate reno > 2.0.0
 # and why it isn't working with our
