@@ -16,4 +16,4 @@
 - name: Setup Kibana host
   hosts: kibana_all
   roles:
-    - "kibana"
+    - "rpc-role-kibana"
