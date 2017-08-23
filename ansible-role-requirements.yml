@@ -20,10 +20,6 @@
   scm: git
   src: https://github.com/openstack/openstack-ansible-os_octavia.git
   version: f8c0f7689ecd9651b27a7bf58cbdac35e0c48793
-- name: rpc-role-logstash
-  scm: git
-  src: https://github.com/rcbops/rpc-role-logstash.git
-  version: 3f5e7a6044629e76acb1933af19f09a89e55917b
 # TODO(odyssey4me)
 # Remove this once this SHA is included in our OSA SHA
 - name: lxc_hosts
@@ -54,3 +50,20 @@
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-galera_server
   version: b043c21352f24582fde9ecc8c406add5c4c4014f
+# Logging Specific Roles
+- name: rpc-role-logstash
+  scm: git
+  src: https://github.com/rcbops/rpc-role-logstash.git
+  version: 3f5e7a6044629e76acb1933af19f09a89e55917b
+- name: rpc-role-elasticsearch
+  scm: git
+  src: https://github.com/rcbops/rpc-role-elasticsearch
+  version: master
+- name: rpc-role-kibana
+  scm: git
+  src: https://github.com/rcbops/rpc-role-kibana
+  version: master
+- name: rpc-role-filebeat
+  scm: git
+  src: https://github.com/rcbops/rpc-role-filebeat
+  version: master

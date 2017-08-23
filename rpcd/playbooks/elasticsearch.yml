@@ -54,6 +54,6 @@
       tags:
         - elasticsearch-pre-install
   roles:
-    - "elasticsearch"
+    - "rpc-role-elasticsearch"
   vars:
     is_metal: "{{ properties.is_metal | default(False) }}"

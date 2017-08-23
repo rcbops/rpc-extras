@@ -1,5 +1,0 @@
-user="{{ kibana_service_user }}"
-group="{{ kibana_service_group }}"
-chroot="/"
-chdir="/"
-nice=""
