@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# Copyright 2014, Rackspace US, Inc.
+---
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-## Shell Opts ----------------------------------------------------------------
-set -euo pipefail
-
-# we need to fetch roles
-ansible-galaxy install --role-file=ansible-role-requirements.yml --force --roles-path=/home/travis/build/rcbops/rpc-openstack/rpcd/playbooks/roles
-
-python -m tox
+- name: Test placeholder
+  hosts: localhost
+  connection: local
+  gather_facts: false

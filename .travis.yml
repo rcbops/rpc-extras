@@ -28,14 +28,18 @@ notifications:
 matrix:
   include:
     - python: 2.7
-      env: TOXENV=flake8
+      env: TOXENV=release-script
     - python: 2.7
       env: TOXENV=ansible-lint
     - python: 2.7
-      env: TOXENV=releasenotes
+      env: TOXENV=ansible-syntax
     - python: 2.7
       env: TOXENV=bashate
     - python: 2.7
-      env: TOXENV=release-script
+      env: TOXENV=pep8
+    - python: 2.7
+      env: TOXENV=releasenotes
+    - python: 2.7
+      env: TOXENV=docs
 
 sudo: false
