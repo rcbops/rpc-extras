@@ -60,16 +60,6 @@ if ! container_artifacts_available; then
   ./scripts/artifacts-building/remove-container-aio-config.sh
 fi
 
-# Run AIO bootstrap playbook
-# Setting GROUP_VARS and HOST_VARS to their original
-# values here so that the OSA bootstrap playbooks
-# can run with the correct variables.
-export GROUP_VARS_PATH="/etc/openstack_deploy/group_vars/"
-export HOST_VARS_PATH="/etc/openstack_deploy/host_vars/"
 openstack-ansible -vvv ${BASE_DIR}/scripts/bootstrap-aio.yml \
                   -i "localhost," -c local \
                   -e "${BOOTSTRAP_OPTS}"
-# Unset GROUP_VARS_PATH and HOST_VARS_PATH so that the
-# defaults are taken in openstack-ansible.rc
-unset GROUP_VARS_PATH
-unset HOST_VARS_PATH

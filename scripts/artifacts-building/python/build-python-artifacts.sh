@@ -47,9 +47,15 @@ if [[ "${PWD}" != "/opt/rpc-openstack" ]]; then
 fi
 
 # Bootstrap Ansible
+cd /opt/rpc-openstack
+
+# Remove the AIO configuration relating to the use
+# of container artifacts. This needs to be done
+# because the container artifacts do not exist yet.
+./scripts/artifacts-building/remove-container-aio-config.sh
+
 # This script is sourced to ensure that the common
 # functions and vars are available.
-cd /opt/rpc-openstack
 source scripts/bootstrap-ansible.sh
 
 # Bootstrap the AIO configuration
@@ -57,11 +63,6 @@ source scripts/bootstrap-ansible.sh
 
 # Copy the current user-space defaults file
 cp "/opt/rpc-openstack/rpcd/etc/openstack_deploy/user_osa_variables_defaults.yml" /etc/openstack_deploy/
-
-# Remove the AIO configuration relating to the use
-# of container artifacts. This needs to be done
-# because the container artifacts do not exist yet.
-./scripts/artifacts-building/remove-container-aio-config.sh
 
 # Set override vars for the artifact build
 echo "repo_build_wheel_selective: no" >> /etc/openstack_deploy/user_osa_variables_overrides.yml
