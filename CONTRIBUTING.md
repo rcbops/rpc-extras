@@ -227,13 +227,15 @@ For example, the filebeat configurations for the cinder logs will look like the 
 ```yaml
 
 filebeat_logging_paths:
-  - paths:
-    - '/var/log/cinder/*.log'
+  - groups:
+      - cinder_all
+    paths:  # This is a log file filter, if present it will limit the file glob to only the files provided.
+      - cinder.log
     document_type: openstack
     tags:
-    - openstack
-    - oslofmt
-    - cinder
+      - openstack
+      - oslofmt
+      - cinder
     multiline:
       pattern: "{{ multiline_openstack_pattern }}"
       negate: 'true'
