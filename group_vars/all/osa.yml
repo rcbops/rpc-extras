@@ -16,7 +16,6 @@
 # SQLAlchemy/Olso Thread Pool Settings
 rpc_response_timeout: 180
 rpc_thread_pool_size: 180
-db_max_overflow: 60
 db_max_pool_size: 120
 db_pool_timeout: 60
 
@@ -29,16 +28,13 @@ keystone_database_pool_timeout: "{{ db_pool_timeout }}"
 neutron_api_workers: 64
 neutron_rpc_response_timeout: "{{ rpc_response_timeout }}"
 neutron_rpc_thread_pool_size: "{{ rpc_thread_pool_size }}"
-neutron_db_max_overflow: "{{ db_max_overflow }}"
 neutron_db_max_pool_size: "{{ db_max_pool_size }}"
 neutron_db_pool_timeout: "{{ db_pool_timeout }}"
 
 nova_rpc_response_timeout: "{{ rpc_response_timeout }}"
 nova_rpc_thread_pool_size: "{{ rpc_thread_pool_size }}"
-nova_db_max_overflow: "{{ db_max_overflow }}"
 nova_db_max_pool_size: "{{ db_max_pool_size }}"
 nova_db_pool_timeout: "{{ db_pool_timeout }}"
-nova_api_db_max_overflow: "{{ db_max_overflow }}"
 nova_api_db_max_pool_size: "{{ db_max_pool_size }}"
 nova_api_db_pool_timeout: "{{ db_pool_timeout }}"
 
