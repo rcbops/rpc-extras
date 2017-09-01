@@ -1,6 +1,8 @@
 # rpc-openstack
 Rackspace Private Cloud (RPC)
 
+This should be fun
+
 # OpenStack-Ansible integration
 
 The rpc-openstack repo wraps
