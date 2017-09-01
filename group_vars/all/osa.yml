@@ -44,8 +44,6 @@ nova_db_pool_timeout: "{{ db_pool_timeout }}"
 nova_api_db_max_overflow: "{{ db_max_overflow }}"
 nova_api_db_max_pool_size: "{{ db_max_pool_size }}"
 nova_api_db_pool_timeout: "{{ db_pool_timeout }}"
-nova_cpu_allocation_ratio: 2.0
-nova_ram_allocation_ratio: 1.0
 
 # Nova config overrides
 # NOTE: Due to a bug with nova, this variable cannot be set to true
