@@ -48,14 +48,18 @@ nova_cpu_allocation_ratio: 2.0
 nova_ram_allocation_ratio: 1.0
 
 # Nova config overrides
-# NOTE: Due to a bug with nova, this variable cannot be set to true
-# if the environment needs to be able to boot an instance from
-# a volume
-# https://bugs.launchpad.net/nova/+bug/1648324
+# NOTE: Due to a bug with nova, this variable cannot be set to true if the
+# environment needs to be able to boot an instance from a volume.
+# NOTE(mhayden): Remove this configuration once the OpenStack-Ansible SHA
+# has been bumped to pull in this fix from the Ocata release:
+#   https://review.openstack.org/#/c/469548/
 nova_cross_az_attach: False
+
 nova_console_type: novnc
 
 # RabbitMQ overrides
+# NOTE(mhayden): Remove this override once the OpenStack-Ansible SHA is bumped
+# to include: https://review.openstack.org/#/c/500054/
 rabbitmq_ulimit: 65535
 
 # Set RabbitMQ message replication count to 2

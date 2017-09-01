@@ -70,3 +70,8 @@ tests/plugins
 tests/playbooks
 tests/common
 tests/*.retry
+
+# Mac OS X files
+*.DS_Store
+.AppleDouble
+.LSOverride
