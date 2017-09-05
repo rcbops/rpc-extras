@@ -13,16 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# SQLAlchemy/Olso Thread Pool Settings
-db_pool_timeout: 60
-
-keystone_database_pool_timeout: "{{ db_pool_timeout }}"
-
-neutron_db_pool_timeout: "{{ db_pool_timeout }}"
-
-nova_db_pool_timeout: "{{ db_pool_timeout }}"
-nova_api_db_pool_timeout: "{{ db_pool_timeout }}"
-
 # Nova config overrides
 # NOTE: Due to a bug with nova, this variable cannot be set to true if the
 # environment needs to be able to boot an instance from a volume.
