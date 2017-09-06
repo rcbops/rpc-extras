@@ -64,6 +64,13 @@ releasenotes/build
 # Editor files
 .idea
 
+# Test temp files
+openstack-ansible-ops
+tests/plugins
+tests/playbooks
+tests/common
+tests/*.retry
+
 # Mac OS X files
 *.DS_Store
 .AppleDouble
