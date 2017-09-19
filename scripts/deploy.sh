@@ -57,6 +57,11 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
 
 fi
 
+# Configure for multi-node AIO
+if [[ "${CONFIGURE_MNAIO}" == "yes" ]]; then
+  source "$(dirname "${0}")/configure-multi-node-aio.sh"
+fi
+
 # move OSA secrets to correct locations
 if [[ ! -f /etc/openstack_deploy/user_osa_secrets.yml ]] && [[ -f /etc/openstack_deploy/user_secrets.yml ]]; then
   mv /etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/user_osa_secrets.yml

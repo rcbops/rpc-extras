@@ -151,12 +151,15 @@
     rpco_deploy_hardening: "{{ lookup('env', 'DEPLOY_HARDENING') }}"
     TRIGGER: "{{ lookup('env', 'TRIGGER')}}"
     SCENARIO: "{{ lookup('env', 'SCENARIO')}}"
-    TARGET: "{{ lookup('env', 'TARGET')}}"
+    TARGET: "{{ lookup('env', 'TARGET') | default('aio', true) }}"
 
 
 - name: Execute the OSA AIO bootstrap
   include: "{{ lookup('env', 'OA_DIR') }}/tests/bootstrap-aio.yml"
+  when:
+    - TARGET == "aio"
   vars:
+    TARGET: "{{ lookup('env', 'TARGET') | default('aio', true) }}"
     bootstrap_host_apt_distribution_suffix_list: "{{ (lookup('env', 'RPCO_APT_ARTIFACTS_AVAILABLE') | bool) | ternary([], ['updates', 'backports']) }}"
     bootstrap_host_scenario: "{% if lookup('env', 'DEPLOY_MAGNUM') == 'yes' %}magnum{% elif lookup('env', 'DEPLOY_IRONIC') == 'yes' %}ironic{% else %}{{ lookup('env', 'DEPLOY_CEPH') |bool |ternary('ceph','swift') }}{%endif%}"
     bootstrap_user_variables_template: "user_variables.aio.yml.j2"

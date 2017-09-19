@@ -1,0 +1,6 @@
+This file exists as a marker to let Jenkins/rpc-gating know that adding config overrides for gating and
+scenarios will be handled in repo and doesn't need to be touched by gating scripts.
+
+
+Once this has been backported to all branches, the functionality will be removed from rpc-gating, then these
+files won't be needed.

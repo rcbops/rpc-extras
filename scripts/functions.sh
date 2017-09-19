@@ -42,6 +42,7 @@ export DEPLOY_ARA=${DEPLOY_ARA:-"no"}
 export DEPLOY_SUPPORT_ROLE=${DEPLOY_SUPPORT_ROLE:-"no"}
 export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
 export UNAUTHENTICATED_APT=${UNAUTHENTICATED_APT:-no}
+export CONFIGURE_MNAIO=${CONFIGURE_MNAIO:-"no"}
 
 export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
 export OA_DIR="${BASE_DIR}/openstack-ansible"
