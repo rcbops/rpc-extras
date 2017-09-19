@@ -74,6 +74,7 @@ aptly_miko_mapping:
       - "slushie-{{ rpc_release }}-uca-newton-updates-xenial"
       - "slushie-{{ rpc_release }}-mariadb-10.0-xenial"
       - "slushie-{{ rpc_release }}-percona-xenial"
+      - "slushie-{{ rpc_release }}-erlang-xenial"
       - "slushie-{{ rpc_release }}-rabbitmq-downloaded-packages-{{ rpc_release }}-ALL"
       - "slushie-{{ rpc_release }}-elastic-logstash-2.3-ALL"
       - "slushie-{{ rpc_release }}-elastic-kibana-4.5-ALL"
@@ -274,6 +275,25 @@ aptly_mirrors:
     state: "present"
     gpg:
       key: "6B73A36E6026DFCA"
+      server: "hkp://keyserver.ubuntu.com:80"
+      keyring: "trustedkeys.gpg"
+    create_flags:
+      - "-keyring='trustedkeys.gpg'"
+    update_flags:
+      - "-keyring='trustedkeys.gpg'"
+    do_update: "{{ aptly_mirror_do_updates }}"
+  # Erlang (used by RabbitMQ):
+  # Got the key from:
+  # wget https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
+  # gpg --list-packets erlang_solutions.asc
+  - name: erlang-xenial
+    archive_url: https://packages.erlang-solutions.com/ubuntu
+    distribution: xenial
+    component1:
+      - contrib
+    state: "present"
+    gpg:
+      key: "D208507CA14F4FCA"
       server: "hkp://keyserver.ubuntu.com:80"
       keyring: "trustedkeys.gpg"
     create_flags:

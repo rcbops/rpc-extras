@@ -39,3 +39,8 @@ octavia_git_repo: 'https://git.openstack.org/openstack/octavia'
 octavia_git_project_group: 'octavia_all'
 octavia_git_install_fragments: "venvwithindex=True&ignorerequirements=True"
 
+# RabbitMQ
+rabbitmq_install_method: "external_repo"
+rabbitmq_repo: "{{ rpco_apt_repo }}"
+rabbitmq_erlang_repo: "{{ rpco_apt_repo }}"
+rabbitmq_gpg_keys: "{{ rpco_apt_gpg_keys }}"

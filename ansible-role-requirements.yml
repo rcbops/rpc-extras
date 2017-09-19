@@ -18,3 +18,11 @@
   scm: git
   src: https://github.com/openstack/openstack-ansible-os_octavia.git
   version: f8c0f7689ecd9651b27a7bf58cbdac35e0c48793
+# NOTE(mhayden): This role was bumped early to fix two RPC-O issues:
+#   - RO-2428: RPC-O 14.x rabbitmq & erlang stability issue
+#   - RO-2438: Push RabbitMQ ulimit override upstream
+# Remove this once our OSA SHA bump includes this role.
+- name: rabbitmq_server
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-rabbitmq_server
+  version: f2d110a1fae658edfc790d6d1a00cf481f51e9f2
