@@ -181,3 +181,38 @@ function configure_apt_sources {
   curl --silent --fail ${HOST_RCBOPS_REPO}/apt-mirror/rcbops-release-signing-key.asc | apt-key add -
 
 }
+
+function downgrade_installed_packages {
+  # Once the apt sources are reconfigured, this function is used
+  # to downgrade any installed packages to the latest versions
+  # available in the configured apt sources.
+  # This is essential when using older apt artifacts on newly
+  # built images (eg: public cloud).
+
+  # Update the apt cache
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  # Check whether there are any installed packages which
+  # are not available in a configured source.
+  if apt list --installed 2>/dev/null | egrep '\[.*local.*\]'; then
+    # Create a list of those packages.
+    pkg_downgrade_list=$(apt list --installed 2>/dev/null | egrep '\[.*local.*\]' | cut -d/ -f1)
+
+    # Work through the list, checking for the latest available version of
+    # each package in the configured sources. Put together a list of the
+    # packages and their versions in the format that 'apt-get install'
+    # expects it.
+    pkg_downgrade_list_versioned=""
+    for pkg_name in ${pkg_downgrade_list}; do
+      # 'apt-cache madison' provides an easy to parse format:
+      #   libc-bin | 2.19-0ubuntu6.9 | http://rpc-repo.rackspace.com/apt-mirror/integrated/ r14.0.0rc1-trusty/main amd64 Packages
+      #   libc-bin | 2.19-0ubuntu6 | http://mirror.rackspace.com/ubuntu/ trusty/main amd64 Packages
+      # The top entry is always the latest package available from a configured source.
+      pkg_version=$(apt-cache madison ${pkg_name} | head -n 1 | awk '{ print $3 }')
+      pkg_downgrade_list_versioned="${pkg_downgrade_list_versioned} ${pkg_name}=${pkg_version}"
+    done
+    # Execute the downgrade of all the packages at the same time so that
+    # we reduce the likelihood of conflicts.
+    apt-get install -y --force-yes ${pkg_downgrade_list_versioned}
+  fi
+}
