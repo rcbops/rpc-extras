@@ -1,0 +1,14 @@
+#!/bin/bash -xe
+
+# Update OSA SHA to head of stable/newton
+
+# Get current head of stable/newton
+git clone "https://github.com/openstack/openstack-ansible" ${WORKSPACE}/oa
+pushd ${WORKSPACE}/oa
+  git checkout stable/newton
+  CURRENT_SHA="$(git log -n 1 --format=%H)"
+popd
+
+# Insert current SHA into functions.sh
+sed -i.bk '/OSA_RELEASE:-/ c\
+export OSA_RELEASE=${OSA_RELEASE:-"'${CURRENT_SHA}'"}' scripts/functions.sh
