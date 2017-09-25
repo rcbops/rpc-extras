@@ -1,0 +1,58 @@
+#!/bin/bash -xe
+
+# Update OSA SHA to head of stable/ocata
+
+osa_branch=stable/ocata
+
+# Get current head of stable/ocata
+git clone "https://github.com/openstack/openstack-ansible" ${WORKSPACE}/oa
+pushd ${WORKSPACE}/oa
+  git checkout $osa_branch
+  osa_sha="$(git log -n 1 --format=%H)"
+popd
+
+# Insert current SHA into functions.sh
+sed -i '/OSA_RELEASE:-/ c\
+export OSA_RELEASE=${OSA_RELEASE:-"'${osa_sha}'"}' scripts/functions.sh
+
+
+# Update rpc_release. The mainline branch should always be one version
+# ahead of the rc branch, as the next rc branch will be cut from mainline
+# post release.
+
+# This update script will only ever run against a mainine branch, as
+# dependencies should not change once an RC branch has been cut.
+
+# Get RC branch version
+rc_branch="${BRANCH}-rc"
+git fetch origin
+git show origin/${rc_branch} || {
+  echo "rc-branch ${rc_branch} not found, aborting."
+  exit 1
+}
+
+# can't use derive-artifact-version.sh as that hardcodes the rpc repo path
+extract_rpc_release(){
+  awk '/rpc_release/{print $2}' | tr -d '"'
+}
+
+rc_branch_version="$(git show origin/${rc_branch}:group_vars/all/release.yml \
+                    | extract_rpc_release)"
+echo "rpc_release version from rc-branch (${rc_branch}): ${rc_branch_version}"
+
+current_branch_version="$(extract_rpc_release < group_vars/all/release.yml)"
+echo "rpc_release version from current branch (${BRANCH}): ${current_branch_version}"
+
+# Extract the required version info
+major_version=$( echo ${rc_branch_version} | cut -d. -f1 )
+minor_version=$( echo ${rc_branch_version} | cut -d. -f2 )
+patch_version=$( echo ${rc_branch_version} | cut -d. -f3 )
+
+# increment the minor version
+minor_version=$(( minor_version + 1 ))
+
+incremented_version="${major_version}.${minor_version}.${patch_version}"
+echo "Incremented rpc_release version: ${incremented_version}"
+
+sed -i "s/${current_branch_version}/${incremented_version}/" \
+  group_vars/all/release.yml
