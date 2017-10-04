@@ -1,5 +1,5 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
+# Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,36 @@
               sha256: "e137062a4dfbb4c225971b67781bc52183d14517170e16a3841d16f962ae7470"
             - url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-uec.tar.gz"
               sha256: "32ca0867f4099f33537625a2fcb1bc5fea1621c62833cdc58eaef2f93e10f154"
-
+          ## Galera settings
+          galera_innodb_buffer_pool_size: 16M
+          galera_innodb_log_buffer_size: 4M
+          galera_wsrep_provider_options:
+           - { option: "gcache.size", value: "4M" } 
+          ### Set workers for all services to optimise memory usage
+          ceilometer_api_workers: 1
+          ceilometer_collector_workers: 1
+          ceilometer_notification_workers: 1
+          cinder_osapi_volume_workers: 1
+          glance_api_workers: 1
+          glance_registry_workers: 1
+          heat_api_workers: 1
+          heat_engine_workers: 1
+          horizon_wsgi_processes: 1
+          horizon_wsgi_threads: 1
+          keystone_wsgi_processes: 1
+          neutron_api_workers: 1
+          neutron_metadata_workers: 1
+          neutron_rpc_workers: 1
+          nova_conductor_workers: 1
+          nova_metadata_workers: 1
+          nova_osapi_compute_workers: 1
+          swift_account_server_replicator_workers: 1
+          swift_server_replicator_workers: 1
+          swift_object_replicator_workers: 1
+          swift_account_server_workers: 1
+          swift_container_server_workers: 1
+          swift_object_server_workers: 1
+          swift_proxy_server_workers: 1
 
     # migrated from rpc-gating/playbooks/vars/all.yml
     - name: Set gating overrides fact
