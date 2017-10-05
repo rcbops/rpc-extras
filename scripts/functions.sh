@@ -16,7 +16,7 @@
 ## Vars ----------------------------------------------------------------------
 
 # OSA SHA
-export OSA_RELEASE=${OSA_RELEASE:-"045c4c5601a7f1d2e63303c7420e9fd518704c4b"}
+export OSA_RELEASE=${OSA_RELEASE:-"031317a83c00b07394e6002659827ef20e9dda24"}
 
 # Gating
 export BUILD_TAG=${BUILD_TAG:-}
