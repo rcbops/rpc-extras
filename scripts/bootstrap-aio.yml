@@ -47,22 +47,11 @@
           keystone_httpd_mpm_max_spare_threads: 2
           keystone_httpd_mpm_thread_limit: 2
           keystone_httpd_mpm_thread_child: 1
-          keystone_wsgi_threads: 1
-          keystone_wsgi_processes_max: 2
-          barbican_wsgi_processes: 2
-          barbican_wsgi_threads: 1
-          cinder_wsgi_processes_max: 2
-          cinder_wsgi_threads: 1
-          cinder_wsgi_buffer_size: 16384
           cinder_osapi_volume_workers_max: 2
           glance_api_threads_max: 2
           glance_api_threads: 1
           glance_api_workers: 1
           glance_registry_workers: 1
-          nova_wsgi_threads: 1
-          nova_wsgi_processes_max: 2
-          nova_wsgi_processes: 2
-          nova_wsgi_buffer_size: 16384
           nova_api_threads_max: 2
           nova_api_threads: 1
           nova_osapi_compute_workers: 1
@@ -77,21 +66,11 @@
           heat_api_workers: 1
           heat_api_threads_max: 2
           heat_api_threads: 1
-          heat_wsgi_threads: 1
-          heat_wsgi_processes_max: 2
-          heat_wsgi_processes: 1
-          heat_wsgi_buffer_size: 16384
           horizon_wsgi_processes: 1
           horizon_wsgi_threads: 1
           horizon_wsgi_threads_max: 2
           ceilometer_notification_workers_max: 2
           ceilometer_notification_workers: 1
-          aodh_wsgi_threads: 1
-          aodh_wsgi_processes_max: 2
-          aodh_wsgi_processes: 1
-          gnocchi_wsgi_threads: 1
-          gnocchi_wsgi_processes_max: 2
-          gnocchi_wsgi_processes: 1
           swift_account_server_replicator_workers: 1
           swift_server_replicator_workers: 1
           swift_object_replicator_workers: 1
@@ -102,16 +81,10 @@
           swift_proxy_server_workers_not_capped: 1
           swift_proxy_server_workers_capped: 1
           swift_proxy_server_workers: 1
-          ironic_wsgi_threads: 1
-          ironic_wsgi_processes_max: 2
-          ironic_wsgi_processes: 1
           trove_api_workers_max: 2
           trove_api_workers: 1
           trove_conductor_workers_max: 2
           trove_conductor_workers: 1
-          trove_wsgi_threads: 1
-          trove_wsgi_processes_max: 2
-          trove_wsgi_processes: 1
           sahara_api_workers_max: 2
           sahara_api_workers: 1
 
