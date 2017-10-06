@@ -75,6 +75,7 @@ fi
 # bootstrap-ansible script for putting together the apt artifacts.
 if [[ "${HOST_SOURCES_REWRITE}" == 'yes' ]] && apt_artifacts_available; then
   configure_apt_sources
+  downgrade_installed_packages
 fi
 
 # begin the bootstrap process
