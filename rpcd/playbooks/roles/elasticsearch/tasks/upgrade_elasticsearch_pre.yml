@@ -231,7 +231,7 @@
     - elasticsearch-reindex
 
 - name: Monitor reindexing process
-  shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --monitor --continuous
+  shell: /opt/reindex-liberty.py --host "{{ hostvars[groups['elasticsearch_container'][0]]['container_address'] }}" --monitor --continuous --verbose
   async: 259200
   poll: 5
   delegate_to: "{{ groups['elasticsearch_all'][0] }}"

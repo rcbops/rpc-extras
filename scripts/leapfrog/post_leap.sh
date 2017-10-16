@@ -29,6 +29,8 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
     # TODO(remove the following hack to restart the neutron agents, when fixed upstream)
     ansible -m shell -a "restart neutron-linuxbridge-agent" nova_compute -i /opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     openstack-ansible ${RPCO_DEFAULT_FOLDER}/scripts/leapfrog/playbooks/remove-old-agents-from-maas.yml
+    # TO-DO exclude Elasticsearch, upgrade it after leap
+    sed -i "s/- include: elasticsearch.yml$/#- include: elasticsearch.yml/" ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/setup-logging.yml
     . ${RPCO_DEFAULT_FOLDER}/scripts/deploy-rpc-playbooks.sh
   popd
   log "deploy-rpc" "ok"
