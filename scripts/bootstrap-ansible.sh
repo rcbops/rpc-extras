@@ -26,7 +26,7 @@ source ${BASE_DIR}/scripts/functions.sh
 ## Vars ----------------------------------------------------------------------
 
 # Set the role fetch mode to any option [galaxy, git-clone]
-export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-galaxy}
+export ANSIBLE_ROLE_FETCH_MODE=${ANSIBLE_ROLE_FETCH_MODE:-git-clone}
 
 ## Main ----------------------------------------------------------------------
 
