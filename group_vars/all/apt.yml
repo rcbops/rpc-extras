@@ -39,12 +39,6 @@ rpco_gpg_key_id: 52AA252F #SET IN STATIC (to force key verification per release)
 lxc_container_cache_files_from_host:
   - "/etc/apt/sources.list.d/{{ rpco_mirror_apt_filename }}.list"
 
-# We won't be using the repo package cache, as we'll have a full mirror.
-# TODO (odyssey4me):
-# Implement the apt artifact staging as part of the standard
-# deploy script. However skip that stage for AIO's.
-repo_pkg_cache_enabled: no
-
 # We don't want the Trusty backports repo to be added because
 # all packages must come from our apt artifacts.
 lxc_package_repo_add: no
