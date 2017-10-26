@@ -167,7 +167,7 @@
     - name: Create release index entries
       lineinfile:
         dest: "{{ built_container_artifact_metadata_file }}"
-        line: "{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }};{{ build_id }};/{{ rpc_mirror_container_relative_image_location }}"
+        line: "{{ lxc_index_entry }};{{ image_name }}-{{ rpc_release }};{{ build_id }};/{{ rpc_mirror_container_relative_image_location }}/"
         create: yes
         state: present
     - name: create sha256sums
