@@ -10,10 +10,6 @@
   scm: git
   src: https://github.com/ceph/ansible-ceph-osd.git
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
-- name: os_octavia
-  scm: git
-  src: https://github.com/openstack/openstack-ansible-os_octavia.git
-  version: f8c0f7689ecd9651b27a7bf58cbdac35e0c48793
 # NOTE(cloudnull) Logging Specific roles
 - name: logstash
   scm: git
@@ -31,33 +27,17 @@
   scm: git
   src: https://github.com/elastic/ansible-elasticsearch
   version: 0bffa37035652fc06b547c8ef68c2aaf15b92f80
-# TODO(odyssey4me)
-# Remove this once this SHA is included in our OSA SHA
-- name: lxc_hosts
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-lxc_hosts
-  version: 35cb1ffd23b194491cde02312d3066362d9e5c13
-# TODO(odyssey4me)
-# Remove this once this SHA is included in our OSA SHA
-- name: rabbitmq_server
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-rabbitmq_server
-  version: 8aadc9701f8aeb7b8d2c8f2748b3efc426447c5c
-# TODO(odyssey4me)
-# Remove this once this SHA is included in our OSA SHA
-- name: lxc_container_create
-  scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-lxc_container_create
-  version: 258dad41ced7f9511d4e388470a759f46d9509fa
-# TODO(odyssey4me)
-# Remove this once this SHA is included in our OSA SHA
+# TODO(odyssey4me):
+# Beyond this SHA breaks our artifact build process.
+# Once RO-3006 is resolved, this can be removed.
 - name: galera_client
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-galera_client
-  version: 8cc60641a5a8a9f7db31a11426c48f4f8a6e8f9a
-# TODO(odyssey4me)
-# Remove this once this SHA is included in our OSA SHA
+  version: 545871d19ec69b91d80a6f2ffb200318255d574b
+# TODO(odyssey4me):
+# Beyond this SHA breaks our artifact build process.
+# Once RO-3006 is resolved, this can be removed.
 - name: galera_server
   scm: git
   src: https://git.openstack.org/openstack/openstack-ansible-galera_server
-  version: b043c21352f24582fde9ecc8c406add5c4c4014f
+  version: 9a33c61ac7d54b673caecf993bd075ed3757cdbf
