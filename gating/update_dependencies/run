@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-# Update OSA SHA to head of stable/ocata
+## Update OSA SHA to head of stable/ocata
 
 # These var must be set per branch of RPC-Openstack
 osa_branch=stable/ocata
@@ -68,3 +68,21 @@ echo "Incremented rpc_release version: ${incremented_version}"
 
 sed -i "s/${current_branch_version}/${incremented_version}/" \
   group_vars/all/release.yml
+
+
+## Update rpc-maas to latest tag
+
+# 1. Get latest maas tag
+rpc_maas_dir="${WORKSPACE}/rpc-maas"
+git clone https://github.com/rcbops/rpc-maas $rpc_maas_dir
+pushd $rpc_maas_dir
+  # the maas repo includes old tags eg v9.x.x and 9.x.x when the version
+  # at the time of writing is 1.x.x. All tags that include a character
+  # or that start with 9 or 10 are filtered out.
+  latest_maas_tag="$(git tag -l |grep -v '[a-zA-Z]\|^\(9\.\|10\.\)' |sort -n |tail -n 1)"
+popd
+
+# 2. Insert latest maas tag into rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml
+# Insert current SHA into functions.sh
+sed -i '/maas_release:-/ c\
+maas_release: "'${latest_maas_tag}'"' rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml
