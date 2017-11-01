@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-# Update OSA SHA to head of stable/ocata
+## Update OSA SHA to head of stable/ocata
 
 # These var must be set per branch of RPC-Openstack
 osa_branch=stable/ocata
@@ -24,6 +24,52 @@ sed -i '/OSA_RELEASE:-/ c\
 export OSA_RELEASE=${OSA_RELEASE:-"'${osa_sha}'"}' scripts/functions.sh
 
 
+## Update rpc-maas to latest tag
+
+# 1. Get latest maas tag
+rpc_maas_dir="${WORKSPACE}/rpc-maas"
+git clone https://github.com/rcbops/rpc-maas $rpc_maas_dir
+pushd $rpc_maas_dir
+  # the maas repo includes old tags eg v9.x.x and 9.x.x when the version
+  # at the time of writing is 1.x.x. All tags that include a character
+  # or that start with 9 or 10 are filtered out.
+  latest_maas_tag="$(git tag -l |grep -v '[a-zA-Z]\|^\(9\.\|10\.\)' |sort -n |tail -n 1)"
+popd
+
+# 2. Insert latest maas tag into rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml
+# Insert current SHA into functions.sh
+sed -i '/maas_release:-/ c\
+maas_release: "'${latest_maas_tag}'"' rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml
+
+
+# can't use derive-artifact-version.sh as that hardcodes the rpc repo path
+extract_rpc_release(){
+  awk '/rpc_release/{print $2}' | tr -d '"'
+}
+
+update_rpc_release(){
+  rc_branch_version="$(git show origin/${rc_branch}:group_vars/all/release.yml \
+                      | extract_rpc_release)"
+  echo "rpc_release version from rc-branch (${rc_branch}): ${rc_branch_version}"
+
+  current_branch_version="$(extract_rpc_release < group_vars/all/release.yml)"
+  echo "rpc_release version from current branch (${rpco_branch}): ${current_branch_version}"
+
+  # Extract the required version info
+  major_version=$( echo ${rc_branch_version} | cut -d. -f1 )
+  minor_version=$( echo ${rc_branch_version} | cut -d. -f2 )
+  patch_version=$( echo ${rc_branch_version} | cut -d. -f3 )
+
+  # increment the minor version
+  minor_version=$(( minor_version + 1 ))
+
+  incremented_version="${major_version}.${minor_version}.${patch_version}"
+  echo "Incremented rpc_release version: ${incremented_version}"
+
+  sed -i "s/${current_branch_version}/${incremented_version}/" \
+    group_vars/all/release.yml
+}
+
 # Update rpc_release. The mainline branch should always be one version
 # ahead of the rc branch, as the next rc branch will be cut from mainline
 # post release.
@@ -34,37 +80,13 @@ export OSA_RELEASE=${OSA_RELEASE:-"'${osa_sha}'"}' scripts/functions.sh
 # Get RC branch version
 rc_branch="${rpco_branch}-rc"
 git fetch origin
-git show origin/${rc_branch} || {
+if git show origin/${rc_branch}
+then
+  update_rpc_release
+else
   echo "RC branch ${rc_branch} not found, skipping rpc_release version bump.
 If there is no RC branch then the mainline branch is considered unreleased
 and therefore the rpc_release value is left alone. It is still important
 for the dependencies to be updated regularly though, so that part continues
 to be done."
-  exit 0
-}
-
-# can't use derive-artifact-version.sh as that hardcodes the rpc repo path
-extract_rpc_release(){
-  awk '/rpc_release/{print $2}' | tr -d '"'
-}
-
-rc_branch_version="$(git show origin/${rc_branch}:group_vars/all/release.yml \
-                    | extract_rpc_release)"
-echo "rpc_release version from rc-branch (${rc_branch}): ${rc_branch_version}"
-
-current_branch_version="$(extract_rpc_release < group_vars/all/release.yml)"
-echo "rpc_release version from current branch (${rpco_branch}): ${current_branch_version}"
-
-# Extract the required version info
-major_version=$( echo ${rc_branch_version} | cut -d. -f1 )
-minor_version=$( echo ${rc_branch_version} | cut -d. -f2 )
-patch_version=$( echo ${rc_branch_version} | cut -d. -f3 )
-
-# increment the minor version
-minor_version=$(( minor_version + 1 ))
-
-incremented_version="${major_version}.${minor_version}.${patch_version}"
-echo "Incremented rpc_release version: ${incremented_version}"
-
-sed -i "s/${current_branch_version}/${incremented_version}/" \
-  group_vars/all/release.yml
+fi
