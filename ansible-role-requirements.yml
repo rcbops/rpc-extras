@@ -10,7 +10,3 @@
   scm: git
   src: https://github.com/ceph/ansible-ceph-osd.git
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
-- name: rcbops_openstack-ops
-  scm: git
-  src: https://github.com/rsoprivatecloud/openstack-ops
-  version: dfc2180e9bf28c8f59baca2a233db2a726b97bcb

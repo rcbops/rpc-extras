@@ -31,11 +31,6 @@ copy_default_user_space_files
 # begin the RPC installation
 cd ${RPCD_DIR}/playbooks/
 
-# configure everything for RPC support access
-if [[ "${DEPLOY_SUPPORT_ROLE}" == "yes" ]]; then
-    run_ansible rpc-support.yml
-fi
-
 # deploy and configure the ELK stack
 if [[ "${DEPLOY_ELK}" == "yes" ]]; then
     run_ansible setup-logging.yml

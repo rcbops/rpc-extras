@@ -21,9 +21,6 @@ configure in your user variables the necessary values before this play is run
 and then rerun the appropriate plays in openstack-ansible after this play
 to ensure that rsyslog ships logs to logstash. See steps 2-4 and 3-2
 below for more.
-* `rpc-support.yml` - provides holland backup service, support SSH key
-distribution, custom security group rules, bashrc settings, and other
-miscellaneous tasks helpful to support personnel.
 * `setup-maas.yml` - deploys, sets up, and installs Rackspace
 [MaaS](http://www.rackspace.com/cloud/monitoring) checks
 for Rackspace Private Clouds.
