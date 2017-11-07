@@ -1,0 +1,37 @@
+- name: Check HAProxy status after reconfiguration
+  hosts: localhost
+  tasks:
+  - name: Check state of haproxy backends
+    shell: |
+      set -xeu
+      # Check haproxy backends excluding elasticsearch
+      # TODO: Fix elk in thaw process.
+      # Haproxy prints the stats iteration so if the line is "1" its ignored
+      # Lines where the first field is hash are comments and are ignored
+      # Field 6 is srv_op_state, and 2 is fully up.
+
+      # http://cbonte.github.io/haproxy-dconv/1.7/management.html#9.3-show%20servers%20state
+
+      echo "Checking HAProxy status"
+      set -o pipefail
+
+      for i in {1..30}
+      do
+        echo "show servers state" |nc -U /var/run/haproxy.stat > haproxy.stat
+        awk '$2 !~ "elastic" && $0 != "1" && $1 != "#" && $6 != "2" {print $0}' \
+          < haproxy.stat  \
+          |tee haproxy.down
+        if [[ $(wc -l < haproxy.down) == 1 ]]
+        then
+          echo "HAProxy healthchecks passing."
+          exit 0
+        else
+          echo "At least one HAProxy backend is down, sleeping for 60s before"
+          echo "rechecking."
+          sleep 60
+        fi
+      done
+      print "HAProxy backends failed to come up in time"
+      exit 1
+    args:
+      executable: /bin/bash

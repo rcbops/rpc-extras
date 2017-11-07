@@ -58,3 +58,41 @@ if which lxc-ls &> /dev/null; then
 fi
 
 echo "#### END LOG COLLECTION ###"
+
+extract_rpc_release(){
+  awk '/rpc_release/{print $2}' | tr -d '"'
+}
+
+# Only enable snapshot when triggered by a commit push.
+# This is to enable image updates whenever a PR is merged, but not before
+if [[ "${RE_JOB_TRIGGER:-USER}" == "PUSH" ]]; then
+  echo "### BEGIN SNAPSHOT PREP ###"
+  mkdir -p /gating/thaw
+
+  # /opt/rpc-openstack may be a symlink to $WORKSPACE/rpc-openstack
+  # However $WORKSPACE will be wiped prior to the snapshot being taken
+  # so will not be present in instances created from the snapshot.
+  # In order to ensure /opt/rpc-openstack is present in the snapshot
+  # We check if its a link if it is, unlink it and create a full copy.
+  pushd /opt
+  target="$(readlink -f rpc-openstack)"
+  if [[ -n "$target" ]]; then
+      echo "/opt/rpc-openstack is linked into $WORKSPACE/rpc-openstack which"
+      echo "will be wiped prior to creating a snapshot."
+      echo "Removing symlink and copying $WORKSPACE/rpc-openstack to /opt."
+      rm rpc-openstack
+      cp -ar $target rpc-openstack
+  fi
+
+  # /root/.ssh is cleared on thaw. We need to store the keys that were there.
+  mkdir -p /opt/root_ssh_backup
+  cp -vr /root/.ssh /opt/root_ssh_backup
+
+  ln -s /opt/rpc-openstack/gating/thaw/run /gating/thaw/run
+
+  rpc_release="$(extract_rpc_release </opt/rpc-openstack/group_vars/all/release.yml)"
+  distro="$(lsb_release --codename --short)"
+
+  echo "rpc_${rpc_release}_${distro}" > /gating/thaw/image_name
+  echo "### END SNAPSHOT PREP ###"
+fi
