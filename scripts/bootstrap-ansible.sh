@@ -95,8 +95,19 @@ pushd ${OA_DIR}
     exit 99
   fi
 
-  # Now use GROUP_VARS of OSA and RPC
-  sed -i "s|GROUP_VARS_PATH=.*|GROUP_VARS_PATH=\"\${GROUP_VARS_PATH:-${OA_DIR}/playbooks/inventory/group_vars/:${BASE_DIR}/group_vars/:/etc/openstack_deploy/group_vars/}\"|" /usr/local/bin/openstack-ansible.rc
-  sed -i "s|HOST_VARS_PATH=.*|HOST_VARS_PATH=\"\${HOST_VARS_PATH:-${OA_DIR}/playbooks/inventory/host_vars/:${BASE_DIR}/host_vars/:/etc/openstack_deploy/host_vars/}\"|" /usr/local/bin/openstack-ansible.rc
+  # NOTE(cloudnull): Sync {group,host}_vars from rpc-o into the proper OSA
+  #                  directory which supports the default override interface.
+  #                  to ensure our group and host vars are always in sync the
+  #                  rsync command is used with the --delete flag and the vars
+  #                  are set to read only. If a deployer wishes to override our
+  #                  defaults they can do so using the user_.* files.
+  for dir_name in group_vars host_vars; do
+    if [[ -d "${BASE_DIR}/${dir_name}" ]];then
+      rsync -av --exclude '*.bak' --delete "${BASE_DIR}/${dir_name}" /etc/openstack_deploy/
+      if [[ -d "/etc/openstack_deploy/${dir_name}" ]]; then
+        chmod ugo+rX "/etc/openstack_deploy/${dir_name}"
+      fi
+    fi
+  done
 
 popd

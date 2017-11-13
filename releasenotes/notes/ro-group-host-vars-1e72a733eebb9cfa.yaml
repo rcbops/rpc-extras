@@ -1,0 +1,8 @@
+---
+other:
+  - `{group,host}_vars` are now set in the `/etc/openstack_deploy` directory
+    and are being set to READ ONLY. This ensures we're able to control our
+    defaults in a sane way without having to modify the OSA interfaces to
+    suit our needs. Should a deployer need want to modify one of our default
+    settings they can follow our existing override pattern by setting their
+    desired option within the `user_.*` files.

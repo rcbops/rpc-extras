@@ -50,9 +50,15 @@ if [[ "${PWD}" != "/opt/rpc-openstack" ]]; then
 fi
 
 # Bootstrap Ansible
+cd /opt/rpc-openstack
+
+# Remove the AIO configuration relating to the use
+# of container artifacts. This needs to be done
+# because the container artifacts do not exist yet.
+./scripts/artifacts-building/remove-container-aio-config.sh
+
 # This script is sourced to ensure that the common
 # functions and vars are available.
-cd /opt/rpc-openstack
 source scripts/bootstrap-ansible.sh
 
 # Bootstrap the AIO configuration
@@ -88,11 +94,6 @@ fi
 if [[ "$(echo ${REPLACE_ARTIFACTS} | tr [a-z] [A-Z])" == "YES" ]]; then
   export PUSH_TO_MIRROR="YES"
 fi
-
-# Remove the AIO configuration relating to the use
-# of container artifacts. This needs to be done
-# because the container artifacts do not exist yet.
-./scripts/artifacts-building/remove-container-aio-config.sh
 
 # Set override vars for the artifact build
 cd scripts/artifacts-building/
@@ -209,4 +210,3 @@ if [[ "$(echo ${PUSH_TO_MIRROR} | tr [a-z] [A-Z])" == "YES" ]]; then
 else
   echo "Skipping upload to rpc-repo as the PUSH_TO_MIRROR env var is not set to 'YES'."
 fi
-
