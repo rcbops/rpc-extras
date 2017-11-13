@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Delete rpc-release file
+- name: Symlink rpc-release file
   hosts: hosts
   gather_facts: false
   tasks:
