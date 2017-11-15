@@ -59,6 +59,3 @@ apply the RPC-OpenStack value added services; you may also run the playbooks
 
 Please see the documentation in [rpc-gating/README.md](https://github.com/rcbops/rpc-gating/blob/master/README.md)
 
-### Testing
-
-Please see [Testing](Testing.md) for an overview of RPC-OpenStack testing.
