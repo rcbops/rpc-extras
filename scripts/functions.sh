@@ -58,6 +58,9 @@ export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://rpc-repo.rackspace.com"}
 # Derive the rpc_release version from the group vars
 export RPC_RELEASE="$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.sh)"
 
+# Upgrade of Elasticsearch
+export UPGRADE_ELASTICSEARCH=${UPGRADE_ELASTICSEARCH:-"no"}
+
 # Read the OS information
 source /etc/os-release
 source /etc/lsb-release
