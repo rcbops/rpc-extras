@@ -1,0 +1,12 @@
+---
+issues:
+  - |
+    Elasticsearch log data would be lost in the process of leapgfrog upgrade
+    due to rebuilding ELK containers. (Liberty to Newton)
+upgrade:
+  - |
+    New environment variable 'UPGRADE_ELASTICSEARCH' is 'no' by default to
+    avoid interrupting standard deployment. When leapfrog upgrade is started,
+    'UPGRADE_ELASTICSEARCH' is set to 'yes' automatically, so the setup of
+    Elasticsearch 'elasticsearch.yml' play will be skipped in
+    'setup-logging.yml' play, which helps preserving Elasticsearch logs.
