@@ -11,7 +11,10 @@ RUN apt-get install -y pandoc
 RUN pip install rpc_differ==0.3.0 reno==2.5.1
 RUN pip install git+https://github.com/major/osa_differ@0.3.2
 
-RUN rpc-differ --debug --update master master
+# TODO(odyssey4me):
+# Remove this once https://github.com/major/osa_differ/pull/16 has merged.
+RUN git clone https://github.com/rcbops/rpc-openstack.git /root/.osa-differ/rpc-openstack
+
 COPY gating/generate_release_notes/generate_release_notes.sh /generate_release_notes.sh
 COPY gating/generate_release_notes/generate_reno_report.sh /generate_reno_report.sh
 COPY gating/generate_release_notes/generate_commit_diff_notes.sh /generate_commit_diff_notes.sh
