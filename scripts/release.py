@@ -308,7 +308,7 @@ def chk_devel_version(repo, branch, expected_release):
         filename = os.path.join(repo.path, release_file)
         with open(filename, 'r') as f:
             content = f.read()
-        current_release = yaml.load(content)['rpc_release']
+        current_release = yaml.safe_load(content)['rpc_release']
         if current_release != expected_release:
             raise Exception('{} in {} does not match expected version {}'
                             .format(current_release, filename,
