@@ -78,11 +78,10 @@
     - name: Determine the existing Ubuntu repo configuration
       shell: 'sed "s/^[ \t]*//" /etc/apt/sources.list | grep -oP "^deb \K(\[?.*\]?.*ubuntu\S*\/?)(?= {{ ansible_distribution_release }} main)"'
       register: _ubuntu_repo
-      when:
-        - host_ubuntu_repo is not defined
       changed_when: false
       delegate_to: "{{ physical_host | default(omit) }}"
       when:
+        - host_ubuntu_repo is not defined
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
 
