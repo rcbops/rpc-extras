@@ -73,7 +73,7 @@ if [ "${DEPLOY_AIO}" != false ]; then
     basic_install
 
     # Force the AIO to use artifacts
-    openstack-ansible -i 'localhost,' -e apt_target_group=localhost ${SCRIPT_PATH}/../playbooks/site-artifacts.yml
+    # openstack-ansible -i 'localhost,' -e apt_target_group=localhost ${SCRIPT_PATH}/../playbooks/site-artifacts.yml
 
     ## Create the AIO
     pushd /opt/openstack-ansible
