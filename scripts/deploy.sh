@@ -20,6 +20,8 @@ set -o pipefail
 ## Vars ----------------------------------------------------------------------
 export DEPLOY_AIO=${DEPLOY_AIO:-false}
 
+echo "Gate check"
+
 # NOTE(cloudnull): See comment further down, but this should be removed later.
 export MARKER="/tmp/gate-check-commit.complete"
 
