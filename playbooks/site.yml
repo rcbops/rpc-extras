@@ -15,3 +15,5 @@
 
 - include: site-logging.yml
 - include: site-artifacts.yml
+- include: openstack-image-setup.yml
+- include: openstack-flavor-setup.yml

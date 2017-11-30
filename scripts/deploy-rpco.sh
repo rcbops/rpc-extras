@@ -79,6 +79,10 @@ done
 pushd "${SCRIPT_PATH}/../playbooks"
   # Deploy and configure the ELK stack
   openstack-ansible site-logging.yml
+  # Create default VM images
+  openstack-ansible openstack-image-setup.yml
+  # Create default VM flavors
+  openstack-ansible openstack-flavor-setup.yml
 popd
 
 pushd /opt/rpc-maas/playbooks

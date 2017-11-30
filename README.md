@@ -72,7 +72,9 @@ Upon completion of the deployment run `scripts/deploy-rpco.sh` script to
 apply the RPC-OpenStack value added services; you may also run the playbooks
 `site-logging.yml` to accomplish much of the same things.
 
+Post deployment run the **optional** `openstack-image-setup.yml` and
+`openstack-flavor-setup.yml` playbooks to setup default flavors and images.
+
 ### Testing & Gating
 
 Please see the documentation in [rpc-gating/README.md](https://github.com/rcbops/rpc-gating/blob/master/README.md)
-

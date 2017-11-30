@@ -1,0 +1,84 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+openstack_vm_flavors:
+  - name: m1.micro
+    ram: 256
+    vcpus: 1
+    disk: 1
+    swap: 0
+    ephemeral: 0
+  - name: m1.tiny
+    ram: 512
+    vcpus: 1
+    disk: 1
+    swap: 0
+    ephemeral: 0
+  - name: m1.mini
+    ram: 1024
+    vcpus: 2
+    disk: 3
+    swap: 0
+    ephemeral: 0
+  - name: m1.small
+    ram: 2048
+    vcpus: 3
+    disk: 12
+    swap: 4
+    ephemeral: 4
+  - name: m1.medium
+    ram: 4096
+    vcpus: 6
+    disk: 60
+    swap: 4
+    ephemeral: 20
+  - name: m1.large
+    ram: 8192
+    vcpus: 12
+    disk: 300
+    swap: 4
+    ephemeral: 150
+  - name: m1.xlarge
+    ram: 16384
+    vcpus: 24
+    disk: 600
+    swap: 4
+    ephemeral: 256
+  - name: m1.heavy
+    ram: 32768
+    vcpus: 48
+    disk: 1200
+    swap: 4
+    ephemeral: 256
+
+openstack_images:
+  - name: CentOS 7
+    format: qcow2
+    url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+  - name: Cirros-0.3.5
+    format: qcow2
+    url: http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
+  - name: Debian 9
+    format: qcow2
+    url: http://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
+  - name: OpenSuse Leap 42.3
+    format: qcow2
+    url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
+  - name: Ubuntu 14.04 LTS
+    format: qcow2
+    url: http://uec-images.ubuntu.com/releases/14.04/release/ubuntu-14.04-server-cloudimg-amd64-disk1.img
+  - name: Ubuntu 16.04
+    format: qcow2
+    url: http://uec-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
