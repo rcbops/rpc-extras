@@ -1,0 +1,14 @@
+---
+features:
+  - The option to enable or disable artifacts has been added giving the
+    deployer the ability to chose how artifacts will be consumed. Three new
+    variables are now available to users, `apt_artifact_enabled`
+    `container_artifact_enabled` `py_artifact_enabled` which are all
+    **Boolean**. If a user defines any of variables it will used as the
+    ultimate source of truth, even if artifacts are "found" for the given
+    release.
+  - Artifacted builds will save facts as an ansible local fact. If a deployer
+    needs to expunge facts from our cached local facts the file
+    `/etc/ansible/facts.d/rpc_openstack.fact` can be modified or removed as
+    needed. All artifacted facts will be saved under the "rpc_artifacts"
+    section.

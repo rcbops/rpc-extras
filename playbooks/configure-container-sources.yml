@@ -22,6 +22,22 @@
   vars:
     container_search_string: ".*{{ ansible_distribution_release }};.*{{ rpc_release }};"
   pre_tasks:
+    - name: Ensure local facts directory exists
+      file:
+        path: "/etc/ansible/facts.d"
+        state: directory
+        group: "root"
+        owner: "root"
+        mode:  "0755"
+        recurse: no
+
+    - name: initialize local facts
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_artifacts"
+        option: initialized
+        value: true
+
     - name: Check for artifacts
       uri:
         url: "{{ rpco_mirror_base_url }}/meta/1.0/index-system"
@@ -32,7 +48,25 @@
 
     - name: Set artifacts enabled
       set_fact:
-        artifact_enabled: "{{ check_artifacts.content is search(container_search_string) }}"
+        container_artifact_found: "{{ check_artifacts.content is search(container_search_string) }}"
+
+    - name: Set artifacts enabled
+      set_fact:
+        container_artifact_enabled: "{{ container_artifact_found | bool }}"
+      when:
+        - container_artifact_enabled is undefined
+
+    - name: Check if artifacts are enabled but not found
+      fail:
+        msg: |
+          The container artifacts are enabled but not found. The deployment has
+          halted. Please check the artifacts repository is online and available
+          before continuing.
+      when:
+        - container_artifact_enabled | bool
+        - not container_artifact_found | bool
+      tags:
+        - always
 
   tasks:
     - name: Sync artifact files (all)
@@ -42,7 +76,8 @@
       with_items:
         - files/lxc.yml
       when:
-        - artifact_enabled | bool
+        - container_artifact_found | bool
+        - container_artifact_enabled | bool
 
     - name: Sync artifact files
       copy:
@@ -65,4 +100,16 @@
         - "files/swift_all.yml"
         - "files/utility_all.yml"
       when:
-        - artifact_enabled | bool
+        - container_artifact_found | bool
+        - container_artifact_enabled | bool
+
+  post_tasks:
+    - name: Set artifact local fact
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_artifacts"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      with_items:
+        - { option: "container_artifact_enabled", value: "{{ container_artifact_enabled }}" }
+        - { option: "container_artifact_found", value: "{{ container_artifact_found }}" }

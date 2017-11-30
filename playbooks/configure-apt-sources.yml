@@ -19,6 +19,22 @@
   user: root
   gather_facts: true
   pre_tasks:
+    - name: Ensure local facts directory exists
+      file:
+        path: "/etc/ansible/facts.d"
+        state: directory
+        group: "root"
+        owner: "root"
+        mode:  "0755"
+        recurse: no
+
+    - name: initialize local facts
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_artifacts"
+        option: initialized
+        value: true
+
     - name: Check for artifacts
       uri:
         url: "{{ rpco_mirror_base_url }}/apt-mirror/integrated/dists/{{ rpc_release }}-{{ ansible_distribution_release }}/Release"
@@ -26,9 +42,27 @@
       failed_when: false
       register: check_artifacts
 
+    - name: Set artifacts found
+      set_fact:
+        apt_artifact_found: "{{ check_artifacts.status == 200 }}"
+
     - name: Set artifacts enabled
       set_fact:
-        artifact_enabled: "{{ check_artifacts.status == 200 }}"
+        apt_artifact_enabled: "{{ apt_artifact_found | bool }}"
+      when:
+        - apt_artifact_enabled is undefined
+
+    - name: Check if artifacts are enabled but not found
+      fail:
+        msg: |
+          The apt artifacts are enabled but not found. The deployment has
+          halted. Please check the artifacts repository is online and available
+          before continuing.
+      when:
+        - apt_artifact_enabled | bool
+        - not apt_artifact_found | bool
+      tags:
+        - always
 
   tasks:
     - name: Sync artifact files (all)
@@ -38,7 +72,8 @@
       with_items:
         - files/apt.yml
       when:
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Determine the existing Ubuntu repo configuration
       shell: 'sed "s/^[ \t]*//" /etc/apt/sources.list | grep -oP "^deb \K(\[?.*\]?.*ubuntu\S*\/?)(?= {{ ansible_distribution_release }} main)"'
@@ -48,7 +83,8 @@
       changed_when: false
       delegate_to: "{{ physical_host | default(omit) }}"
       when:
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Set host_ubuntu_repo fact
       set_fact:
@@ -56,7 +92,8 @@
       when:
         - host_ubuntu_repo is not defined
         - _ubuntu_repo.stdout_lines is defined
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Replace the apt sources file with our content
       copy:
@@ -67,7 +104,8 @@
         backup: yes
       register: apt_sources_configure
       when:
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Create the rpco apt sources file
       copy:
@@ -78,7 +116,8 @@
         backup: yes
       register: apt_sources_configure_rpco
       when:
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Add rpco keys
       apt_key:
@@ -89,7 +128,8 @@
       retries: 5
       delay: 2
       when:
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Remove extra sources
       lineinfile:
@@ -102,23 +142,23 @@
         - "-security"
         - "-updates"
       when:
-        - artifact_enabled | bool
+        - apt_artifact_found | bool
+        - apt_artifact_enabled | bool
 
     - name: Update apt-cache
       apt:
         update_cache: yes
       when:
-        - (artifact_enabled | bool) and (apt_sources_configure | changed or apt_sources_configure_rpco | changed)
+        - (apt_artifact_found | bool) and (apt_sources_configure | changed or apt_sources_configure_rpco | changed)
+        - apt_artifact_enabled | bool
 
-  roles:
-    # We execute the pip_install role here to ensure that all
-    # hosts have the correct rpco repo configured now that
-    # /etc/apt/sources.list has been changed to no longer
-    # include the updates repo.
-    - role: "pip_install"
-      pip_lock_to_internal_repo: false
-      internal_lb_vip_address: localhost
-      pip_upstream_url: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/{{ repo_build_os_distro_version }}/get-pip.py"
-      pip_install_upper_constraints: "{{ rpco_mirror_base_url }}/os-releases/{{ rpc_release }}/{{ repo_build_os_distro_version }}/requirements_absolute_requirements.txt"
-      when:
-        - artifact_enabled | bool
+  post_tasks:
+    - name: Set artifact local fact
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_artifacts"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      with_items:
+        - { option: "apt_artifact_enabled", value: "{{ apt_artifact_enabled }}" }
+        - { option: "apt_artifact_found", value: "{{ apt_artifact_found }}" }
