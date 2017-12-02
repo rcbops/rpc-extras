@@ -1,5 +1,6 @@
 # Rackspace Private Cloud - OpenStack
 
+foo bar
 The RPC-OpenStack repository contains additional scripts, variables, and
 options for deploying an OpenStack cloud. It is a thin wrapper around the
 [OpenStack-Ansible](https://github.com/openstack/openstack-ansible)

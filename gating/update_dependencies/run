@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 
+# asdfa
 ## Update OSA SHA to head of stable/pike
 # These var must be set per branch of RPC-Openstack
 osa_branch=stable/pike
