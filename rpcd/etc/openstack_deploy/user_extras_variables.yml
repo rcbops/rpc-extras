@@ -45,6 +45,9 @@ fetch_directory: /etc/openstack_deploy/ceph_fetch
 ceph_stable: true
 # Specify ceph release name
 ceph_stable_release: hammer
+# Override stable_repo URI. Current pin of ansible-ceph-common has invalid URI.
+# https://github.com/ceph/ansible-ceph-common/blob/033a5e54b97903750586efce67f3fe8ba968bf4/defaults/main.yml#L70
+ceph_stable_repo: "https://download.ceph.com/debian-{{ ceph_stable_release }}"
 # Enable OpenStack support inside the ceph-ansible playbooks
 openstack_config: true
 # Use raw journal devices
