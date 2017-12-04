@@ -15,6 +15,6 @@
 
 - include: elasticsearch.yml
 - include: logstash.yml
-- include: kibana.yml
 - include: filebeat.yml
+- include: kibana.yml
 - include: get-maas.yml

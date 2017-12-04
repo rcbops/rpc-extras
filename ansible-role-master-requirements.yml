@@ -16,16 +16,22 @@
 - name: logstash
   scm: git
   src: https://github.com/rcbops/rpc-role-logstash.git
-  version: f42bd2ccdc9c4608e2a357a9f088e3873a6ecad4
+  version: master
 - name: filebeat
   scm: git
   src: https://github.com/rcbops/rpc-role-filebeat.git
-  version: ce4c1b16e9bfd7b27a874b95218cde2bc1293bec
+  version: master
 - name: kibana
   scm: git
   src: https://github.com/rcbops/rpc-role-kibana.git
-  version: 85fa8ed1881282a1b850dccfcd31de3d6a157cbb
+  version: master
 - name: elasticsearch
   scm: git
   src: https://github.com/elastic/ansible-elasticsearch
-  version: 0bffa37035652fc06b547c8ef68c2aaf15b92f80
+  version: master
+
+# RPC-Support specific role
+- name: rcbops_openstack-ops
+  scm: git
+  src: https://github.com/rsoprivatecloud/openstack-ops
+  version: master

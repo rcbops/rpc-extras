@@ -22,18 +22,15 @@
         name: "{{ staging_host | default(hostvars[groups['repo_all'][0]]['physical_host']) }}"
         groups: staging_hosts
 
+  tags:
+    - rpc
+
 
 
 - name: Stage the git and python artifacts
   hosts: staging_hosts
   user: root
   environment: "{{ deployment_environment_variables | default({}) }}"
-  vars:
-    aria_input_file: "/tmp/python_artifact_list.txt"
-    http_proxy_env: "{{ lookup('env', 'http_proxy') | default('not_set', true) }}"
-    https_proxy_env: "{{ lookup('env', 'https_proxy') | default('not_set', true) }}"
-    https_validate_certs: yes
-
   tasks:
     - name: Set the staging path
       set_fact:
@@ -159,7 +156,7 @@
 
     - name: Staging folders setup
       file:
-        path: "{{ item }}"
+        dest: "{{ item }}"
         state: "directory"
       with_items:
         - "{{ staging_path }}/git-archives/{{ rpc_release }}"
@@ -253,3 +250,12 @@
         - item['ansible_job_id'] is defined
       tags:
         - git
+
+  vars:
+    aria_input_file: "/tmp/python_artifact_list.txt"
+    http_proxy_env: "{{ lookup('env', 'http_proxy') | default('not_set', true) }}"
+    https_proxy_env: "{{ lookup('env', 'https_proxy') | default('not_set', true) }}"
+    https_validate_certs: yes
+
+  tags:
+    - rpc

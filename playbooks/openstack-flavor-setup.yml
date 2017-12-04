@@ -15,6 +15,7 @@
 
 - name: OpenStack flavor setup
   hosts: utility_all[0]
+  environment: "{{ deployment_environment_variables | default({}) }}"
   user: root
   tasks:
     - name: Install shade
@@ -40,5 +41,9 @@
       with_items: "{{ openstack_vm_flavors }}"
 
   environment: "{{ deployment_environment_variables | default({}) }}"
+
   vars_files:
     - vars/openstack-service-config.yml
+
+  tags:
+    - rpc

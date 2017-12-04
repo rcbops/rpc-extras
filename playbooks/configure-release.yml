@@ -1,0 +1,133 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Check for RPC-OpenStack product_release variable
+  hosts: localhost
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  connection: local
+  user: root
+  gather_facts: true
+  pre_tasks:
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
+    - name: Ensure local facts directory exists
+      file:
+        dest: "/etc/ansible/facts.d"
+        state: directory
+        group: "root"
+        owner: "root"
+        mode:  "0755"
+        recurse: no
+
+    - name: initialize local facts
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_product"
+        option: initialized
+        value: true
+
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
+    - name: Set the rpc-openstack variables
+      set_fact:
+        rpc_openstack: "{{ ansible_local['rpc_openstack']['rpc_product'] }}"
+
+    - name: Set the rpc-release variables
+      set_fact:
+        rpc_product_release: "{{ rpc_openstack['rpc_product_release'] }}"
+      when:
+        - rpc_openstack['rpc_product_release'] is defined
+        - rpc_product_release is undefined or
+          rpc_product_release == 'undefined'
+
+  tasks:
+    - name: Check for product_release variable
+      fail:
+        msg: >-
+          RPC product [{{ rpc_product_release }}] is unknown. Available options
+          are {{ rpc_product_releases.keys() }}. Set the environment variable
+          RPC_PRODUCT_RELEASE to the product release required or use the
+          ansible override [rpc_product_release] when running this play.
+      when:
+        - rpc_product_release is undefined or
+          rpc_product_release == 'undefined' or
+          not rpc_product_releases[rpc_product_release] is defined
+
+    - name: Set OpenStack-Ansible release option
+      set_fact:
+        osa_release: "{{ rpc_product_releases[rpc_product_release]['osa_release'] }}"
+        osa_force_clone: true
+      when:
+        - osa_release is undefined
+
+    - name: Set the product release
+      lineinfile:
+        dest: /etc/openstack_deploy/group_vars/all/release.yml
+        state: present
+        regexp: "^{{ item.key }}:"
+        line: '{{ item.key }}: "{{ item.value }}"'
+      with_dict: "{{ rpc_product_releases[rpc_product_release] }}"
+
+    - name: Clone / Checkout OpenStack-Ansible
+      git:
+        repo: "https://git.openstack.org/openstack/openstack-ansible"
+        dest: "/opt/openstack-ansible"
+        version: "{{ osa_release }}"
+        force: "{{ osa_force_clone | default(false) }}"
+
+    - name: Galaxy install the RPC-OpenStack roles
+      command: |
+        ansible-galaxy install \
+          --role-file={{ playbook_dir }}/../ansible-role-{{ rpc_product_release }}-requirements.yml \
+          --roles-path=/etc/ansible/roles \
+          --force
+      tags:
+        - skip_ansible_lint
+
+    - name: Galaxy install the OpenStack-Ansible roles
+      command: |
+        ansible-galaxy install \
+          --role-file=/opt/openstack-ansible/ansible-role-requirements.yml \
+          --roles-path=/etc/ansible/roles \
+          --force
+      tags:
+        - skip_ansible_lint
+
+  post_tasks:
+    - name: Set product release local fact
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_product"
+        option: "rpc_product_release"
+        value: "{{ rpc_product_release }}"
+
+  vars:
+    rpc_product_release: "{{ lookup('env', 'RPC_PRODUCT_RELEASE') | default('undefined', true) }}"
+
+  vars_files:
+    - vars/rpc-release.yml
+
+  tags:
+    - rpc

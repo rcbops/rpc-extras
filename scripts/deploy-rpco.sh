@@ -19,31 +19,13 @@ set -euv
 set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
-## Set the DEPLOY_ variables to true to enable these services
-export DEPLOY_MAAS=${DEPLOY_MAAS:-false}
-export DEPLOY_TELEGRAF=${DEPLOY_TELEGRAF:-false}
-export DEPLOY_INFLUX=${DEPLOY_INFLUX:-false}
-
-## To send data to the influxdb server, we need to deploy and configure
-##  telegraf. By default, telegraf will use log_hosts (rsyslog hosts) to
-##  define its influxdb servers. These playbooks need maas-get to have run
-##  previously.
-## Set the following variables when when deploying maas with influx to log
-##  to our upstream influx server.
-export INFLUX_IP="${INFLUX_IP:-false}"
-export INFLUX_PORT="${INFLUX_PORT:-false}"
-
-## Set the build tag to create a unique ID within influxdb
-export BUILD_TAG="${BUILD_TAG:-testing}"
-
 # NOTE(cloudnull): See comment further down, but this should be removed later.
 export MARKER="/tmp/deploy-rpc-commit.complete"
 
 export SCRIPT_PATH="$(readlink -f $(dirname ${0}))"
 
-export DEPLOY_AIO=${DEPLOY_AIO:-false}
-
 ## Functions -----------------------------------------------------------------
+source "${SCRIPT_PATH}/functions.sh"
 
 ## Main ----------------------------------------------------------------------
 
@@ -75,14 +57,13 @@ for file_name in user_secrets.yml user_rpco_secrets.yml; do
   fi
 done
 
-# begin the RPC installation
+# Begin the RPC installation by uploading images and creating flavors and
+# deploying ELK.
 pushd "${SCRIPT_PATH}/../playbooks"
   # Deploy and configure the ELK stack
   openstack-ansible site-logging.yml
-  # Create default VM images
-  openstack-ansible openstack-image-setup.yml
-  # Create default VM flavors
-  openstack-ansible openstack-flavor-setup.yml
+  # Create default VM images and flavors
+  openstack-ansible site-openstack.yml
 popd
 
 pushd /opt/rpc-maas/playbooks
@@ -97,9 +78,7 @@ pushd /opt/rpc-maas/playbooks
       fi
 
       # If influx port and IP are set enable the variable
-      if [ "${INFLUX_IP}" != false ] && [ "${INFLUX_PORT}" != false ]; then
-        sed -i 's|^# influx_telegraf_targets|influx_telegraf_targets|g' /etc/openstack_deploy/user_rpc_maas_variables.yml
-      fi
+      sed -i 's|^# influx_telegraf_targets|influx_telegraf_targets|g' /etc/openstack_deploy/user_rpc_maas_variables.yml
     fi
     # Run the rpc-maas setup process
     openstack-ansible site.yml

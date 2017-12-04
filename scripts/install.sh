@@ -18,10 +18,10 @@ set -euv
 set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
-export OSA_RELEASE="${OSA_RELEASE:-stable/pike}"
 export SCRIPT_PATH="$(readlink -f $(dirname ${0}))"
 
 ## Functions -----------------------------------------------------------------
+source "${SCRIPT_PATH}/functions.sh"
 
 ## Main ----------------------------------------------------------------------
 
@@ -66,8 +66,7 @@ pushd /opt/openstack-ansible
   bash -c "scripts/bootstrap-ansible.sh"
 popd
 
-# Get RPC Ansible roles.
-ansible-playbook /opt/openstack-ansible/tests/get-ansible-role-requirements.yml \
-                 -i /opt/openstack-ansible/tests/test-inventory.ini \
-                 -e role_file="${SCRIPT_PATH}/../ansible-role-requirements.yml" \
-                 -vvv
+# Setup the basic release
+pushd "${SCRIPT_PATH}/../playbooks"
+  ansible-playbook -i 'localhost,' site-release.yml
+popd

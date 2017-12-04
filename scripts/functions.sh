@@ -14,17 +14,38 @@
 # limitations under the License.
 
 ## Vars ----------------------------------------------------------------------
+# Set the DEPLOY_ variables to true to enable these services
+export DEPLOY_AIO=${DEPLOY_AIO:-false}
+export DEPLOY_MAAS=${DEPLOY_MAAS:-false}
+export DEPLOY_TELEGRAF=${DEPLOY_TELEGRAF:-false}
+export DEPLOY_INFLUX=${DEPLOY_INFLUX:-false}
 
-# OSA SHA
-export OSA_RELEASE="${OSA_RELEASE:-b79e7f36abeb054e888b4f6ea75219b5fb3b03b9}"
-export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
+# To send data to the influxdb server, we need to deploy and configure
+#  telegraf. By default, telegraf will use log_hosts (rsyslog hosts) to
+#  define its influxdb servers. These playbooks need maas-get to have run
+#  previously.
+# Set the following variables when when deploying maas with influx to log
+#  to our upstream influx server.
+export INFLUX_IP="${INFLUX_IP:-127.0.0.1}"
+export INFLUX_PORT="${INFLUX_PORT:-8086}"
 
-# Gating
-export BUILD_TAG=${BUILD_TAG:-}
-export INFLUX_IP=${INFLUX_IP:-}
-export INFLUX_PORT=${INFLUX_PORT:-"8086"}
+# Set the build tag to create a unique ID within influxdb
+export BUILD_TAG="${BUILD_TAG:-testing}"
+
+# RPC-OpenStack product release, this variable is used in the config playbooks.
+export RPC_PRODUCT_RELEASE="${RPC_PRODUCT_RELEASE:-pike}"
+
+# OSA release
+if [ -z ${OSA_RELEASE+x} ]; then
+  if [[ "${RPC_PRODUCT_RELEASE}" != "master" ]]; then
+    export OSA_RELEASE="stable/${RPC_PRODUCT_RELEASE}"
+  else
+    export OSA_RELEASE="master"
+  fi
+fi
 
 # Other
+export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
 export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://rpc-repo.rackspace.com"}
 export RPC_RELEASE="$(awk '/rpc_release/ { print $2; }' ${BASE_DIR}/etc/openstack_deploy/group_vars/all/release.yml | sed s'/"//'g)"
 

@@ -17,16 +17,24 @@
   hosts: elasticsearch_all
   environment: "{{ deployment_environment_variables | default({}) }}"
   pre_tasks:
+    - name: Debian - Add Elasticsearch repository key
+      become: yes
+      apt_key:
+        url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+        state: "present"
+
     - name: Create ElasticSearch data directory on host
       file:
-        path: "/openstack/{{ container_name }}/var/lib/elasticsearch"
+        dest: "/openstack/{{ container_name }}/var/lib/elasticsearch"
         state: directory
         group: "root"
         owner: "root"
         mode:  "0755"
         recurse: no
       delegate_to: "{{ physical_host }}"
-      when: not (is_metal | bool)
+      when:
+        - not (is_metal | bool)
+
     - name: ElasticSearch extra lxc config
       lxc_container:
         name: "{{ container_name }}"
@@ -36,24 +44,30 @@
           - "lxc.mount.entry=/openstack/{{ container_name }}/var/lib/elasticsearch var/lib/elasticsearch none bind 0 0"
           - "lxc.aa_profile=unconfined"
       delegate_to: "{{ physical_host }}"
-      when: not (is_metal | bool)
+      when:
+        - not (is_metal | bool)
       tags:
         - elasticsearch-pre-install
+
     - name: Flush net cache
       command: /usr/local/bin/lxc-system-manage flush-net-cache
       delegate_to: "{{ physical_host }}"
-      when: not (is_metal | bool)
+      when:
+        - not (is_metal | bool)
       tags:
         - elasticsearch-pre-install
+
     - name: Wait for container ssh
       wait_for:
         port: "22"
         delay: 5
         host: "{{ container_address }}"
       delegate_to: "{{ physical_host }}"
-      when: not (is_metal | bool)
+      when:
+        - not (is_metal | bool)
       tags:
         - elasticsearch-pre-install
+
   roles:
     - role: "elasticsearch"
       tags:
@@ -61,3 +75,6 @@
 
   vars:
     is_metal: "{{ properties.is_metal | default(False) }}"
+
+  tags:
+    - rpc

@@ -21,7 +21,7 @@
   pre_tasks:
     - name: Ensure local facts directory exists
       file:
-        path: "/etc/ansible/facts.d"
+        dest: "/etc/ansible/facts.d"
         state: directory
         group: "root"
         owner: "root"
@@ -34,6 +34,24 @@
         section: "rpc_artifacts"
         option: initialized
         value: true
+
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
+    - name: Set the rpc-openstack variables
+      set_fact:
+        rpc_openstack: "{{ ansible_local['rpc_openstack']['rpc_artifacts'] }}"
+
+    - name: Set the rpc-artifact variables
+      set_fact:
+        apt_artifact_enabled: "{{ rpc_openstack['apt_artifact_enabled'] }}"
+      when:
+        - rpc_openstack['apt_artifact_enabled'] is defined
+        - apt_artifact_enabled is undefined
 
     - name: Check for artifacts
       uri:
@@ -72,6 +90,8 @@
       with_items:
         - files/apt.yml
         - files/maas.yml
+      run_once: true
+      delegate_to: localhost
       when:
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
@@ -133,7 +153,7 @@
 
     - name: Remove extra sources
       lineinfile:
-        path: /etc/apt/sources.list
+        dest: /etc/apt/sources.list
         state: absent
         regexp: "{{ item }}"
       with_items:
@@ -162,3 +182,6 @@
       with_items:
         - { option: "apt_artifact_enabled", value: "{{ apt_artifact_enabled }}" }
         - { option: "apt_artifact_found", value: "{{ apt_artifact_found }}" }
+
+  tags:
+    - rpc

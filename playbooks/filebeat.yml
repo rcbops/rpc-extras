@@ -17,5 +17,15 @@
   hosts: all
   environment: "{{ deployment_environment_variables | default({}) }}"
   max_fail_percentage: 20
+  pre_tasks:
+    - name: Debian - Add Elasticsearch repository key
+      become: yes
+      apt_key:
+        url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+        state: "present"
+
   roles:
     - role: "filebeat"
+
+  tags:
+    - rpc

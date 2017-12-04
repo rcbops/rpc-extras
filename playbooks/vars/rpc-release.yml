@@ -1,0 +1,17 @@
+rpc_product_releases:
+  master:
+    maas_release: master
+    osa_release: master
+    rpc_release: master
+  newton:
+    maas_release: 1.3.1
+    osa_release: 03ef2e15742c6bd8404b784b06de6506ab750638
+    rpc_release: r14.5.0
+  ocata:
+    maas_release: 1.3.1
+    osa_release: stable/ocata
+    rpc_release: r15.0.0
+  pike:
+    maas_release: 1.3.1
+    osa_release: stable/pike
+    rpc_release: r16.0.0

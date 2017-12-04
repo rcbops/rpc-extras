@@ -1,9 +1,11 @@
 #!/bin/bash -xe
 
+export GATING_PATH="$(readlink -f $(dirname ${0}))"
+source "${GATING_PATH}/../../scripts/functions.sh"
+
 ## Update OSA SHA to head of stable/pike
 # These var must be set per branch of RPC-Openstack
-osa_branch=stable/pike
-rpco_branch=${BRANCH:-master} # BRANCH injected by Jenkins.
+rpco_branch="${BRANCH:-master}" # BRANCH injected by Jenkins.
 
 # Env vars injected by Jenkins:
 WORKSPACE="${WORKSPACE:-/opt}"
@@ -17,27 +19,35 @@ git submodule update --init --remote
 
 # Get current head of osa
 osa_dir="${WORKSPACE}/openstack-ansible"
-git clone "https://github.com/openstack/openstack-ansible" ${osa_dir}
-pushd ${osa_dir}
-  git checkout $osa_branch
+git clone "https://github.com/openstack/openstack-ansible" "${osa_dir}"
+pushd "${osa_dir}"
+  git checkout "${OSA_RELEASE}"
   osa_sha="$(git log -n 1 --format=%H)"
 popd
-sed -i "s|^export OSA_RELEASE.*|export OSA_RELEASE=\"\${OSA_RELEASE:-${osa_sha}}\"|g" scripts/functions.sh
-
 
 ## Update rpc-maas to latest tag
 rpc_maas_dir="${WORKSPACE}/rpc-maas"
-git clone https://github.com/rcbops/rpc-maas $rpc_maas_dir
-pushd $rpc_maas_dir
+git clone https://github.com/rcbops/rpc-maas "${rpc_maas_dir}"
+pushd "${rpc_maas_dir}"
   # the maas repo includes old tags eg v9.x.x and 9.x.x when the version
   #  at the time of writing is 1.x.x. All tags that include a character
   #  or that start with 9 or 10 are filtered out.
   latest_maas_tag="$(git tag -l |grep -v '[a-zA-Z]\|^\(9\.\|10\.\)' |sort -n |tail -n 1)"
 popd
-# Insert latest maas tag into rpcd/etc/openstack_deploy/user_rpco_variables_defaults.yml
-#  Insert current SHA into functions.sh
-sed -i '/^maas_release:/ c\
-maas_release: "'${latest_maas_tag}'"' etc/openstack_deploy/group_vars/all/release.yml
+
+# Write to the rpc-release file
+python <<EOC
+import yaml
+release_file = "${GATING_PATH}/../../playbooks/vars/rpc-release.yml"
+with open(release_file) as f:
+  x = yaml.safe_load(f.read())
+release_data = x['rpc_product_releases']["${RPC_PRODUCT_RELEASE}"]
+release_data['maas_release'] = "${latest_maas_tag}"
+release_data['osa_release'] = "${osa_sha}"
+with open(release_file, 'w') as f:
+  f.write(yaml.safe_dump(x, default_flow_style=False, width=1000))
+print('Product release set: [%s]' % release_data)
+EOC
 
 # can't use derive-artifact-version.sh as that hardcodes the rpc repo path
 extract_rpc_release(){
@@ -53,12 +63,12 @@ update_rpc_release(){
   echo "rpc_release version from current branch (${rpco_branch}): ${current_branch_version}"
 
   # Extract the required version info
-  major_version=$( echo ${rc_branch_version} | cut -d. -f1 )
-  minor_version=$( echo ${rc_branch_version} | cut -d. -f2 )
-  patch_version=$( echo ${rc_branch_version} | cut -d. -f3 )
+  major_version="$( echo ${rc_branch_version} | cut -d. -f1 )"
+  minor_version="$( echo ${rc_branch_version} | cut -d. -f2 )"
+  patch_version="$( echo ${rc_branch_version} | cut -d. -f3 )"
 
   # increment the minor version
-  minor_version=$(( minor_version + 1 ))
+  minor_version="$(( minor_version + 1 ))"
 
   incremented_version="${major_version}.${minor_version}.${patch_version}"
   echo "Incremented rpc_release version: ${incremented_version}"
@@ -77,7 +87,7 @@ update_rpc_release(){
 # Get RC branch version
 rc_branch="${rpco_branch}-rc"
 git fetch origin
-if git show origin/${rc_branch}; then
+if git show "origin/${rc_branch}"; then
   update_rpc_release
 else
   echo "RC branch ${rc_branch} not found, skipping rpc_release version bump.

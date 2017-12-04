@@ -18,32 +18,16 @@ set -euv
 set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
-export DEPLOY_AIO=${DEPLOY_AIO:-false}
-
 # NOTE(cloudnull): See comment further down, but this should be removed later.
 export MARKER="/tmp/gate-check-commit.complete"
 
 export SCRIPT_PATH="$(readlink -f $(dirname ${0}))"
 
 ## Functions -----------------------------------------------------------------
+source "${SCRIPT_PATH}/functions.sh"
+
 function exit_notice {
-  echo -e "\n**System prepared for Installation**
-To configure the installation please refer to the upstream OpenStack-Ansible
-documentation regarding basic [system setup]
-(https://docs.openstack.org/project-deploy-guide/openstack-ansible/pike/configure.html).
-
-Prior to running the playbooks ensure your system(s) are using the latest
-artifacts. To ensure all hosts have the same artifacts run the RPC-OpenStack
-playbook \`site-artifacts.yml\`.
-
-Once the deploy configuration has been completed please refer to the
-OpenStack-Ansible documentation regarding [running the playbooks]
-(https://docs.openstack.org/project-deploy-guide/openstack-ansible/pike/run-playbooks.html).
-
-Upon completion of the deployment run \`scripts/deploy-rpco.sh\` script to
-apply the RPC-OpenStack value added services; you may also run the playbooks
-\`playbooks/site-logging.yml\` to accomplish much of the same things.
-"
+  cat "${SCRIPT_PATH}/../README.md"
 }
 
 function basic_install {
@@ -95,7 +79,6 @@ if [ "${DEPLOY_AIO}" != false ]; then
     touch ${MARKER}
   else
     echo "An AIO has already been created, remove \"${MARKER}\" to run again."
-    exit_notice
   fi
 
   # Deploy RPC-OpenStack.

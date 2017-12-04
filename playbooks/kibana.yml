@@ -13,8 +13,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# NOTE(cloudnull): The Kibana role has a dependent call to the haproxy_server
+#                  role. This change ensures the SSL keys are are set as
+#                  variables which allows the role to be deployment agnostic.
+- name: Cache Haproxy certificates
+  hosts: haproxy_all[0]
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  pre_tasks:
+    - name: Store ssl cert
+      slurp:
+        src: "{{ haproxy_ssl_cert }}"
+      register: _haproxy_ssl_cert
+    - name: Store ssl key
+      slurp:
+        src: "{{ haproxy_ssl_key }}"
+      register: _haproxy_ssl_key
+    - name: Register a fact for the cert and key
+      set_fact:
+        haproxy_ssl_cert_fact: "{{ _haproxy_ssl_cert.content }}"
+        haproxy_ssl_key_fact: "{{ _haproxy_ssl_key.content }}"
+
+  vars:
+    haproxy_ssl_cert: /etc/ssl/certs/haproxy.cert
+    haproxy_ssl_key: /etc/ssl/private/haproxy.key
+
+  tags:
+    - rpc
+
 - name: Setup Kibana host
   hosts: kibana_all
   environment: "{{ deployment_environment_variables | default({}) }}"
+  pre_tasks:
+    - name: Debian - Add Elasticsearch repository key
+      become: yes
+      apt_key:
+        url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+        state: "present"
+
   roles:
     - role: "kibana"
+
+  tags:
+    - rpc

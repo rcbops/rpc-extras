@@ -1,5 +1,5 @@
 ---
-# Copyright 2016, Rackspace US, Inc.
+# Copyright 2014-Present, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The release tag to use
-# Note that this is set here so that the openstack_release override in
-# "osa_defaults" is able to use it.
-rpc_release: "undefined"
-
-# TODO(evrardjp): Move this to group_vars/all/release.yml when possible
-#                 The release tag to use for the repo and venvs
-#                 This can't be overriden because OSA is using group_vars.
-openstack_release: "{{ rpc_release }}"
-
-# Set the release of the maas
-maas_release: "undefined"
+- name: Setup openstack-ops module
+  hosts: all
+  gather_facts: yes
+  roles:
+    - role: "rcbops_openstack-ops"

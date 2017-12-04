@@ -21,7 +21,7 @@
   pre_tasks:
     - name: Ensure local facts directory exists
       file:
-        path: "/etc/ansible/facts.d"
+        dest: "/etc/ansible/facts.d"
         state: directory
         group: "root"
         owner: "root"
@@ -34,6 +34,31 @@
         section: "rpc_artifacts"
         option: initialized
         value: true
+
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
+    - name: Set the rpc-openstack variables
+      set_fact:
+        rpc_openstack: "{{ ansible_local['rpc_openstack']['rpc_artifacts'] }}"
+
+    - name: Set the rpc-artifact variables
+      set_fact:
+        py_artifact_enabled: "{{ rpc_openstack['py_artifact_enabled'] }}"
+      when:
+        - rpc_openstack['py_artifact_enabled'] is defined
+        - py_artifact_enabled is undefined
+
+    - name: Set the rpc-artifact variables
+      set_fact:
+        apt_artifact_enabled: "{{ rpc_openstack['apt_artifact_enabled'] }}"
+      when:
+        - rpc_openstack['apt_artifact_enabled'] is defined
+        - apt_artifact_enabled is undefined
 
     - name: Check for artifacts (wheels)
       uri:
@@ -73,7 +98,7 @@
 
     - name: Notify the Deployer
       debug:
-        msg: |
+        msg: >-
           ********************* NOTICE! *********************
           At this time there is no good way to override the repo-build process
           so that we can stash our python wheels into the repo container at build
@@ -129,3 +154,6 @@
       with_items:
         - { option: "py_artifact_enabled", value: "{{ py_artifact_enabled }}" }
         - { option: "py_artifact_found", value: "{{ py_artifact_found }}" }
+
+  tags:
+    - rpc

@@ -15,6 +15,7 @@
 
 - name: OpenStack image setup
   hosts: utility_all[0]
+  environment: "{{ deployment_environment_variables | default({}) }}"
   user: root
   tasks:
     - name: Install shade
@@ -47,10 +48,12 @@
 
     - name: Clean up temp file
       file:
-        path: "/var/backup/os_image_{{ item.name }}"
+        dest: "/var/backup/os_image_{{ item.name }}"
         state: absent
       with_items: "{{ openstack_images }}"
 
-  environment: "{{ deployment_environment_variables | default({}) }}"
   vars_files:
     - vars/openstack-service-config.yml
+
+  tags:
+    - rpc

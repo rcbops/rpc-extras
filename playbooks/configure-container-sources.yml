@@ -24,7 +24,7 @@
   pre_tasks:
     - name: Ensure local facts directory exists
       file:
-        path: "/etc/ansible/facts.d"
+        dest: "/etc/ansible/facts.d"
         state: directory
         group: "root"
         owner: "root"
@@ -37,6 +37,24 @@
         section: "rpc_artifacts"
         option: initialized
         value: true
+
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
+    - name: Set the rpc-openstack variables
+      set_fact:
+        rpc_openstack: "{{ ansible_local['rpc_openstack']['rpc_artifacts'] }}"
+
+    - name: Set the rpc-artifact variables
+      set_fact:
+        container_artifact_enabled: "{{ rpc_openstack['container_artifact_enabled'] }}"
+      when:
+        - rpc_openstack['container_artifact_enabled'] is defined
+        - container_artifact_enabled is undefined
 
     - name: Check for artifacts
       uri:
@@ -113,3 +131,6 @@
       with_items:
         - { option: "container_artifact_enabled", value: "{{ container_artifact_enabled }}" }
         - { option: "container_artifact_found", value: "{{ container_artifact_found }}" }
+
+  tags:
+    - rpc

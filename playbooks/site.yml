@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: site-logging.yml
+- include: site-release.yml
 - include: site-artifacts.yml
-- include: openstack-image-setup.yml
-- include: openstack-flavor-setup.yml
+- include: site-logging.yml
+- include: site-openstack.yml

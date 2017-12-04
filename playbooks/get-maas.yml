@@ -31,5 +31,7 @@
       copy:
         src: "/opt/rpc-maas/tests/user_master_vars.yml"
         dest: "/etc/openstack_deploy/user_rpcm_variables_defaults.yml"
+
   tags:
     - maas
+    - rpc
