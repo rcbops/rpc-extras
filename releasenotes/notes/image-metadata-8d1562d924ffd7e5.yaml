@@ -1,0 +1,21 @@
+---
+features:
+  - Image metadata has been added to boost base image performance for the Images
+    that we may provide to a customer deployment.
+  - The metadata option `hw_scsi_model` is being passed into the images we
+    provide by default and is set to **virtio_scsi**.  This option will
+    improve IO performance on our default images. While not required, it is
+    recommended that the **virtio_scsi** kernel module be loaded on the host for
+    this change to have a functional benifit.
+  - The metadata option `hw_vif_multiqueue_enabled` is being passed into the
+    images we provide by default and is set to **true**.  This option will
+    improve network performance on our default images when the guest OS has
+    "multi-queuing" enabled. If the guest OS can not automatically understand
+    "multi-queuing" enablment the user can run the following command to enable
+    it within the guest `ethtool -L ${NIC} combined ${CPU_CORES}`.
+  - The metadata option `hw_qemu_guest_agent` is being passsed into the images
+    we provide by default and is set to "yes". This option will attempt to
+    enable qemu guest agent which provides additional options to nova when
+    managing the instance. While not required, it is recommended that the
+    **virtio_net** kernel module be loaded on the host for this change to have a
+    functional benifit.

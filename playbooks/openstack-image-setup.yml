@@ -42,6 +42,7 @@
         name: "{{ item.name }}"
         filename: "/var/backup/os_image_{{ item.name }}"
         disk_format: "{{ item.format }}"
+        properties: "{{ item.properties | default(omit) }}"
       with_items: "{{ openstack_images }}"
 
     - name: Clean up temp file
