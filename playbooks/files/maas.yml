@@ -1,0 +1,56 @@
+---
+# Copyright 2016-2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Apt artifact repo configuration
+# The rest of the apt artifact repo configuration is held in
+# group_vars/all/apt.yml but due to the way that the rpc-maas
+# implementation is done we cannot use group_vars to override
+# the defaults, so we have to use extra-vars.
+# TODO(odyssey4me):
+# Refactor the rpc-maas implementation to make use of roles
+# to implement the base repo/software so that these settings
+# can be implemented in group_vars instead of extra-vars.
+
+# MAAS
+# The MAAS apt repo cannot be included in the integrated apt repository
+# due to the fact that the same package name/version is used for multiple
+# distributions, but the content and checksums are different.
+maas_repos:
+  repo: "deb {{ rpco_mirror_base_url }}/apt-mirror/independant/rax-maas-{{ ansible_distribution_release }}/ {{ rpc_release }}-{{ ansible_distribution_release }} main"
+  state: "present"
+  filename: "rax-maas"
+
+maas_keys:
+  hash_id:  "{{ rpco_gpg_key_id }}"
+  url: "{{ rpco_gpg_key_location }}{{ rpco_gpg_key_name }}"
+  state: "present"
+
+# Influxdata
+maas_influxdata_repo:
+  url: "{{ rpco_mirror_apt_deb_line }}"
+  filename: "{{ rpco_mirror_apt_filename }}"
+
+maas_influxdata_key:
+  id:  "{{ rpco_gpg_key_id }}"
+  url: "{{ rpco_gpg_key_location }}{{ rpco_gpg_key_name }}"
+
+# Grafana
+maas_grafana_repo:
+  url: "{{ rpco_mirror_apt_deb_line }}"
+  filename: "{{ rpco_mirror_apt_filename }}"
+
+maas_grafana_key:
+  id:  "{{ rpco_gpg_key_id }}"
+  url: "{{ rpco_gpg_key_location }}{{ rpco_gpg_key_name }}"

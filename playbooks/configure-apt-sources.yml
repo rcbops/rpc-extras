@@ -71,6 +71,7 @@
         dest: "/etc/openstack_deploy/group_vars/all/{{ item | basename }}"
       with_items:
         - files/apt.yml
+        - files/maas.yml
       when:
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
