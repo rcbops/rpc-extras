@@ -73,7 +73,18 @@ if [ "${DEPLOY_AIO}" != false ]; then
     basic_install
 
     # Force the AIO to use artifacts
-    openstack-ansible -i 'localhost,' -e apt_target_group=localhost ${SCRIPT_PATH}/../playbooks/site-artifacts.yml
+    # NOTE(cloudnull): This disables container/py artifacts for now. The
+    #                  RPC-OpenStack container/py artifacts are failing
+    #                  while the upstream container/py builds of similart
+    #                  sizes, packages, and distros is not showing the same
+    #                  issues. We need to spend some time debugging how the
+    #                  sources are built and how we can better construct and
+    #                  consume them.
+    openstack-ansible -i 'localhost,' \
+                      -e apt_target_group=localhost \
+                      -e 'container_artifact_enabled=false' \
+                      -e 'py_artifact_enabled=false' \
+                      ${SCRIPT_PATH}/../playbooks/site-artifacts.yml
 
     ## Create the AIO
     pushd /opt/openstack-ansible
