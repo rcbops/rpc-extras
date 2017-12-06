@@ -88,6 +88,7 @@ if [[ "${DEPLOY_AIO}" == "yes" ]]; then
       sed -i 's/is_metal: true/is_metal: false/' /etc/openstack_deploy/env.d/ceph.yml
       sed -i "s/journal_size:.*/journal_size: 1024/" $RPCD_VARS
       sed -i "s/raw_multi_journal:.*/raw_multi_journal: false/" $RPCD_VARS
+      sed -i "s/glance_default_store:.*/glance_default_store: rbd/" /etc/openstack_deploy/user_variables.yml
       add_config ceph
     else
       if [[ "$DEPLOY_SWIFT" == "yes" ]]; then
