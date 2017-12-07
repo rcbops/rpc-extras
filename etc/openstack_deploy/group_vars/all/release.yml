@@ -16,7 +16,7 @@
 # The release tag to use
 # Note that this is set here so that the openstack_release override in osa_defaults
 # is able to use it.
-rpc_release: "r16.0.0"
+rpc_release: "r16.1.0"
 
 # TODO(evrardjp): Move this to group_vars/all/release.yml when possible
 # The release tag to use for the repo and venvs
@@ -24,4 +24,4 @@ rpc_release: "r16.0.0"
 openstack_release: "{{ rpc_release }}"
 
 # Set the release of the maas
-maas_release: "1.3.1"
+maas_release: "1.4.0"
