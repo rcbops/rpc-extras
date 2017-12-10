@@ -68,7 +68,7 @@ openstack_images:
     format: qcow2
     url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
     properties:
-      hw_scsi_model: "virtio-blk"
+      hw_scsi_model: "virtio-scsi"
       hw_disk_bus: "scsi"
       hw_vif_multiqueue_enabled: "true"
       hw_qemu_guest_agent: "yes"
@@ -82,7 +82,7 @@ openstack_images:
     format: qcow2
     url: http://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
     properties:
-      hw_scsi_model: "virtio-blk"
+      hw_scsi_model: "virtio-scsi"
       hw_disk_bus: "scsi"
       hw_vif_multiqueue_enabled: "true"
       hw_qemu_guest_agent: "yes"
@@ -93,7 +93,7 @@ openstack_images:
     format: qcow2
     url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
     properties:
-      hw_scsi_model: "virtio-blk"
+      hw_scsi_model: "virtio-scsi"
       hw_disk_bus: "scsi"
       hw_vif_multiqueue_enabled: "true"
       hw_qemu_guest_agent: "yes"
@@ -104,7 +104,7 @@ openstack_images:
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/14.04/release/ubuntu-14.04-server-cloudimg-amd64-disk1.img
     properties:
-      hw_scsi_model: "virtio-blk"
+      hw_scsi_model: "virtio-scsi"
       hw_disk_bus: "scsi"
       hw_vif_multiqueue_enabled: "true"
       hw_qemu_guest_agent: "yes"
@@ -115,7 +115,7 @@ openstack_images:
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
     properties:
-      hw_scsi_model: "virtio-blk"
+      hw_scsi_model: "virtio-scsi"
       hw_disk_bus: "scsi"
       hw_vif_multiqueue_enabled: "true"
       hw_qemu_guest_agent: "yes"
