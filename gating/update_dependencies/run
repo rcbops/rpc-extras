@@ -9,6 +9,7 @@ rpco_branch="${BRANCH:-master}" # BRANCH injected by Jenkins.
 
 # Env vars injected by Jenkins:
 WORKSPACE="${WORKSPACE:-/opt}"
+RELEASE_FILE="${GATING_PATH}/../../playbooks/vars/rpc-release.yml"
 
 # Note for local testing: this script expects to be executed from the root
 # of an rpco clone, checkout at master.
@@ -36,36 +37,21 @@ pushd "${rpc_maas_dir}"
 popd
 
 # Write to the rpc-release file
-python <<EOC
-import yaml
-release_file = "${GATING_PATH}/../../playbooks/vars/rpc-release.yml"
-with open(release_file) as f:
-  x = yaml.safe_load(f.read())
-release_data = x['rpc_product_releases']["${RPC_PRODUCT_RELEASE}"]
-release_data['maas_release'] = "${latest_maas_tag}"
-release_data['osa_release'] = "${osa_sha}"
-with open(release_file, 'w') as f:
-  f.write(yaml.safe_dump(x, default_flow_style=False, width=1000))
-print('Product release set: [%s]' % release_data)
-EOC
-
-# can't use derive-artifact-version.sh as that hardcodes the rpc repo path
-extract_rpc_release(){
-  awk '/^rpc_release/{print $2}' | tr -d '"'
-}
+${GATING_PATH}/release-update.py "${RELEASE_FILE}" \
+                                 "${RPC_PRODUCT_RELEASE}" \
+                                 "${latest_maas_tag}" \
+                                 "${osa_sha}"
 
 update_rpc_release(){
-  rc_branch_version="$(git show origin/${rc_branch}:etc/openstack_deploy/group_vars/all/release.yml \
-                      | extract_rpc_release)"
-  echo "rpc_release version from rc-branch (${rc_branch}): ${rc_branch_version}"
+  source /tmp/rpc_release_data.rc
 
-  current_branch_version="$(extract_rpc_release < etc/openstack_deploy/group_vars/all/release.yml)"
+  current_branch_version=$(${GATING_PATH}/release-update.py "${RELEASE_FILE}" "${RPC_PRODUCT_RELEASE}")
   echo "rpc_release version from current branch (${rpco_branch}): ${current_branch_version}"
 
   # Extract the required version info
-  major_version="$( echo ${rc_branch_version} | cut -d. -f1 )"
-  minor_version="$( echo ${rc_branch_version} | cut -d. -f2 )"
-  patch_version="$( echo ${rc_branch_version} | cut -d. -f3 )"
+  major_version="$( echo ${current_branch_version} | cut -d. -f1 )"
+  minor_version="$( echo ${current_branch_version} | cut -d. -f2 )"
+  patch_version="$( echo ${current_branch_version} | cut -d. -f3 )"
 
   # increment the minor version
   minor_version="$(( minor_version + 1 ))"
@@ -73,8 +59,12 @@ update_rpc_release(){
   incremented_version="${major_version}.${minor_version}.${patch_version}"
   echo "Incremented rpc_release version: ${incremented_version}"
 
-  sed -i "s/${current_branch_version}/${incremented_version}/" \
-    etc/openstack_deploy/group_vars/all/release.yml
+  # Write to the rpc-release file
+  ${GATING_PATH}/release-update.py "${RELEASE_FILE}" \
+                                   "${RPC_PRODUCT_RELEASE}" \
+                                   "${latest_maas_tag}" \
+                                   "${osa_sha}" \
+                                   "${incremented_version}"
 }
 
 # Update rpc_release. The mainline branch should always be one version
