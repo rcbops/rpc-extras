@@ -131,103 +131,117 @@
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
 
-    - name: Sync artifact files (all)
-      copy:
-        src: "{{ item }}"
-        dest: "/etc/openstack_deploy/{{ item | basename }}"
-      with_items:
-        - files/user_rpcm_variables.yml
-      run_once: true
-      delegate_to: localhost
+    - name: Deploy apt artifacts
+      block:
+        - name: Backup the original sources list
+          command: "cp /etc/apt/sources.list /etc/apt/sources.list.original"
+          args:
+            creates: "/etc/apt/sources.list.original"
+
+        - name: Sync artifact files (all)
+          copy:
+            src: "{{ item }}"
+            dest: "/etc/openstack_deploy/group_vars/all/{{ item | basename }}"
+          with_items: "{{ artifact_apt_group_files }}"
+          run_once: true
+          delegate_to: localhost
+
+        - name: Determine the existing Ubuntu repo configuration
+          shell: 'sed "s/^[ \t]*//" /etc/apt/sources.list | grep -oP "^deb \K(\[?.*\]?.*ubuntu\S*\/?)(?= {{ ansible_distribution_release }} main)"'
+          register: _ubuntu_repo
+          changed_when: false
+          delegate_to: "{{ physical_host | default(omit) }}"
+          when:
+            - host_ubuntu_repo is not defined
+
+        - name: Set host_ubuntu_repo fact
+          set_fact:
+            host_ubuntu_repo: "{{ _ubuntu_repo.stdout_lines[0] }}"
+          when:
+            - host_ubuntu_repo is not defined
+            - _ubuntu_repo.stdout_lines is defined
+
+        - name: Replace the apt sources file with our content
+          copy:
+            content: |
+              # Base repository
+              deb {{ host_ubuntu_repo }} {{ ansible_distribution_release }} main universe
+            dest: "/etc/apt/sources.list"
+            backup: yes
+          register: apt_sources_configure
+
+        - name: Create the rpco apt sources file
+          copy:
+            content: |
+              # RPC-OpenStack repository
+              deb {{ rpco_mirror_base_url }}/apt-mirror/integrated/ {{ rpc_release }}-{{ ansible_distribution_release }} main
+            dest: "/etc/apt/sources.list.d/rpco.list"
+            backup: yes
+          register: apt_sources_configure_rpco
+
+        - name: Add rpco keys
+          apt_key:
+            url: "{{ rpco_mirror_base_url }}/apt-mirror/rcbops-release-signing-key.asc"
+            state: "present"
+          register: add_keys
+          until: add_keys | success
+          retries: 5
+          delay: 2
+
+        - name: Remove extra sources
+          lineinfile:
+            dest: /etc/apt/sources.list
+            state: absent
+            regexp: "{{ item }}"
+          with_items:
+            - "^deb-src"
+            - "-backports"
+            - "-security"
+            - "-updates"
       when:
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
 
-    - name: Determine the existing Ubuntu repo configuration
-      shell: 'sed "s/^[ \t]*//" /etc/apt/sources.list | grep -oP "^deb \K(\[?.*\]?.*ubuntu\S*\/?)(?= {{ ansible_distribution_release }} main)"'
-      register: _ubuntu_repo
-      changed_when: false
-      delegate_to: "{{ physical_host | default(omit) }}"
-      when:
-        - host_ubuntu_repo is not defined
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
+    - name: Revert apt artifacts
+      block:
+        - name: Remove artifact group vars (all)
+          file:
+            dest: "/etc/openstack_deploy/group_vars/all/{{ item | basename }}"
+            state: absent
+          with_items: "{{ artifact_apt_group_files }}"
+          run_once: true
+          delegate_to: localhost
 
-    - name: Set host_ubuntu_repo fact
-      set_fact:
-        host_ubuntu_repo: "{{ _ubuntu_repo.stdout_lines[0] }}"
-      when:
-        - host_ubuntu_repo is not defined
-        - _ubuntu_repo.stdout_lines is defined
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
+        - name: Check for original sources file
+          stat:
+            path: "/etc/apt/sources.list.original"
+          register: ogs
 
-    - name: Backup the original sources file
-      copy:
-        src: /etc/apt/sources.list
-        dest: /etc/apt/sources.list.original
-        remote_src: yes
-        force: no
+        - name: Remove the modified sources file
+          file:
+            dest: "/etc/apt/sources.list"
+            state: absent
+          register: remove_sources
+          when:
+            - ogs.stat.exists | bool
 
-    - name: Replace the apt sources file with our content (artifact 'strict' mode)
-      copy:
-        content: |
-          # Base repository
-          deb {{ host_ubuntu_repo }} {{ ansible_distribution_release }} main universe
-        dest: "/etc/apt/sources.list"
-        backup: yes
-      register: apt_sources_configure
-      when:
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
-        - apt_artifact_mode == "strict"
+        - name: Restore the original sources list and remove rpco.list
+          command: "mv /etc/apt/sources.list.original /etc/apt/sources.list"
+          args:
+            creates: "/etc/apt/sources.list"
+          when:
+            - remove_sources | changed
 
-    # Set rpco_apt_sources_restore_source to 'local' to have the
-    # original apt sources file from the deploy host be pushed out
-    # to all hosts and containers.
-    - name: Restore the original sources file (artifact 'loose' mode)
-      copy:
-        src: /etc/apt/sources.list.original
-        dest: /etc/apt/sources.list
-        remote_src: "{{ rpco_apt_sources_restore_source | default('remote') == 'remote' }}"
-        force: yes
-      register: apt_sources_restore
+        - name: Remove rpco sources file
+          file:
+            dest: "/etc/apt/sources.list.d/rpco.list"
+            state: absent
       when:
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
-        - apt_artifact_mode != "strict"
-
-    - name: Create the rpco apt sources file
-      copy:
-        content: |
-          # RPC-OpenStack repository
-          deb {{ rpco_mirror_base_url }}/apt-mirror/integrated/ {{ rpc_release }}-{{ ansible_distribution_release }} main
-        dest: "/etc/apt/sources.list.d/rpco.list"
-        backup: yes
-      register: apt_sources_configure_rpco
-      when:
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
-
-    - name: Add rpco keys
-      apt_key:
-        url: "{{ rpco_mirror_base_url }}/apt-mirror/rcbops-release-signing-key.asc"
-        state: "present"
-      register: add_keys
-      until: add_keys | success
-      retries: 5
-      delay: 2
-      when:
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
+        - not apt_artifact_enabled | bool
 
     - name: Update apt-cache
       apt:
         update_cache: yes
-      when:
-        - apt_artifact_enabled | bool
-        - apt_artifact_found | bool
-        - apt_sources_configure | changed or apt_sources_configure_rpco | changed or apt_sources_restore | changed
 
   post_tasks:
     - name: Set artifact local fact
@@ -246,6 +260,8 @@
 
   vars:
     ansible_python_interpreter: "/usr/bin/python"
-
+    artifact_apt_group_files:
+      - files/apt.yml
+      - files/maas.yml
   tags:
     - rpc
