@@ -89,8 +89,7 @@
       copy:
         src: "{{ item }}"
         dest: "/etc/openstack_deploy/group_vars/all/{{ item | basename }}"
-      with_items:
-        - files/lxc.yml
+      with_items: "{{ artifact_container_group_all_files }}"
       when:
         - container_artifact_found | bool
         - container_artifact_enabled | bool
@@ -99,25 +98,26 @@
       copy:
         src: "{{ item }}"
         dest: "/etc/openstack_deploy/group_vars/{{ item | basename }}"
-      with_items:
-        - "files/cinder_all.yml"
-        - "files/glance_all.yml"
-        - "files/heat_all.yml"
-        - "files/horizon_all.yml"
-        - "files/ironic_all.yml"
-        - "files/keystone_all.yml"
-        - "files/kibana_all.yml"
-        - "files/logstash_all.yml"
-        - "files/memcached_all.yml"
-        - "files/neutron_all.yml"
-        - "files/nova_all.yml"
-        - "files/repo_all.yml"
-        - "files/rsyslog_all.yml"
-        - "files/swift_all.yml"
-        - "files/utility_all.yml"
+      with_items: "{{ artifact_container_group_files }}"
       when:
         - container_artifact_found | bool
         - container_artifact_enabled | bool
+
+    - name: Remove artifact files (all)
+      file:
+        dest: "/etc/openstack_deploy/group_vars/all/{{ item | basename }}"
+        state: absent
+      with_items: "{{ artifact_container_group_all_files }}"
+      when:
+        - not apt_artifact_enabled | bool
+
+    - name: Remove artifact files
+      file:
+        dest: "/etc/openstack_deploy/group_vars/{{ item | basename }}"
+        state: absent
+      with_items: "{{ artifact_container_group_files }}"
+      when:
+        - not apt_artifact_enabled | bool
 
   post_tasks:
     - name: Set artifact local fact
@@ -133,6 +133,24 @@
   vars:
     ansible_python_interpreter: "/usr/bin/python"
     container_search_string: ".*{{ ansible_distribution_release }};.*{{ rpc_release }};"
+    artifact_container_group_files:
+      - "files/cinder_all.yml"
+      - "files/glance_all.yml"
+      - "files/heat_all.yml"
+      - "files/horizon_all.yml"
+      - "files/ironic_all.yml"
+      - "files/keystone_all.yml"
+      - "files/kibana_all.yml"
+      - "files/logstash_all.yml"
+      - "files/memcached_all.yml"
+      - "files/neutron_all.yml"
+      - "files/nova_all.yml"
+      - "files/repo_all.yml"
+      - "files/rsyslog_all.yml"
+      - "files/swift_all.yml"
+      - "files/utility_all.yml"
+    artifact_container_group_all_files:
+      - "files/lxc.yml"
 
   tags:
     - rpc
