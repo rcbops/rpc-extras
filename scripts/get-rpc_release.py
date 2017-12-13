@@ -17,13 +17,14 @@ import os
 import sys
 import yaml
 
-# Read the release file path from an environment variable
+# Read the release file path from a CLI parameter or environment variable.
 if len(sys.argv) > 1:
     release_file = sys.argv[1]
 else:
     release_file = os.environ['RELEASE_FILE']
 
-# Read the RPC release series name from an environment variable
+# Read the RPC release series name from a CLI parameter or environment
+# variable.
 if len(sys.argv) > 2:
     release_series = sys.argv[2]
 else:

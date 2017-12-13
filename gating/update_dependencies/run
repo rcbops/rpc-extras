@@ -52,7 +52,7 @@ release_data_file="${WORKSPACE}/rc-release-data.yml"
 # new method
 if git cat-file -e ${new_file_to_fetch} 2>/dev/null; then
   git show ${new_file_to_fetch} > ${release_data_file}
-  export RC_BRANCH_VERSION=$(${GATING_PATH}/get-rpc_release.py ${release_data_file})
+  export RC_BRANCH_VERSION=$(${GATING_PATH}/../../scripts/get-rpc_release.py ${release_data_file})
 
 # old method
 elif git cat-file -e ${old_file_to_fetch} 2>/dev/null; then
