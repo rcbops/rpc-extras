@@ -13,29 +13,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import os
 import sys
 import yaml
 
-# Read the release file path from a CLI parameter or environment variable.
-if len(sys.argv) > 1:
-    release_file = sys.argv[1]
-else:
-    release_file = os.environ['RELEASE_FILE']
 
-# Read the RPC release series name from a CLI parameter or environment
-# variable.
-if len(sys.argv) > 2:
-    release_series = sys.argv[2]
-else:
-    release_series = os.environ['RPC_PRODUCT_RELEASE']
+# Sourced from: https://stackoverflow.com/a/10551190
+class EnvDefault(argparse.Action):
+    def __init__(self, envvar, required=True, default=None, **kwargs):
+        if not default and envvar:
+            if envvar in os.environ:
+                default = os.environ[envvar]
+        if required and default:
+            required = False
+        super(EnvDefault, self).__init__(default=default, required=required,
+                                         **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
+
+# Setup argument parsing
+parser = argparse.ArgumentParser(
+    description='Utility to retrieve the rpc_release version'
+                ' based on the series given.',
+    epilog='Licensed "Apache 2.0"')
+
+parser.add_argument(
+    '-f',
+    '--release_file',
+    action=EnvDefault,
+    default='/opt/rpc-openstack/playbooks/vars/rpc-release.yml',
+    envvar='RELEASE_FILE',
+    help='Release file path, optionally set using the RELEASE_FILE'
+         ' environment variable.',
+    required=False
+)
+
+parser.add_argument(
+    '-r',
+    '--release_series',
+    action=EnvDefault,
+    default='pike',
+    envvar='RPC_PRODUCT_RELEASE',
+    help='Release series, optionally set using the RPC_PRODUCT_RELEASE'
+         'environment variable.',
+    required=False
+)
+
+# Parse arguments
+args = parser.parse_args()
 
 # Read the file contents
-with open(release_file) as f:
-    release_file_content = yaml.safe_load(f.read())
+try:
+    with open(args.release_file) as f:
+        release_file_content = yaml.safe_load(f.read())
+except IOError as e:
+    print >> sys.stderr, "Unable to open file '%s'." % args.release_file
+    sys.exit(1)
 
 # Read the series-specific data
-release_data = release_file_content['rpc_product_releases'][release_series]
+try:
+    release_data = (
+        release_file_content['rpc_product_releases'][args.release_series])
+except KeyError as e:
+    print >> sys.stderr, "Unable to find release '%s'." % args.release_series
+    sys.exit(1)
 
 # Get the current rpc_release version
 rpc_release = release_data['rpc_release']
