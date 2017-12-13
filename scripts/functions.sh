@@ -47,7 +47,7 @@ fi
 # Other
 export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
 export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://rpc-repo.rackspace.com"}
-export RPC_RELEASE="$(awk '/rpc_release/ { print $2; }' ${BASE_DIR}/etc/openstack_deploy/group_vars/all/release.yml | sed s'/"//'g)"
+export RPC_RELEASE="$(${BASE_DIR}/scripts/get-rpc_release.py)"
 
 # Read the OS information
 for rc_file in openstack-release os-release lsb-release redhat-release; do
