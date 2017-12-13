@@ -56,10 +56,6 @@ if which lxc-ls &> /dev/null; then
 fi
 echo "#### END LOG COLLECTION ###"
 
-extract_rpc_release(){
-  awk '/rpc_release/{print $2}' | tr -d '"'
-}
-
 # Only enable snapshot when triggered by a commit push.
 # This is to enable image updates whenever a PR is merged, but not before
 if [[ "${RE_JOB_TRIGGER:-USER}" == "PUSH" ]]; then
@@ -87,9 +83,8 @@ if [[ "${RE_JOB_TRIGGER:-USER}" == "PUSH" ]]; then
 
   ln -s /opt/rpc-openstack/gating/thaw/run /gating/thaw/run
 
-  rpc_release="$(extract_rpc_release </opt/rpc-openstack/group_vars/all/release.yml)"
   distro="$(lsb_release --codename --short)"
 
-  echo "rpc_${rpc_release}_${distro}" > /gating/thaw/image_name
+  echo "rpc_${RPC_RELEASE}_${distro}" > /gating/thaw/image_name
   echo "### END SNAPSHOT PREP ###"
 fi
