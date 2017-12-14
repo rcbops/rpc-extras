@@ -104,6 +104,19 @@ openstack-ansible site-artifacts.yml -e 'apt_artifact_enabled=false' -e 'contain
 
 These variables can be set on the CLI or within the `user_variables.yml` file.
 
+When bootstrapping ansible using the `install.sh` script, if apt artifacts
+are found to be available for the current release, the deployment host will
+be configured to use them prior to executing the ansible bootstrap script.
+This is to ensure that the only packages installed by that script are those
+that from the apt artifact repository for the release. In order to disable
+this functionality the bash environment variable `HOST_SOURCES_REWRITE` needs
+to be set to anything other than `yes` before executing `install.sh`. Eg:
+
+``` shell
+export HOST_SOURCES_REWRITE="no"
+./scripts/install.sh
+```
+
 #### Optional | Setting the OpenStack-Ansible release
 
 It is possible to set the OSA release outside of the predefined "stable" release
