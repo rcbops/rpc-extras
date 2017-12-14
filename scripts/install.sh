@@ -62,8 +62,11 @@ rsync -av \
 
 # Pre-boostrap ansible so that we have the option to run RPC-OpenStack playbooks
 #  if we need during the pre-installation setup.
+#  We give it an a-r-r file which does not exist as we'd prefer not to have
+#  bootstrap-ansible download the roles using git for us. We will do that in
+#  playbooks/configure-release.yml instead using ansible-galaxy.
 pushd /opt/openstack-ansible
-  bash -c "scripts/bootstrap-ansible.sh"
+  bash -c "ANSIBLE_ROLE_FILE='/tmp/does-not-exist' scripts/bootstrap-ansible.sh"
 popd
 
 # Setup the basic release
