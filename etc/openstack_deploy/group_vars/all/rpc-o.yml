@@ -41,15 +41,3 @@ horizon_custom_uploads:
 # Use RPC python package index
 repo_build_pip_extra_indexes:
   - "https://rpc-repo.rackspace.com/pools"
-
-# TODO(evrardjp): Move this to group_vars/all/osa.yml when OSA has overridable
-#                 group vars AND pkg_locations becomes a group
-#                 var. Alternatively, we can remove this variable when all
-#                 our roles will be outside /opt/rpc-openstack/ This
-#                 var lists the locations for the package builder to look for
-#                 files that contain pip packages and git repos to build from
-pkg_locations:
-  - /opt/openstack-ansible
-  - /etc/ansible/roles
-  - /etc/openstack_deploy
-  - /opt/rpc-openstack/rpcd
