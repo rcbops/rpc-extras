@@ -60,6 +60,19 @@ rsync -av \
       "${SCRIPT_PATH}/../etc/openstack_deploy/" \
       /etc/openstack_deploy/
 
+# The deployment host must only have the base Ubuntu repository configured.
+# All updates (security and otherwise) must come from the RPC-O apt artifacting.
+#
+# This is being done via bash because Ansible is not bootstrapped yet, and the
+# apt artifacts used for bootstrapping Ansible must also come from the RPC-O
+# artifact repo.
+#
+# This has the ability to be disabled for the purpose of reusing the
+# bootstrap-ansible script for putting together the apt artifacts.
+if [[ "${HOST_SOURCES_REWRITE}" == 'yes' ]] && apt_artifacts_available; then
+  configure_apt_sources
+fi
+
 # Pre-boostrap ansible so that we have the option to run RPC-OpenStack playbooks
 #  if we need during the pre-installation setup.
 #  We give it an a-r-r file which does not exist as we'd prefer not to have

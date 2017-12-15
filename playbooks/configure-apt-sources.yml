@@ -151,20 +151,6 @@
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
 
-    - name: Remove extra sources
-      lineinfile:
-        dest: /etc/apt/sources.list
-        state: absent
-        regexp: "{{ item }}"
-      with_items:
-        - "^deb-src"
-        - "-backports"
-        - "-security"
-        - "-updates"
-      when:
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
-
     - name: Update apt-cache
       apt:
         update_cache: yes
