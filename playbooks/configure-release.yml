@@ -63,6 +63,31 @@
           rpc_product_release == 'undefined'
 
   tasks:
+    - name: Ensure root has a .ssh directory
+      file:
+        path: /root/.ssh
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Create ssh key pair for root
+      user:
+        name: root
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: /root/.ssh/id_rsa
+
+    - name: Store id_rsa.pub
+      slurp:
+        src: "/root/.ssh/id_rsa.pub"
+      register: _root_id_rsa_pub
+
+    - name: Ensure root can ssh to localhost
+      authorized_key:
+        user: "root"
+        key: "{{ _root_id_rsa_pub.content | b64decode }}"
+
     - name: Check for product_release variable
       fail:
         msg: >-
@@ -82,13 +107,10 @@
       when:
         - osa_release is undefined
 
-    - name: Set the product release
-      lineinfile:
-        dest: /etc/openstack_deploy/group_vars/all/release.yml
-        state: present
-        regexp: "^{{ item.key }}:"
-        line: '{{ item.key }}: "{{ item.value }}"'
-      with_dict: "{{ rpc_product_releases[rpc_product_release] }}"
+    - name: Set the rpc-product bootstrapped variables
+      set_fact:
+        rpc_product_bootstrapped: "{{ rpc_openstack['rpc_product_bootstrapped'] | default('undefined') }}"
+        rpc_product_new_bootstrap: "rpc-{{ rpc_product_release }}-{{ osa_release }}"
 
     - name: Clone / Checkout OpenStack-Ansible
       git:
@@ -97,21 +119,49 @@
         version: "{{ osa_release }}"
         force: "{{ osa_force_clone | default(false) }}"
 
+    - name: Copy basic files into place
+      command: "cp -Rv /opt/openstack-ansible/etc/openstack_deploy /etc/openstack_deploy"
+      args:
+        creates: /etc/openstack_deploy
+
+    - name: Sync configuration for RPC-OpenStack files
+      shell: |
+        rsync -av \
+              --exclude '*.bak' \
+              "{{ playbook_dir }}/../etc/openstack_deploy/" \
+              /etc/openstack_deploy/
+      when:
+        - rpc_product_bootstrapped != rpc_product_new_bootstrap
+      tags:
+        - skip_ansible_lint
+
+    - name: Set the product release
+      lineinfile:
+        dest: /etc/openstack_deploy/group_vars/all/release.yml
+        state: present
+        regexp: "^{{ item.key }}:"
+        line: '{{ item.key }}: "{{ item.value }}"'
+      with_dict: "{{ rpc_product_releases[rpc_product_release] }}"
+
     - name: Galaxy install the RPC-OpenStack roles
       command: |
-        ansible-galaxy install \
+        /opt/rpc-ansible/bin/ansible-galaxy install \
           --role-file={{ playbook_dir }}/../ansible-role-{{ rpc_product_release }}-requirements.yml \
           --roles-path=/etc/ansible/roles \
           --force
+      when:
+        - rpc_product_bootstrapped != rpc_product_new_bootstrap
       tags:
         - skip_ansible_lint
 
     - name: Galaxy install the OpenStack-Ansible roles
       command: |
-        ansible-galaxy install \
+        /opt/rpc-ansible/bin/ansible-galaxy install \
           --role-file=/opt/openstack-ansible/ansible-role-requirements.yml \
           --roles-path=/etc/ansible/roles \
           --force
+      when:
+        - rpc_product_bootstrapped != rpc_product_new_bootstrap
       tags:
         - skip_ansible_lint
 
@@ -120,10 +170,14 @@
       ini_file:
         dest: "/etc/ansible/facts.d/rpc_openstack.fact"
         section: "rpc_product"
-        option: "rpc_product_release"
-        value: "{{ rpc_product_release }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      with_items:
+        - { option: "rpc_product_release", value: "{{ rpc_product_release }}" }
+        - { option: "rpc_product_bootstrapped", value: "{{ rpc_product_new_bootstrap }}" }
 
   vars:
+    ansible_python_interpreter: "/usr/bin/python"
     rpc_product_release: "{{ lookup('env', 'RPC_PRODUCT_RELEASE') | default('undefined', true) }}"
 
   vars_files:

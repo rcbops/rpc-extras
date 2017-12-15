@@ -65,10 +65,13 @@ if [ "${DEPLOY_AIO}" != false ]; then
     #                  sources are built and how we can better construct and
     #                  consume them.
     openstack-ansible -i 'localhost,' \
-                      -e apt_target_group=localhost \
+                      -e 'apt_target_group=localhost' \
                       -e 'container_artifact_enabled=false' \
                       -e 'py_artifact_enabled=false' \
-                      ${SCRIPT_PATH}/../playbooks/site-artifacts.yml
+                      "${SCRIPT_PATH}/../playbooks/site-artifacts.yml"
+
+    # Install OpenStack-Ansible
+    openstack-ansible "${SCRIPT_PATH}/../playbooks/openstack-ansible-install.yml"
 
     ## Create the AIO
     pushd /opt/openstack-ansible

@@ -155,5 +155,8 @@
         - { option: "py_artifact_enabled", value: "{{ py_artifact_enabled }}" }
         - { option: "py_artifact_found", value: "{{ py_artifact_found }}" }
 
+  vars:
+    ansible_python_interpreter: "/usr/bin/python"
+
   tags:
     - rpc

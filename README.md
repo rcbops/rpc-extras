@@ -70,9 +70,11 @@ export RPC_PRODUCT_RELEASE="pike"  # This is optional, if unset the current stab
 To configure the installation please refer to the upstream OpenStack-Ansible
 documentation regarding basic [system setup](https://docs.openstack.org/project-deploy-guide/openstack-ansible/pike/configure.html).
 
+##### Artifact Setup
+
 Prior to running the OpenStack-Ansible playbooks ensure your system(s) are using
-the latest artifacts. To ensure all hosts have the same artifacts run the
-RPC-OpenStack playbook `site-artifacts.yml`.
+the latest artifacts. To ensure all hosts have are using the same artifacted
+release, run the `site-artifacts.yml` playbook.
 
 ``` shell
 cd /opt/rpc-openstack
@@ -80,10 +82,7 @@ export RPC_PRODUCT_RELEASE="pike"  # This is optional, if unset the current stab
 openstack-ansible site-artifacts.yml
 ```
 
-Once the deploy configuration has been completed please refer to the
-OpenStack-Ansible documentation regarding [running the playbooks](https://docs.openstack.org/project-deploy-guide/openstack-ansible/pike/run-playbooks.html).
-
-#### Optional | Disable Artifacts
+###### Optional | Disable Artifacts
 
 It is possible to disable parts of the artifact deployment system RPC-OpenStack
 provides. To disable the artifact components any of the following variables
@@ -99,23 +98,41 @@ respective artifacts are found. These settings are stored in the local fact file
 reset the state of artifacts, this file can be removed or modified as needed.
 
 ``` shell
-openstack-ansible site-artifacts.yml -e 'apt_artifact_enabled=false' -e 'container_artifact_enabled=false' -e 'py_artifact_enabled=false'
+openstack-ansible site-artifacts.yml -e 'apt_artifact_enabled=false' \
+                                     -e 'container_artifact_enabled=false' \
+                                     -e 'py_artifact_enabled=false'
 ```
 
-These variables can be set on the CLI or within the `user_variables.yml` file.
+##### OpenStack-Ansible Installation
 
-#### Optional | Setting the OpenStack-Ansible release
+OpenStack-Ansible will need to be installed. While you can simply run the
+`bootstrap-ansible.sh` script provided by the OpenStack-Ansible community
+you may also run the `openstack-ansible-install.yml` playbook which was
+created for convenience and will maintain impotency.
+
+``` shell
+cd /opt/rpc-openstack
+export RPC_PRODUCT_RELEASE="pike"  # This is optional, if unset the current stable product will be used
+openstack-ansible openstack-ansible-install.yml
+```
+
+###### Optional | Setting the OpenStack-Ansible release
 
 It is possible to set the OSA release outside of the predefined "stable" release
 curated by the RPC-OpenStack product. To set the release define the Ansible
 variable `osa_release` to a SHA, Branch, or Tag and run the `site-release.yml`
-playbook.
+and `openstack-ansible-install.yml` playbooks to install the correct version.
 
 ``` shell
-openstack-ansible site-release.yml -e 'osa_release=master'
+openstack-ansible site-release.yml openstack-ansible-install.yml -e 'osa_release=master'
 ```
 
-This option can be set on the CLI or within the `user_variables.yml` file.
+##### Running the playbooks
+
+Once the deploy configuration has been completed please refer to the
+OpenStack-Ansible documentation regarding [running the playbooks](https://docs.openstack.org/project-deploy-guide/openstack-ansible/pike/run-playbooks.html).
+
+----
 
 #### Deploy the Rackspace Value Added Services
 
@@ -136,6 +153,8 @@ cd /opt/rpc-openstack
 openstack-ansible site-openstack.yml
 ```
 
+----
+
 ### Perform an Intra-Series Product Upgrade
 
 To run a basic system upgrade set the `${RPC_PRODUCT_RELEASE}` option, re-run
@@ -147,6 +166,7 @@ cd /opt/rpc-openstack
 export RPC_PRODUCT_RELEASE="pike"  # This is optional, if unset the current stable product will be used
 ./scripts/deploy.sh
 openstack-ansible site-artifacts.yml
+openstack-ansible openstack-ansible-install.yml
 ```
 
 Once basic system configuration has completed, [run through the upgrade process](https://docs.openstack.org/openstack-ansible/pike/user/minor-upgrade.html)
@@ -163,6 +183,7 @@ cd /opt/rpc-openstack
 export RPC_PRODUCT_RELEASE="master"  # This needs to be set to the new product
 ./scripts/deploy.sh
 openstack-ansible site-artifacts.yml
+openstack-ansible openstack-ansible-install.yml
 ```
 
 Once the deployment is ready either [run the major upgrade script](https://docs.openstack.org/openstack-ansible/pike/user/script-upgrade.html)

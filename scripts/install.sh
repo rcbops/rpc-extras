@@ -17,59 +17,69 @@
 set -euv
 set -o pipefail
 
+## Run first ------------------------------------------------------------------
+# NOTE(cloudnull): Install the minimum packages required before anything can be
+#                  executed. While these should have been included in the base
+#                  kick, if they were not, they will need to be installed prior
+#                  to doing anything else.
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                                       python \
+                                       python-yaml \
+                                       python-virtualenv
+
 ## Vars ----------------------------------------------------------------------
 export SCRIPT_PATH="$(readlink -f $(dirname ${0}))"
 
 ## Functions -----------------------------------------------------------------
 source "${SCRIPT_PATH}/functions.sh"
 
+function install_ansible_source {
+  DEBIAN_FRONTEND=noninteractive apt-get -y install \
+                                            gcc libssl-dev libffi-dev \
+                                            python-apt python3-apt \
+                                            python-dev python3-dev \
+                                            python-minimal python-virtualenv
+
+  /opt/rpc-ansible/bin/pip install "ansible==${RPC_ANSIBLE_VERSION}"
+}
+
+function install_ansible_wheel {
+  /opt/rpc-ansible/bin/pip install --trusted-host "${HOST_RCBOPS_DOMAIN}" \
+                                   --find-links "${RPC_LINKS}" \
+                                   "${RPC_ANSIBLE}"
+}
+
 ## Main ----------------------------------------------------------------------
-
-# If /opt/openstack-ansible exists, delete it if it is not a git clone
+# If /opt/openstack-ansible exists, delete it if it is not a git checkout
 if [[ -d "/opt/openstack-ansible" ]] && [[ ! -d "/opt/openstack-ansible/.git" ]]; then
-  rm -rf /opt/openstack-ansible
+  mv /opt/openstack-ansible /opt/openstack-ansible.original
 fi
 
-# Git clone the openstack-ansible repository
-if [[ ! -d "/opt/openstack-ansible" ]]; then
-  git clone https://git.openstack.org/openstack/openstack-ansible /opt/openstack-ansible
+# NOTE(cloudnull): Create a virtualenv for RPC-Ansible which is used for
+#                  initial bootstrap purposes. While playbooks can be run using
+#                  this ansible release in the general sense, the OSA ansible
+#                  version will superseed this globally.
+virtualenv --system-site-packages /opt/rpc-ansible
+
+# Install a Ansible for RPC-OpenStack.
+install_ansible_wheel || install_ansible_source
+
+# NOTE(cloudnull): This will only created the minimal wrapper if
+#                  OpenStack-Ansible has not been installed. The
+#                  wrapper is single use until OSA is prep'd.
+#                  Because OSA will overrwite this file the
+#                  command is setting the exit code when a Run
+#                  succeeds. Variable exports are here so that
+#                  the dependent roles RPC-OpenStack is using,
+#                  pip_install, has access to all of the things
+#                  it will need.
+if [[ ! -f "/usr/local/bin/openstack-ansible" ]]; then
+  cp "${SCRIPT_PATH}/openstack-ansible-wrapper.sh" /usr/local/bin/openstack-ansible
+  chmod +x /usr/local/bin/openstack-ansible
 fi
-
-pushd "/opt/openstack-ansible"
-  # Check if the current SHA does not match the desired SHA
-  if [[ "$(git rev-parse HEAD)" != "${OSA_RELEASE}" ]]; then
-
-    # If the SHA we want does not exist in the git repo, update the repo
-    if ! git cat-file -e ${OSA_RELEASE} 2> /dev/null; then
-      git fetch --all
-    fi
-
-    # Now checkout the correct SHA
-    git checkout "${OSA_RELEASE}"
-  fi
-popd
-
-# Setup the basic OSA configuration structure.
-if [[ ! -d "/etc/openstack_deploy" ]]; then
-  cp -Rv /opt/openstack-ansible/etc/openstack_deploy /etc/openstack_deploy
-fi
-
-# Sync the RPC-OpenStack variables into place.
-rsync -av \
-      --exclude '*.bak' \
-      "${SCRIPT_PATH}/../etc/openstack_deploy/" \
-      /etc/openstack_deploy/
-
-# Pre-boostrap ansible so that we have the option to run RPC-OpenStack playbooks
-#  if we need during the pre-installation setup.
-#  We give it an a-r-r file which does not exist as we'd prefer not to have
-#  bootstrap-ansible download the roles using git for us. We will do that in
-#  playbooks/configure-release.yml instead using ansible-galaxy.
-pushd /opt/openstack-ansible
-  bash -c "ANSIBLE_ROLE_FILE='/tmp/does-not-exist' scripts/bootstrap-ansible.sh"
-popd
 
 # Setup the basic release
 pushd "${SCRIPT_PATH}/../playbooks"
-  ansible-playbook -i 'localhost,' site-release.yml
+  openstack-ansible site-release.yml
 popd

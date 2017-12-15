@@ -19,8 +19,6 @@
   connection: local
   user: root
   gather_facts: true
-  vars:
-    container_search_string: ".*{{ ansible_distribution_release }};.*{{ rpc_release }};"
   pre_tasks:
     - name: Ensure local facts directory exists
       file:
@@ -131,6 +129,10 @@
       with_items:
         - { option: "container_artifact_enabled", value: "{{ container_artifact_enabled }}" }
         - { option: "container_artifact_found", value: "{{ container_artifact_found }}" }
+
+  vars:
+    ansible_python_interpreter: "/usr/bin/python"
+    container_search_string: ".*{{ ansible_distribution_release }};.*{{ rpc_release }};"
 
   tags:
     - rpc

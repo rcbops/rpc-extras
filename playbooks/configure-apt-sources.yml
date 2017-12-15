@@ -183,5 +183,8 @@
         - { option: "apt_artifact_enabled", value: "{{ apt_artifact_enabled }}" }
         - { option: "apt_artifact_found", value: "{{ apt_artifact_found }}" }
 
+  vars:
+    ansible_python_interpreter: "/usr/bin/python"
+
   tags:
     - rpc
