@@ -24,7 +24,7 @@
 - name: kibana
   scm: git
   src: https://github.com/rcbops/rpc-role-kibana.git
-  version: 85fa8ed1881282a1b850dccfcd31de3d6a157cbb
+  version: 6c54eb443b579553db6fcbe55bcdbc740bab1a8f
 - name: elasticsearch
   scm: git
   src: https://github.com/elastic/ansible-elasticsearch
