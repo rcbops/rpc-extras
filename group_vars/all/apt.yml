@@ -122,3 +122,16 @@ hwraid_apt_repos:
     state: "present"
     filename: "hwraid"
 hwraid_apt_keys: "{{ rpco_apt_gpg_keys }}"
+
+# The apt artifact mode can be implemented in 'strict' or 'loose' mode.
+# Strict mode will replace the existing apt sources with a minimal set
+#  which guarantees that what is deployed is the same as that which was
+#  tested.
+# Loose mode will leave the existing apt sources in place, but set the
+#  preference to use RPC-O's apt sources ahead of other repositories.
+#  This may be useful for a new install where the packages installed
+#  are newer than those in the RPC-O's apt repository for the release
+#  being deployed.
+# This setting may be overridden by overriding it in the
+# /etc/openstack_deploy/user_*.yml files.
+rpco_apt_artifacts_mode: "strict"

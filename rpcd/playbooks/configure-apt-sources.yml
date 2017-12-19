@@ -33,28 +33,49 @@
         - host_ubuntu_repo is not defined
         - _ubuntu_repo.stdout_lines is defined
 
-    - name: Replace the apt sources file with our content
+    - name: Backup the original sources file
+      copy:
+        src: /etc/apt/sources.list
+        dest: /etc/apt/sources.list.original
+        remote_src: yes
+        force: no
+
+    - name: Replace the apt sources file with our content (artifact 'strict' mode)
       template:
         src: configure-apt-sources.j2
         dest: "/etc/apt/sources.list"
         backup: yes
       register: apt_sources_configure
+      when:
+        - rpco_apt_artifacts_mode == "strict"
       tags:
         - always
+
+    # Set rpco_apt_sources_restore_source to 'local' to have the
+    # original apt sources file from the deploy host be pushed out
+    # to all hosts and containers.
+    - name: Restore the original sources file (artifact 'loose' mode)
+      copy:
+        src: /etc/apt/sources.list.original
+        dest: /etc/apt/sources.list
+        remote_src: "{{ rpco_apt_sources_restore_source | default('remote') == 'remote' }}"
+        force: yes
+      register: apt_sources_restore
+      when:
+        - rpco_apt_artifacts_mode != "strict"
 
     - name: Update apt-cache
       apt:
         update_cache: yes
       when:
-        - apt_sources_configure is defined
-        - apt_sources_configure | changed
+        - apt_sources_configure | changed or apt_sources_restore | changed
       tags:
         - always
 
   roles:
     # We execute the pip_install role here to ensure that all
-    # hosts have the correct rpco repo configured now that
-    # /etc/apt/sources.list has been changed to no longer
+    # hosts have the correct rpco repo and key configured now
+    # that /etc/apt/sources.list has been changed to no longer
     # include the updates repo.
     - role: "pip_install"
       pip_lock_to_internal_repo: False

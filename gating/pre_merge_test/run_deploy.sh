@@ -41,6 +41,17 @@ elif [[ "${RE_JOB_SCENARIO}" == "ironic" ]]; then
   export DEPLOY_IRONIC="yes"
 fi
 
+if [[ ${RE_JOB_IMAGE} =~ loose$ ]]; then
+
+  # Set the apt artifact mode
+  export RPCO_APT_ARTIFACTS_MODE="loose"
+
+  # Upgrade to the absolute latest
+  # available packages.
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+fi
+
 # Run the deployment script
 cd ${BASE_DIR}
 source ${BASE_DIR}/scripts/deploy.sh

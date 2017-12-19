@@ -54,6 +54,7 @@ export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
 export HOST_SOURCES_REWRITE=${HOST_SOURCES_REWRITE:-"yes"}
 export HOST_UBUNTU_REPO=${HOST_UBUNTU_REPO:-"http://mirror.rackspace.com/ubuntu"}
 export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://rpc-repo.rackspace.com"}
+export RPCO_APT_ARTIFACTS_MODE=${RPCO_APT_ARTIFACTS_MODE:-"strict"}
 
 # Derive the rpc_release version from the group vars
 export RPC_RELEASE="$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.sh)"
@@ -168,12 +169,29 @@ function container_artifacts_available {
 
 function configure_apt_sources {
 
-  # Replace the existing apt sources with the artifacted sources.
+  if [[ "${RPCO_APT_ARTIFACTS_MODE}" == "strict" ]]; then
 
-  sed -i '/^deb-src /d' /etc/apt/sources.list
-  sed -i '/-backports /d' /etc/apt/sources.list
-  sed -i '/-security /d' /etc/apt/sources.list
-  sed -i '/-updates /d' /etc/apt/sources.list
+    # Backup the original sources file
+    if [[ ! -f "/etc/apt/sources.list.original" ]]; then
+      cp /etc/apt/sources.list /etc/apt/sources.list.original
+    fi
+
+    # Replace the existing apt sources with the artifacted sources.
+
+    sed -i '/^deb-src /d' /etc/apt/sources.list
+    sed -i '/-backports /d' /etc/apt/sources.list
+    sed -i '/-security /d' /etc/apt/sources.list
+    sed -i '/-updates /d' /etc/apt/sources.list
+
+  else
+
+    # Allow a switch from 'strict' mode to 'loose' mode
+    # assuming that there is a backup file to restore.
+    if [[ -f "/etc/apt/sources.list.original" ]]; then
+      cp /etc/apt/sources.list.original /etc/apt/sources.list
+    fi
+
+  fi
 
   # Add the RPC-O apt repo source
   echo "deb ${HOST_RCBOPS_REPO}/apt-mirror/integrated/ ${RPC_RELEASE}-${DISTRIB_CODENAME} main" \

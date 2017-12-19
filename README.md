@@ -123,6 +123,7 @@ DEPLOY_RPC         | yes                                | Deploy the RPCO specif
 BOOTSTRAP_OPTS     |                                    | Any options used for the bootstrap process           | Only used if DEPLOY_AIO=yes
 FORKS              | `grep -c ^processor /proc/cpuinfo` | Number of forks Ansible may use                      | May have issues if FORKS > SSHD's MaxSessions. Adjust accordingly
 ANSIBLE_PARAMETERS |                                    | Additional paramters passed to Ansible               |
+RPCO_APT_ARTIFACTS_MODE | strict                        | Set the behaviour for the use of the apt artifacts   | Set to 'loose' to leave existing sources in place
 
 All of the variables for deploy.sh are made available by sourcing the [functions.sh](https://github.com/rcbops/rpc-openstack/blob/master/scripts/functions.sh) script
 

@@ -20,6 +20,9 @@
     - name: Set user_variables_overrides fact
       set_fact:
         user_variables_overrides:
+          ## Implement the appropriate override for the apt artifact
+          ## deployment mode.
+          rpco_apt_artifacts_mode: "{{ lookup('env', 'RPCO_APT_ARTIFACTS_MODE') }}"
           ## Three vars below migrated from existing boostrap-aio task.
           apply_security_hardening: "{{ rpco_deploy_hardening }}"
           # Tempest is turned off to prevent the tests from running by default
@@ -39,7 +42,7 @@
           galera_innodb_buffer_pool_size: 16M
           galera_innodb_log_buffer_size: 4M
           galera_wsrep_provider_options:
-           - { option: "gcache.size", value: "4M" } 
+           - { option: "gcache.size", value: "4M" }
           ### Set workers for all services to optimise memory usage
           ceilometer_api_workers: 1
           ceilometer_collector_workers: 1
@@ -217,11 +220,19 @@
 - name: Execute the OSA AIO bootstrap
   include: "{{ lookup('env', 'OA_DIR') }}/tests/bootstrap-aio.yml"
   vars:
-    bootstrap_host_apt_distribution_suffix_list: "{{ (lookup('env', 'RPCO_APT_ARTIFACTS_AVAILABLE') | bool) | ternary([], ['updates', 'backports']) }}"
-    scenario: "{% if lookup('env', 'DEPLOY_IRONIC') == 'yes' %}ironic{% else %}{{ lookup('env', 'DEPLOY_CEPH') |bool |ternary('ceph','swift') }}{%endif%}"
+    bootstrap_host_apt_distribution_suffix_list: >-
+      {{ ((lookup('env', 'RPCO_APT_ARTIFACTS_AVAILABLE') | bool) and
+          (lookup('env', 'RPCO_APT_ARTIFACTS_MODE') == 'strict'))
+          | ternary([], ['updates', 'backports']) }}
+    scenario: >-
+      {%- if lookup('env', 'DEPLOY_IRONIC') | bool -%}
+      ironic
+      {%- else -%}
+      {{ (lookup('env', 'DEPLOY_CEPH') | bool) | ternary('ceph','swift') }}
+      {%- endif -%}
     bootstrap_host_user_variables_filename: "user_osa_variables_overrides.yml"
     bootstrap_host_user_secrets_filename: "user_osa_secrets.yml"
-    uca_enable: no
+    uca_enable: "{{ (lookup('env', 'RPCO_APT_ARTIFACTS_AVAILABLE') | bool) | ternary(False, True) }}"
     confd_overrides:
       swift:
         - name: cinder.yml.aio
