@@ -75,7 +75,7 @@ if [ "${DEPLOY_AIO}" != false ]; then
 
     ## Create the AIO
     pushd /opt/openstack-ansible
-      bash -c "scripts/gate-check-commit.sh"
+      bash -c "ANSIBLE_ROLE_FILE='/tmp/does-not-exist' scripts/gate-check-commit.sh"
     popd
 
     ## Drop the AIO marker file.
