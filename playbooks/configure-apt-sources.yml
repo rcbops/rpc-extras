@@ -165,11 +165,29 @@
         - apt_artifact_found | bool
         - apt_artifact_enabled | bool
 
+    - name: Remove apt preference file if artifacts are disbaled
+      file:
+        dest: "/etc/apt/preferences.d/rpc_openstack_pinned_packages.pref"
+        state: absent
+      when:
+        - not apt_artifact_enabled | bool
+
     - name: Update apt-cache
       apt:
         update_cache: yes
       when:
         - (apt_artifact_found | bool) and (apt_sources_configure | changed or apt_sources_configure_rpco | changed)
+        - apt_artifact_enabled | bool
+
+  roles:
+    - role: "apt_package_pinning"
+      apt_package_pinning_file_name: "rpc_openstack_pinned_packages.pref"
+      apt_pinned_packages:
+        - package: "*"
+          release: "{{ rpc_release }}-{{ ansible_distribution_release }}"
+          priority: "999"
+      when:
+        - apt_artifact_found | bool
         - apt_artifact_enabled | bool
 
   post_tasks:
