@@ -13,5 +13,5 @@ rpc_product_releases:
     rpc_release: r15.0.0
   pike:
     maas_release: 1.4.0
-    osa_release: f458161e9ded90c39a7dfca5006078bb7aac8504
+    osa_release: 4cde8f86aaea1fde7c43016f661119879068a133
     rpc_release: r16.0.0-alpha.1
