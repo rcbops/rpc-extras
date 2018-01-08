@@ -27,8 +27,10 @@ export RE_HOOK_RESULT_DIR="${RE_HOOK_RESULT_DIR:-/tmp/results}"
 
 ## Main ----------------------------------------------------------------------
 
-if [ $RE_JOB_ACTION == "tox-test" ]; then
+if [[ $RE_JOB_ACTION == "tox-test" ]]; then
   bash -c "$(readlink -f $(dirname ${0})/run_tox.sh)"
+elif [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+  bash -c "$(readlink -f $(dirname ${0})/run_deploy_mnaio.sh)"
 else
   bash -c "$(readlink -f $(dirname ${0})/run_deploy.sh)"
 fi
