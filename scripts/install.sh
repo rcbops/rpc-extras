@@ -60,7 +60,7 @@ fi
 #                  initial bootstrap purposes. While playbooks can be run using
 #                  this ansible release in the general sense, the OSA ansible
 #                  version will superseed this globally.
-virtualenv --system-site-packages /opt/rpc-ansible
+virtualenv /opt/rpc-ansible
 
 # Install a Ansible for RPC-OpenStack.
 install_ansible_wheel || install_ansible_source
