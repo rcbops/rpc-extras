@@ -191,7 +191,6 @@
         - "user_rpcm_variables_defaults.yml"
         - "user_rpco_user_variables_defaults.yml"
         - "user_rpco_variables_defaults.yml"
-        - "user_variables.yml"
 
     - name: Set product release local fact
       ini_file:
