@@ -1,0 +1,66 @@
+- name: Initialise network interfaces
+  hosts: localhost
+  tasks:
+  - name: Add source line to interfaces file
+    lineinfile:
+      dest: /etc/network/interfaces
+      regexp: ''
+      insertafter: EOF
+      line: 'source /etc/network/interfaces.d/*.cfg'
+
+  - name: Enable additional interfaces
+    shell: |
+      awk '/iface/{print $2}' /etc/network/interfaces.d/*\
+        |while read iface; do ifup $iface; done
+
+# Split into a new play so that fact gathering runs after all the interfaces
+# are up.
+- name: Post Network Thaw Tasks
+  hosts: localhost
+  tasks:
+  - name: Check for cinder loop image
+    stat:
+      path: /openstack/cinder.img
+      get_md5: false
+      get_checksum: false
+    register: cinder_img
+
+  - name: Setup Cinder LVM loop
+    shell: |
+      set -xeu
+      losetup -f /openstack/cinder.img
+    args:
+      executable: /bin/bash
+    when: cinder_img.stat.exists|bool
+
+  - name: Show new public IP
+    debug:
+      var: ansible_default_ipv4.address
+
+  - name: Fix up Public IP
+    replace:
+      dest: /etc/openstack_deploy/openstack_user_config.yml
+      regexp: "external_lb_vip_address:.*"
+      replace: "external_lb_vip_address: {{ ansible_default_ipv4.address }}"
+      backup: yes
+
+  - name: Fix up keystone_service
+    replace:
+      dest: /etc/haproxy/conf.d/keystone_service
+      regexp: "bind.*"
+      replace: "bind {{ ansible_default_ipv4.address }}:5000"
+
+  - name: List stopped containers
+    shell: |
+      lxc-ls -f | awk '/STOPPED.*openstack/{print $1}'
+    register: stopped_containers
+
+  - name: Start stopped containers
+    shell: |
+      lxc-start -d -n {{ item }}
+    with_items: "{{ stopped_containers.stdout_lines }}"
+
+  - name: Restart haproxy
+    service:
+      name: haproxy
+      state: restarted
