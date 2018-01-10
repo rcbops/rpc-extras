@@ -1,0 +1,28 @@
+#!/bin/bash -xeu
+
+# Thaw Script
+
+# This script is executed when an instance is created from a snapshot of
+# an RPCO deployment. It should fix things that are broken by the switch
+# to a difference instance (eg IPs, hostname)
+
+
+# Need to ensure SSH config is ok before running ansible
+mkdir -p /root/.ssh
+cat /opt/root_ssh_backup/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+cat /opt/root_ssh_backup/.ssh/authorized_keys >> /root/.ssh/authorized_keys
+cp /opt/root_ssh_backup/.ssh/id_rsa /root/.ssh
+cp /opt/root_ssh_backup/.ssh/id_rsa.pub /root/.ssh
+cp /opt/root_ssh_backup/.ssh/known_hosts /root/.ssh ||:
+ssh-keyscan localhost >> /root/.ssh/known_hosts
+
+
+cd /opt/rpc-openstack/openstack-ansible/playbooks/
+
+# Use implicit fact gathering to ensure the fact cache is ignored,
+# and facts are always gathered. This important we rely on the public
+# IP fact being up to date.
+export ANSIBLE_GATHERING=implicit
+openstack-ansible -v /opt/rpc-openstack/gating/thaw/thaw.yml
+openstack-ansible -t haproxy_server-config haproxy-install.yml
+openstack-ansible -v /opt/rpc-openstack/gating/thaw/haproxycheck.yml
