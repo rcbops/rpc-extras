@@ -109,11 +109,11 @@ env | grep RE_ | sed 's/^/export /' > /opt/rpc-openstack/RE_ENV
 # check if we're using artifacts or not
 if [[ ${RE_JOB_IMAGE} =~ no_artifacts$ ]]; then
   echo "export RPC_APT_ARTIFACT_ENABLED=no" >> /opt/rpc-openstack/RE_ENV
-  ${MNAIO_SSH} "apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y upgrade"
+  ${MNAIO_SSH} "apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade"
 elif [[ ${RE_JOB_IMAGE} =~ loose_artifacts$ ]]; then
   # Set the apt artifact mode
   echo "export RPC_APT_ARTIFACT_MODE=loose >> /opt/rpc-openstack/RE_ENV
-  ${MNAIO_SSH} "apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y upgrade"
+  ${MNAIO_SSH} "apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade"
 fi
 
 # Set the appropriate scenario variables

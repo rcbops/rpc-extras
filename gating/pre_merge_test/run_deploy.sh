@@ -16,7 +16,7 @@ if [[ ${RE_JOB_IMAGE} =~ no_artifacts$ ]]; then
   # Upgrade to the absolute latest
   # available packages.
   apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+  DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
 
 elif [[ ${RE_JOB_IMAGE} =~ loose_artifacts$ ]]; then
   # Set the apt artifact mode
@@ -25,7 +25,7 @@ elif [[ ${RE_JOB_IMAGE} =~ loose_artifacts$ ]]; then
   # Upgrade to the absolute latest
   # available packages.
   apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+  DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
 fi
 
 # When a PR contains a change to rpc_release, there may not
