@@ -93,12 +93,17 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
   # By default the MNAIO deploys metering services, so we override
   # osa_enable_meter to prevent those services from being deployed.
   sed -i 's/osa_enable_meter: true/osa_enable_meter: false/' playbooks/group_vars/all.yml
-  # bump up cryptography version to avoid exception detailed in RLM-1104
-  pip install cryptography==1.5 --upgrade
 popd
 
 # build the multi node aio
 pushd /opt/openstack-ansible-ops/multi-node-aio
+  # normally we can run ./build.sh by itself but gating environment requires
+  # this hack for now, have to set up env before updating cryptography
+  # run bootstrap first to set environment up
+  ./bootstrap.sh
+  # bump up cryptography version to avoid exception detailed in RLM-1104
+  pip install cryptography==1.5 --upgrade
+  # build the mnaio normally
   ./build.sh
 popd
 echo "Multi Node AIO setup completed..."
@@ -112,13 +117,13 @@ if [[ ${RE_JOB_IMAGE} =~ no_artifacts$ ]]; then
   ${MNAIO_SSH} "apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade"
 elif [[ ${RE_JOB_IMAGE} =~ loose_artifacts$ ]]; then
   # Set the apt artifact mode
-  echo "export RPC_APT_ARTIFACT_MODE=loose >> /opt/rpc-openstack/RE_ENV
+  echo "export RPC_APT_ARTIFACT_MODE=loose" >> /opt/rpc-openstack/RE_ENV
   ${MNAIO_SSH} "apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade"
 fi
 
 # Set the appropriate scenario variables
 if [[ "${RE_JOB_SCENARIO}" == "ceph" ]]; then
-  echo "export DEPLOY_CEPH=yes >> /opt/rpc-openstack/RE_ENV
+  echo "export DEPLOY_CEPH=yes" >> /opt/rpc-openstack/RE_ENV
   echo "export DEPLOY_SWIFT=no" >> /opt/rpc-openstack/RE_ENV
 elif [[ "${RE_JOB_SCENARIO}" == "ironic" ]]; then
   echo "export DEPLOY_IRONIC=yes" >> /opt/rpc-openstack/RE_ENV
