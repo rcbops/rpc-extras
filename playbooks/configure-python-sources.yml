@@ -18,7 +18,7 @@
   environment: "{{ deployment_environment_variables | default({}) }}"
   connection: local
   user: root
-  tasks:
+  pre_tasks:
     - name: Ensure local facts directory exists
       file:
         dest: "/etc/ansible/facts.d"
@@ -84,6 +84,21 @@
       when:
         - py_artifact_enabled is undefined
 
+    - name: Set the rpc-release variables
+      set_fact:
+        rpc_product_release: "{{ rpc_openstack['rpc_product_release'] }}"
+      when:
+        - rpc_openstack['rpc_product_release'] is defined
+        - rpc_product_release is undefined or
+          rpc_product_release == 'undefined'
+
+    - name: Set OpenStack-Ansible release option
+      set_fact:
+        osa_release: "{{ rpc_product_releases[rpc_product_release]['osa_release'] }}"
+      when:
+        - osa_release is undefined
+
+  tasks:
     - name: Check if artifacts are enabled but not found
       fail:
         msg: |
@@ -118,6 +133,14 @@
         - py_artifact_found | bool
         - py_artifact_enabled | bool
 
+    - name: Backup the original repo-build playbook
+      command: "cp /opt/openstack-ansible/playbooks/repo-build.yml /opt/repo-build.yml.original.{{ osa_release }}"
+      args:
+        creates: "/opt/repo-build.yml.original.{{ osa_release }}"
+      when:
+        - py_artifact_found | bool
+        - py_artifact_enabled | bool
+
     - name: Link "repo-build.yml" to "stage-python-artifacts.yml"
       file:
         src: "{{ playbook_dir }}/stage-python-artifacts.yml"
@@ -128,6 +151,32 @@
         - py_artifact_found | bool
         - py_artifact_enabled | bool
 
+    - name: Revert py artifacts
+      block:
+        - name: Check for original repo build playbook
+          stat:
+            path: "/opt/repo-build.yml.original.{{ osa_release }}"
+          register: ogrbp
+
+        - name: Remove artifact files (all)
+          file:
+            dest: "/opt/openstack-ansible/playbooks/repo-build.yml"
+            state: absent
+          register: link_remove
+          when:
+            - ogrbp.stat.exists | bool
+
+        - name: Restore the original repo-build playbook
+          command: "mv /opt/repo-build.yml.original.{{ osa_release }} /opt/openstack-ansible/playbooks/repo-build.yml"
+          args:
+            creates: "/opt/openstack-ansible/playbooks/repo-build.yml"
+          when:
+            - link_remove | changed
+            - ogrbp.stat.exists | bool
+      when:
+        - not py_artifact_enabled | bool
+
+  post_tasks:
     - name: Set artifact local fact
       ini_file:
         dest: "/etc/ansible/facts.d/rpc_openstack.fact"
@@ -140,6 +189,10 @@
 
   vars:
     ansible_python_interpreter: "/usr/bin/python"
+    rpc_product_release: "{{ lookup('env', 'RPC_PRODUCT_RELEASE') | default('undefined', true) }}"
+
+  vars_files:
+    - vars/rpc-release.yml
 
   tags:
     - rpc
