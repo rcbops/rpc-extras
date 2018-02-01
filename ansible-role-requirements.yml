@@ -10,3 +10,7 @@
   scm: git
   src: https://github.com/ceph/ansible-ceph-osd.git
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
+- name: openstack_hosts
+  scm: git
+  src: https://github.com/rcbops/openstack-ansible-openstack_hosts
+  version: ce249ec4386d013d76b617f009a93a408f76619e 
