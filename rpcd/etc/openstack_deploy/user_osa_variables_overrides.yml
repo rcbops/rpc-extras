@@ -20,3 +20,6 @@
 
 # this variable is here because vars files need to have at least ONE variable defined.
 this_file_is_reserved_for_support: True
+nova_nova_conf_overrides:
+    DEFAULT:
+        host: "{{ inventory_hostname }}"
