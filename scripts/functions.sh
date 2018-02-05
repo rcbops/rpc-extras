@@ -57,8 +57,16 @@ export HOST_RCBOPS_DOMAIN="rpc-repo.rackspace.com"
 export HOST_RCBOPS_REPO=${HOST_RCBOPS_REPO:-"http://${HOST_RCBOPS_DOMAIN}"}
 export RPC_APT_ARTIFACT_ENABLED=${RPC_APT_ARTIFACT_ENABLED:-"no"}
 export RPC_APT_ARTIFACT_MODE=${RPC_APT_ARTIFACT_MODE:-"strict"}
-export RPC_RELEASE="$(${BASE_DIR}/scripts/get-rpc_release.py)"
+export RPC_RELEASE="$(${BASE_DIR}/scripts/get-rpc_release.py -f ${BASE_DIR}/playbooks/vars/rpc-release.yml)"
 export RPC_OS="${ID}-${VERSION_ID}-x86_64"
 export RPC_ANSIBLE_VERSION="2.3.2.0"
 export RPC_ANSIBLE="${HOST_RCBOPS_REPO}/pools/${RPC_OS}/ansible/ansible-${RPC_ANSIBLE_VERSION}-py2-none-any.whl"
 export RPC_LINKS="${HOST_RCBOPS_REPO}/links"
+
+# Validate that RPC_RELEASE is set and has a value
+# before continuing. If it is not, then something has
+# gone wrong.
+if [ "${RPC_RELEASE}" == "" ]; then
+  echo "Something has gone wrong: RPC_RELEASE has no value."
+  exit 1
+fi

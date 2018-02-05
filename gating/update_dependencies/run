@@ -1,11 +1,40 @@
-#!/bin/bash -xe
+#!/bin/bash
 
+# Set options to ensure easier debugging
+# and failure on any problems encountered
+set -euxo pipefail
+
+# Find the absolute path to the directory this script
+# is executed from.
 export GATING_PATH="$(readlink -f $(dirname ${0}))"
-source "${GATING_PATH}/../../scripts/functions.sh"
+
+# Set the base RPC-O directory which the functions use
+export BASE_DIR="$(readlink -f ${GATING_PATH}/../..)"
+
+# As get-rpc_release.py requires a yaml import, make
+# sure that it is installed and available.
+if ! python -c 'import yaml' &>/dev/null; then
+  echo "Python YAML library not available. Installing it."
+  apt-get install -y python-yaml
+fi
+
+# Source the functions
+source "${BASE_DIR}/scripts/functions.sh"
+
+# We need pip on the host in order to install the required
+# SemVer library, so make sure it is installed and available.
+if ! pip --version &>/dev/null; then
+  echo "Pip not available. Installing it."
+  apt-get install -y python-pip
+fi
 
 # Install the semver library to manipulate the
 # rpc_release version strings
-pip install semver==2.7.9
+semver_version="2.7.9"
+if [[ "$(pip --disable-pip-version-check freeze | grep semver)" != "semver==${semver_version}" ]]; then
+  echo "Python SemVer library not available. Installing it."
+  pip install semver==${semver_version}
+fi
 
 ## Update OSA SHA to head of stable/pike
 # These var must be set per branch of RPC-Openstack
@@ -22,8 +51,14 @@ WORKSPACE="${WORKSPACE:-/opt}"
 # and revise this when the use of submodules has been terminated.
 git submodule update --init --remote
 
-# Get current head of osa
+## Get current head of osa
+# We clean up any existing directory to make
+# testing simpler (re-executing this script)
+# and to ensure we have a fresh clone.
 osa_dir="${WORKSPACE}/openstack-ansible"
+if [[ -e ${osa_dir} ]]; then
+  rm -rf ${osa_dir}
+fi
 git clone "https://github.com/openstack/openstack-ansible" "${osa_dir}"
 pushd "${osa_dir}"
   git checkout "${OSA_RELEASE}"
@@ -31,7 +66,13 @@ pushd "${osa_dir}"
 popd
 
 ## Update rpc-maas to latest tag
+# We clean up any existing directory to make
+# testing simpler (re-executing this script)
+# and to ensure we have a fresh clone.
 rpc_maas_dir="${WORKSPACE}/rpc-maas"
+if [[ -e ${rpc_maas_dir} ]]; then
+  rm -rf ${rpc_maas_dir}
+fi
 git clone https://github.com/rcbops/rpc-maas "${rpc_maas_dir}"
 pushd "${rpc_maas_dir}"
   # the maas repo includes old tags eg v9.x.x and 9.x.x when the version
@@ -52,7 +93,7 @@ release_data_file="${WORKSPACE}/rc-release-data.yml"
 # new method
 if git cat-file -e ${new_file_to_fetch} 2>/dev/null; then
   git show ${new_file_to_fetch} > ${release_data_file}
-  export RC_BRANCH_VERSION=$(${GATING_PATH}/../../scripts/get-rpc_release.py ${release_data_file})
+  export RC_BRANCH_VERSION=$(${BASE_DIR}/scripts/get-rpc_release.py -f ${release_data_file})
 
 # old method
 elif git cat-file -e ${old_file_to_fetch} 2>/dev/null; then
@@ -61,18 +102,17 @@ elif git cat-file -e ${old_file_to_fetch} 2>/dev/null; then
 
 else
   echo "RC branch ${rc_branch} not found, skipping rpc_release version bump.
-If there is no RC branch then the mainline branch is considered unreleased
-and therefore the rpc_release value is left alone. It is still important
-for the dependencies to be updated regularly though, so that part continues
-to be done."
+If there is no RC branch then the mainline branch is considered unreleased and
+therefore the rpc_release value is left alone. It is still important for the
+dependencies to be updated regularly though, so that part continues to be done."
 fi
 
 
 # Execute role requirements file update
-export ROLE_REQUIREMENTS_FILE="${GATING_PATH}/../../ansible-role-${RPC_PRODUCT_RELEASE}-requirements.yml"
+export ROLE_REQUIREMENTS_FILE="${BASE_DIR}/ansible-role-${RPC_PRODUCT_RELEASE}-requirements.yml"
 ${GATING_PATH}/role-requirements-update.py
 
 
 # Execute the update of all the data
-export RELEASE_FILE="${GATING_PATH}/../../playbooks/vars/rpc-release.yml"
+export RELEASE_FILE="${BASE_DIR}/playbooks/vars/rpc-release.yml"
 ${GATING_PATH}/release-update.py
