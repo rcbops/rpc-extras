@@ -91,7 +91,7 @@ openstack_images:
       img_config_drive: "optional"
   - name: OpenSuse Leap 42.3
     format: qcow2
-    url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
+    url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64
     properties:
       hw_scsi_model: "virtio-scsi"
       hw_disk_bus: "scsi"
