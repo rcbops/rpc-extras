@@ -113,7 +113,6 @@
         option: "{{ item.option }}"
         value: "{{ item.value }}"
       with_items:
-        - { option: "container_artifact_enabled", value: false }
         - { option: "py_artifact_enabled", value: false }
       when:
         - not apt_artifact_enabled | bool
@@ -125,6 +124,7 @@
         dest: "/etc/openstack_deploy/group_vars/all/{{ item | basename }}"
       with_items:
         - files/apt.yml
+        - files/lxc.yml
       run_once: true
       delegate_to: localhost
       when:

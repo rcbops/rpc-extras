@@ -106,7 +106,6 @@ can be set to **true** or **false** when running the `site-artifacts.yml`
 playbook. By default artifacting is disabled.
 
 * apt_artifact_enabled
-* container_artifact_enabled
 * py_artifact_enabled
 
 If a deployer needs to forcibly modify or reset the state of artifacts,
@@ -118,7 +117,6 @@ as needed.
 
 ``` shell
 openstack-ansible site-artifacts.yml -e 'apt_artifact_enabled=false' \
-                                     -e 'container_artifact_enabled=false' \
                                      -e 'py_artifact_enabled=false'
 ```
 

@@ -13,42 +13,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The container creation to use the RPC-O container artifact repository
-lxc_image_cache_server: "{{ rpco_mirror_base_url | netloc_no_port }}"
-
-# Set the lxc_hosts base image prep to use the RPC-O base image artifact
-lxc_cache_default_variant: "default-{{ rpc_release }}"
-
-# The default variant to be used for all containers if there
-# is no specific group override.
-lxc_container_variant: "{{ lxc_cache_default_variant }}"
-
-# TODO(odyssey4me)
-# The 'no-validate' option should be removed once this work is done:
-#   https://github.com/rcbops/u-suk-dev/issues/1296
-lxc_cache_download_template_extra_options: "--no-validate"
-
-# TODO(odyssey4me)
-# The 'no-validate' option should be removed once this work is done:
-#   https://github.com/rcbops/u-suk-dev/issues/1296
-lxc_container_download_template_extra_options: "--no-validate"
-
-# Set the image cache servers
-lxc_image_cache_server_mirrors:
-  - "{{ rpco_mirror_base_url }}"
-
-# As we pre-build our container images, they have no ssh keys in them.
-# The ssh keys are required in order for delegation from a container to
-# another container to work. eg: os-keystone-install delegates the
-# rabbitmq and mariadb tasks from the keystone container to the
-# respective rabbit/mariadb container.
-# TODO(odyssey4me)
-# In Pike onwards this will no longer be required, so remove it then.
-lxc_container_commands: |
-  key="{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-  mkdir -p /root/.ssh
-  chmod 700 /root/.ssh
-  if [[ ! "$(grep -q "$key" /root/.ssh/authorized_keys)" ]]; then
-    echo "$key" | tee -a /root/.ssh/authorized_keys
-  fi
-  chmod 700 /root/.ssh/authorized_keys
+# When we prep the base container using apt artifacts we pull the default LXC
+# cache variant from LXC upstream which may have packages installed which are
+# more recent than those we have available in our artifacted apt repository.
+# Here we figure out which packages are installed, but not available in a
+# configured source, then we downgrade them to the latest available in the
+# configured sources.
+#
+# By way of reference, typically the output of 'apt list --installed' will
+# produce output such as the following:
+#
+# adduser/trusty,now 3.113+nmu3ubuntu3 all [installed]
+# ca-certificates/r14.0.0rc1-trusty,now 20160104ubuntu0.14.04.1 all [installed]
+# libc6/now 2.19-0ubuntu6.11 amd64 [installed,local]
+# libglib2.0-0/r14.0.0rc1-trusty,now 2.40.2-0ubuntu1 amd64 [installed,automatic]
+#
+# The format of the output is the following:
+# <package name>/<list of dist sources> <version> <arch> <flags>
+#
+# If a package is flagged as 'installed' and 'local' then it indicates that
+# the package has been installed from an apt source which is not currently
+# configured. These are the packages which need to be downgraded to a version
+# in an available apt source.
+#
+lxc_cache_prep_pre_commands: |
+    # If there is a configured resolver, save it.
+    if [ -a /etc/resolv.conf ]; then
+      mv /etc/resolv.conf /etc/resolv.conf.org
+    fi
+    # Use the LXC host's dnsmasq service as a resolver
+    echo "nameserver {{ lxc_net_address | default('10.0.3.1') }}" > /etc/resolv.conf
+    # Add the host's repository keys, including the RPC-O keys
+    apt-key add /root/repo.keys
+    # Update the apt cache
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    # Check whether there are any installed packages which
+    # are not available in a configured source.
+    if apt list --installed 2>/dev/null | egrep '\[.*local.*\]'; then
+      # Create a list of those packages.
+      pkg_downgrade_list=$(apt list --installed 2>/dev/null | egrep '\[.*local.*\]' | cut -d/ -f1)
+      # Work through the list, checking for the latest available version of
+      # each package in the configured sources. Put together a list of the
+      # packages and their versions in the format that 'apt-get install'
+      # expects it.
+      pkg_downgrade_list_versioned=""
+      for pkg_name in ${pkg_downgrade_list}; do
+        # 'apt-cache madison' provides an easy to parse format:
+        #   libc-bin | 2.19-0ubuntu6.9 | http://rpc-repo.rackspace.com/apt-mirror/integrated/ r14.0.0rc1-trusty/main amd64 Packages
+        #   libc-bin | 2.19-0ubuntu6 | http://mirror.rackspace.com/ubuntu/ trusty/main amd64 Packages
+        # The top entry is always the latest package available from a configured source.
+        pkg_version=$(apt-cache madison ${pkg_name} | head -n 1 | awk '{ print $3 }')
+        pkg_downgrade_list_versioned="${pkg_downgrade_list_versioned} ${pkg_name}=${pkg_version}"
+      done
+      # Execute the downgrade of all the packages at the same time so that
+      # we reduce the likelihood of conflicts.
+      apt-get install -y --force-yes ${pkg_downgrade_list_versioned}
+    fi
+    # Return the resolver to its previous state.
+    if [ -a /etc/resolv.conf.org ]; then
+      mv /etc/resolv.conf.org /etc/resolv.conf
+    else
+      rm -f /etc/resolv.conf
+    fi

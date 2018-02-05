@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lxc_container_variant: "ironic-{{ rpc_release }}"
 extra_lb_vip_addresses:
   - "https://{{ external_lb_vip_address }}"
 ironic_openstack_api_url: "https://{{ external_lb_vip_address }}:{{ ironic_service_port }}"
