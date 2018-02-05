@@ -10,6 +10,9 @@
   scm: git
   src: https://github.com/ceph/ansible-ceph-osd.git
   version: 434a13f4d3ee3f60c410052d2670d5dfea034bf8
+# Created for JIRA RLM-322
+# Frank: this is a forked ansible role for removing
+# hardcoded period mark from hostname template.
 - name: openstack_hosts
   scm: git
   src: https://github.com/rcbops/openstack-ansible-openstack_hosts
