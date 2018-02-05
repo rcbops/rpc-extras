@@ -16,4 +16,4 @@
 - name: openstack_hosts
   scm: git
   src: https://github.com/rcbops/openstack-ansible-openstack_hosts
-  version: ce249ec4386d013d76b617f009a93a408f76619e 
+  version: 235ec6f0fc5570e7c657b243bcf4208cc2c7739c
