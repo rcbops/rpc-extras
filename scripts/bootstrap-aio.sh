@@ -55,14 +55,6 @@ else
   sed -i '/^# Apt artifact repo configuration$/,$d' ${RPCD_DIR}/etc/openstack_deploy/user_rpco_variables_defaults.yml
 fi
 
-# If there are no container artifacts for this release, then remove the container artifact configuration
-if ! container_artifacts_available; then
-  # Remove the AIO configuration relating to the use
-  # of container artifacts. This needs to be done
-  # because the container artifacts do not exist yet.
-  ./scripts/artifacts-building/remove-container-aio-config.sh
-fi
-
 # Run AIO bootstrap playbook
 # Setting GROUP_VARS and HOST_VARS to their original
 # values here so that the OSA bootstrap playbooks

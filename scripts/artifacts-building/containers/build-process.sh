@@ -13,6 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+##
+## This process is no longer required. See the following JIRA card for
+## more details: https://rpc-openstack.atlassian.net/browse/RO-3856
+##
+## Instead of removing this code, the script is just set to exit
+## immediately. This allows the CI jobs to continue functioning
+## normally until the container artifact building is appropriately
+## removed from all relevant RPC-O branches and repositories.
+##
+exit 0
+
 ## Shell Opts ----------------------------------------------------------------
 
 set -e -u -x
