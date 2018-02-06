@@ -16,11 +16,6 @@
 # Nova config overrides
 nova_console_type: novnc
 
-# RabbitMQ overrides
-# NOTE(mhayden): Remove this override once the OpenStack-Ansible SHA is bumped
-# to include: https://review.openstack.org/#/c/500054/
-rabbitmq_ulimit: 65535
-
 # Set RabbitMQ message replication count to 2
 # The desired setting would be {{ (groups.rabbitmq|length /2 +1)|round(0,'floor') |int }}
 # but can't be used due to https://github.com/ansible/ansible/issues/9362
