@@ -1,0 +1,99 @@
+- hosts: "{{ target_hosts }}"
+  gather_facts: false
+  tasks:
+    - name: Ensure artefacts directory exists
+      file:
+        path: "{{ artifacts_dir }}"
+        state: directory
+      delegate_to: "localhost"
+      run_once: yes
+
+    - name: Grab host data
+      command: >
+               rsync
+               --archive
+               --compress
+               --verbose
+               --relative
+               --rsh 'ssh -o StrictHostKeyChecking=no'
+               --ignore-missing-args
+               --safe-links
+               --no-perms
+               --no-owner
+               --no-group
+               {{ inventory_hostname }}:{{ item }}
+               {{ artifacts_dir }}/{{ inventory_hostname }}
+      with_items:
+        - "/openstack/log"
+        - "/etc"
+        - "/var/log"
+      delegate_to: "localhost"
+      ignore_errors: true
+      tags:
+        - skip_ansible_lint
+
+    - name: List containers
+      command: "lxc-ls -1"
+      failed_when:
+        - containers.rc != 0
+        - containers.msg != '[Errno 2] No such file or directory'
+      changed_when: false
+      register: containers
+
+    - name: Get container filesystem paths
+      command: "lxc-info --name {{ item }} --no-humanize --config='lxc.rootfs'"
+      with_items:
+        - "{{ containers.stdout_lines | default([]) }}"
+      register: rootfilesystems
+
+    - name: Grab container data
+      command: >
+               rsync
+               --archive
+               --compress
+               --verbose
+               --relative
+               --rsh 'ssh -o StrictHostKeyChecking=no'
+               --ignore-missing-args
+               --safe-links
+               --no-perms
+               --no-owner
+               --no-group
+               {{ inventory_hostname }}:{{ item[0].stdout }}/{{ item[1] }}
+               {{ artifacts_dir }}/{{ inventory_hostname }}
+      when: containers.rc == 0
+      with_nested:
+        - "{{ rootfilesystems.results }}"
+        -
+          - "etc"
+          - "var/log"
+      delegate_to: "localhost"
+      tags:
+        - skip_ansible_lint
+  vars:
+    artifacts_dir: "/tmp/artifacts"
+    target_hosts: "localhost"
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Ensure result directory exists
+      file:
+        path: "{{ result_dir }}"
+        state: directory
+
+    - name: Find tempest results file
+      find:
+        paths: "{{ artifacts_dir }}"
+        recurse: yes
+        patterns: "tempest_tests.xml"
+      register: results_files
+
+    - name: Copy tempest results to RE_HOOK_RESULT_DIR
+      copy:
+       src: "{{ item.path }}"
+       dest: "{{ result_dir }}/"
+      with_items: "{{ results_files.files }}"
+      when: results_files.matched > 0
+  vars:
+    result_dir: "/tmp/result"
