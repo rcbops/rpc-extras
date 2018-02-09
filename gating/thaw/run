@@ -17,7 +17,7 @@ cp /opt/root_ssh_backup/.ssh/known_hosts /root/.ssh ||:
 ssh-keyscan localhost >> /root/.ssh/known_hosts
 
 
-cd /opt/rpc-openstack/openstack-ansible/playbooks/
+cd /opt/openstack-ansible/playbooks/
 
 # Use implicit fact gathering to ensure the fact cache is ignored,
 # and facts are always gathered. This important we rely on the public
