@@ -89,7 +89,7 @@
       find:
         paths: "{{ artifacts_dir }}"
         recurse: yes
-        patterns: "tempest_tests.xml"
+        patterns: "tempest_results.xml"
       register: results_files
 
     - name: Copy tempest results to RE_HOOK_RESULT_DIR
