@@ -18,3 +18,7 @@
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
   version: 80a0b6579c7404a885038778391fd7113a2c9272
+- name: os_nova
+  scm: git
+  src: https://github.com/openstack/openstack-ansible-os_nova
+  version: c581c2af7b2bfdf60fb4467d7d5b17bed32fc85f
