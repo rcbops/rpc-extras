@@ -118,16 +118,6 @@
         - not apt_artifact_enabled | bool
 
   tasks:
-    - name: Remove MariaDB repo overrides if apt artifacts enabled
-      file:
-        path: "/etc/openstack_deploy/group_vars/all/mariadb.yml"
-        state: "absent"
-      run_once: true
-      delegate_to: localhost
-      when:
-        - apt_artifact_found | bool
-        - apt_artifact_enabled | bool
-
     - name: Sync artifact files (all)
       copy:
         src: "{{ item }}"
