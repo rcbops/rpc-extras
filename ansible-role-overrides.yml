@@ -1,0 +1,5 @@
+---
+- name: pip_install
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-pip_install
+  version: 78e615c712771e33c1a7436e05bc91644318ece1
