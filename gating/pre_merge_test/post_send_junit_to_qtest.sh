@@ -33,7 +33,7 @@ ${VENV_PIP} install --process-dependency-links rpc-zigzag
 xml_files=()
 while IFS=  read -r -d $'\0' FILE; do
     xml_files+=("${FILE}")
-done < <(find $RE_HOOK_RESULT_DIR -type f -name '*.xml' -print0)
+done < <(find $RE_HOOK_RESULT_DIR -type f -name 'molecule_test_results.xml' -print0)
 
 # Upload the files
 echo "Attempting upload of ${#xml_files[@]} XML files"
