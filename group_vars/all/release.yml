@@ -16,5 +16,5 @@
 # The release tag to use
 # Note that this is set here so that the openstack_release override in osa_defaults
 # is able to use it.
-rpc_release: "r14.11.0"
+rpc_release: "r14.12.0"
 
