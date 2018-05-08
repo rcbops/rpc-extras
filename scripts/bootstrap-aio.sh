@@ -53,6 +53,10 @@ else
   export RPCO_APT_ARTIFACTS_AVAILABLE="no"
   rm -f ${BASE_DIR}/group_vars/all/apt.yml
   sed -i '/^# Apt artifact repo configuration$/,$d' ${RPCD_DIR}/etc/openstack_deploy/user_rpco_variables_defaults.yml
+
+  if [[ ${DISTRIB_CODENAME} == "trusty" ]] && ! grep "${DISTRIB_CODENAME}-backports" /etc/apt/sources.list; then
+      echo "deb ${HOST_UBUNTU_REPO} ${DISTRIB_CODENAME}-backports main universe" >> /etc/apt/sources.list
+  fi
 fi
 
 # Run AIO bootstrap playbook
