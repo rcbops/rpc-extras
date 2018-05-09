@@ -66,5 +66,6 @@ if [[ "${RE_JOB_TRIGGER:-USER}" == "PUSH" ]]; then
   ln -s /opt/rpc-openstack/gating/thaw/run /gating/thaw/run
 
   echo "rpc-${RPC_RELEASE}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}" > /gating/thaw/image_name
+  echo "${HOSTNAME}" > /gating/thaw/hostname
   echo "### END SNAPSHOT PREP ###"
 fi
