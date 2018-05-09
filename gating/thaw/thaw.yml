@@ -17,7 +17,19 @@
 # are up.
 - name: Post Network Thaw Tasks
   hosts: localhost
+  vars:
+    old_hostname: "{{ lookup('file', '/gating/thaw/hostname') }}"
   tasks:
+  - name: Update /etc/hosts with old hostname
+    replace:
+      name: /etc/hosts
+      regexp: "{{ ansible_hostname }}"
+      replace: "{{ old_hostname }}"
+
+  - name: Set running hostname to old hostname
+    hostname:
+      name: "{{ old_hostname }}"
+
   - name: Check for cinder loop image
     stat:
       path: /openstack/cinder.img
