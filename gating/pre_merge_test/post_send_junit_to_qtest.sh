@@ -7,7 +7,7 @@ set -x
 ## Vars ----------------------------------------------------------------------
 
 export QTEST_API_TOKEN=$RPC_ASC_QTEST_API_TOKEN
-VENV_NAME="venv-qtest"
+VENV_NAME="qtest"
 PROJECT_ID="76551"
 
 ## Functions -----------------------------------------------------------------
