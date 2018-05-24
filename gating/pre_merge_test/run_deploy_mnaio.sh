@@ -152,6 +152,7 @@ ${MNAIO_SSH} <<EOC
   cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_variables.yml
   cp -R /opt/rpc-openstack/etc/openstack_deploy/* /etc/openstack_deploy/
   echo -e '---\nsecurity_rhel7_session_timeout: 1200\nsecurity_sshd_client_alive_interval: 1200' | tee /etc/openstack_deploy/user_mnaio_long_hardening_timeout.yml
+  echo -e '\nhaproxy_bind_on_non_local: True' | tee -a /etc/openstack_deploy/user_variables.yml
   chmod +x /opt/rpc-openstack/deploy-infra1.sh
   rm -rf /opt/openstack-ansible
   rm /usr/local/bin/openstack-ansible
