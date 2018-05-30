@@ -1,0 +1,7 @@
+---
+issues:
+  - |
+    All RPC-O pike releases earlier than r16.2.0 will fail to build the rally
+    venv due to the release of the new cmd2-0.9.0 python library. Deployers are
+    encouraged to update to the latest RPC-O pike release which pins to an
+    appropriate version which is compatible with python2.
