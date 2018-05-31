@@ -1,9 +1,9 @@
 #!/bin/bash -xe
 
-## Update OSA SHA to head of stable/ocata
+## Update OSA SHA to head of the applicable branch
 
 # These var must be set per branch of RPC-Openstack
-osa_branch=stable/newton
+osa_branch=newton-eol
 rpco_branch=${BRANCH:-newton} # BRANCH injected by Jenkins.
 
 # Env vars injected by Jenkins:
@@ -18,7 +18,7 @@ git submodule update
 
 # Set the submodule to the head of the appropriate branch
 pushd openstack-ansible
-git checkout origin/${osa_branch}
+git checkout ${osa_branch}
 popd
 
 
