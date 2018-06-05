@@ -33,3 +33,6 @@ pkg_locations:
 # Use rcbops version of neutron-lbaas for post newton EOL patches
 neutron_lbaas_git_repo: https://github.com/rcbops/neutron-lbaas.git
 neutron_lbaas_git_install_branch: 2c68e0c642be83e0d07f8c867072b24a8608f3de
+
+# Set the spice repo to gitlab because github is gone...
+nova_spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5
