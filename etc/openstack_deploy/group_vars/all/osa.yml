@@ -51,6 +51,9 @@ neutron_neutron_conf_overrides:
 #Set the default for Neutron-HA-tool to true
 neutron_legacy_ha_tool_enabled: true
 
+# Set the spice repo to gitlab because github is gone...
+nova_spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5
+
 # Increase interval between checks after container start.
 # Reduces the "Wait for container ssh" error.
 ssh_delay: 60
