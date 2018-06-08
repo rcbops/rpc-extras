@@ -96,3 +96,15 @@ haproxy_extra_services:
 
 # Define the distro version globally
 repo_build_os_distro_version: "{{ (ansible_distribution | lower) | replace(' ', '_') }}-{{ ansible_distribution_version.split('.')[:2] | join('.') }}-{{ ansible_architecture | lower }}"
+
+# remove once https://review.openstack.org/#/c/573822/ merges
+ironic_ironic_conf_overrides:
+  glance:
+    auth_url: http://{{ internal_lb_vip_address }}:35357/v3
+    auth_type: " {{ glance_keystone_auth_plugin }}"
+    project_name: "{{ glance_service_project_name }}"
+    project_domain_id: "{{ glance_service_project_id }}"
+    username: "{{ glance_service_user_name }}"
+    user_domain_id: "{{ glance_service_user_domain_id }}"
+    password: "{{ glance_service_password }}"
+    glance_api_servers: "{{ ironic_glance_api_servers }}"
