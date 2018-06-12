@@ -14,3 +14,9 @@
   scm: git
   src: https://github.com/elastic/ansible-elasticsearch
   version: a70d259e1987f38537814a9093ead5136e0ba0b6
+  #remove when https://review.openstack.org/#/c/574875/ merges and OSA sha
+  #bumped in RPC-O
+- name: os_octavia
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-os_octavia
+  version: 3fd189860605f2c36281fa26c776aa46c870a12a
