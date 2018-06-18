@@ -24,9 +24,6 @@ release_file = os.environ['RELEASE_FILE']
 # Read the RPC release series name from an environment variable
 release_series = os.environ['RPC_PRODUCT_RELEASE']
 
-# Read the maas_release to set from an an environment variable
-maas_release = os.environ['MAAS_TAG']
-
 # Read the osa_release to set from an environment variable
 osa_release = os.environ['OSA_SHA']
 
@@ -78,9 +75,6 @@ if rpc_rc_release == rpc_release:
 
     # Now add the 'r' prefix back on for the final version
     rpc_release = "r" + rpc_release_semver_new
-
-# Adjust the maas release
-release_data['maas_release'] = maas_release
 
 # Adjust the OSA SHA
 release_data['osa_release'] = osa_release

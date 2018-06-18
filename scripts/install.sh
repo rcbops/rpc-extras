@@ -26,7 +26,8 @@ apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
                                        python \
                                        python-yaml \
-                                       python-virtualenv
+                                       python-virtualenv \
+                                       python3-virtualenv
 
 ## Vars ----------------------------------------------------------------------
 export SCRIPT_PATH="$(readlink -f $(dirname ${0}))"

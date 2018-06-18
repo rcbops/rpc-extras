@@ -18,11 +18,6 @@
   environment: "{{ deployment_environment_variables | default({}) }}"
   gather_facts: false
   tasks:
-    - name: Clone RPC-MaaS
-      git:
-        repo: "https://github.com/rcbops/rpc-maas"
-        dest: "/opt/rpc-maas"
-        version: "{{ maas_release }}"
     - name: Stat /etc/openstack_deploy
       stat:
         path: "/etc/openstack_deploy"
