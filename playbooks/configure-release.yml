@@ -112,6 +112,24 @@
         rpc_product_bootstrapped: "{{ rpc_openstack['rpc_product_bootstrapped'] | default('undefined') }}"
         rpc_product_new_bootstrap: "rpc-{{ rpc_product_release }}-{{ osa_release }}"
 
+    - name: Install rpc_component tool
+      pip:
+        name: "git+https://github.com/rcbops/rpc_component@85f152ece9eee3c9cd7d68bd2ecc5982e17400ae#egg=rpc_component"
+        state: "present"
+        virtualenv: /opt/rpc_component
+        virtualenv_python: python3
+      register: install_packages
+      until: install_packages|success
+      retries: 5
+      delay: 2
+
+    - name: Clone component dependencies
+      command: |
+        /opt/rpc_component/bin/component dependency --dependency-dir /opt/rpc-openstack \
+                                         download-requirements --download-dir /opt
+      tags:
+        - skip_ansible_lint
+
     - name: Clone / Checkout OpenStack-Ansible
       git:
         repo: "https://git.openstack.org/openstack/openstack-ansible"

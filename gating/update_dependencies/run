@@ -61,22 +61,6 @@ pushd "${osa_dir}"
   export OSA_SHA="$(git log -n 1 --format=%H)"
 popd
 
-## Update rpc-maas to latest tag
-# We clean up any existing directory to make
-# testing simpler (re-executing this script)
-# and to ensure we have a fresh clone.
-rpc_maas_dir="${WORKSPACE}/rpc-maas"
-if [[ -e ${rpc_maas_dir} ]]; then
-  rm -rf ${rpc_maas_dir}
-fi
-git clone https://github.com/rcbops/rpc-maas "${rpc_maas_dir}"
-pushd "${rpc_maas_dir}"
-  # the maas repo includes old tags eg v9.x.x and 9.x.x when the version
-  #  at the time of writing is 1.x.x. All tags that include a character
-  #  or that start with 9 or 10 are filtered out.
-  export MAAS_TAG="$(git tag -l |grep -v '[a-zA-Z]\|^\(9\.\|10\.\)' |sort -n |tail -n 1)"
-popd
-
 ## Check what version is set in the RC branch
 
 # We can only use this method once this file exists in the RC branch, so

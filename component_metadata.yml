@@ -1,0 +1,4 @@
+dependencies:
+- constraints:
+  - version<2
+  name: rpc-maas
