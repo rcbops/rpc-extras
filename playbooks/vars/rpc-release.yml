@@ -12,6 +12,6 @@ rpc_product_releases:
     osa_release: stable/ocata
     rpc_release: r15.0.0
   pike:
-    maas_release: 1.7.3
-    osa_release: fc2cb9eef48cc13924fdedd1f881bfd4fc6f5bfa
-    rpc_release: r16.2.2
+    maas_release: 1.7.4
+    osa_release: 48652d5ea29ccf1f4ca429790fdcf58d0502c5a6
+    rpc_release: r16.2.3
