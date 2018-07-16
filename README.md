@@ -80,7 +80,7 @@ created for convenience and will maintain impotency.
 ``` shell
 cd /opt/rpc-openstack
 export RPC_PRODUCT_RELEASE="queens"  # This is optional, if unset the current stable product will be used
-openstack-ansible openstack-ansible-install.yml
+/opt/rpc-ansible/bin/ansible-playbook -i 'localhost,' playbooks/openstack-ansible-install.yml
 ```
 
 ###### Optional | Setting the OpenStack-Ansible release
