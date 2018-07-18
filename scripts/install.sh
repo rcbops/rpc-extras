@@ -50,6 +50,17 @@ if [[ -d "/opt/openstack-ansible" ]] && [[ ! -d "/opt/openstack-ansible/.git" ]]
   mv /opt/openstack-ansible /opt/openstack-ansible.original
 fi
 
+# Generate the RPCO secrets required for the deployment.
+if [[ ! -f "/etc/openstack_deploy/user_rpco_secrets.yml" ]]; then
+  cp ${SCRIPT_PATH}/../etc/openstack_deploy/user_rpco_secrets.yml.example /etc/openstack_deploy/user_rpco_secrets.yml
+fi
+
+for file_name in user_rpco_secrets.yml; do
+  if [[ -f "/etc/openstack_deploy/${file_name}" ]]; then
+    python /opt/openstack-ansible/scripts/pw-token-gen.py --file "/etc/openstack_deploy/${file_name}"
+  fi
+done
+
 # NOTE(cloudnull): Create a virtualenv for RPC-Ansible which is used for
 #                  initial bootstrap purposes. While playbooks can be run using
 #                  this ansible release in the general sense, the OSA ansible
