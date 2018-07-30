@@ -85,6 +85,31 @@ octavia_enable_anti_affinity: "{{ lookup('env', 'DEPLOY_AIO') != 'yes' }}"
 
 # no event streamer
 octavia_event_streamer: False
+octavia_sync_provisioning_status: False
+
+rackspace_octavia_files_folder: "/opt/rpc-openstack/etc/octavia"
+octavia_user_haproxy_templates:
+  - src: "{{ rackspace_octavia_files_folder }}/base.j2"
+    dest: "/etc/octavia/templates/base.j2"
+  - src: "{{ rackspace_octavia_files_folder }}/haproxy.cfg.j2"
+    dest: "/etc/octavia/templates/haproxy.cfg.j2"
+  - src: "{{ rackspace_octavia_files_folder }}/macros.j2"
+    dest: "/etc/octavia/templates/macros.j2"
+octavia_haproxy_amphora_template: /etc/octavia/templates/haproxy.cfg.j2
+
+octavia_octavia_conf_overrides:
+  # Production clouds should be able to boot VMs in ten minutes
+  haproxy_amphora:
+    connection_max_retries: 120
+    build_active_retries: 120
+  keepalived_vrrp:
+    vrrp_check_interval: 2
+  # Wait for up to half an hour for nova to actually delete an instance and
+  # release the port
+  networking:
+    port_detach_timeout: 1800
+  task_flow:
+    engine: parallel
 
 # Elasticsearch global variables
 elasticsearch_http_port: 9200
