@@ -118,6 +118,8 @@
         dest: "/opt/openstack-ansible"
         version: "{{ osa_release }}"
         force: "{{ osa_force_clone | default(false) }}"
+      when:
+        - clone_osa | default(true) | bool
 
     - name: Copy basic files into place
       shell: |
