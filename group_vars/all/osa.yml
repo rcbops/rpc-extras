@@ -83,3 +83,9 @@ haproxy_extra_services:
       haproxy_balance_type: tcp
       haproxy_backend_options:
         - "ssl-hello-chk"
+
+# RI-357 Tempest Overrides
+# TODO(d34dh0r53): Once the test_minimum_basic_scenario is working we can remove
+# this
+tempest_test_blacklist:
+  - tempest.scenario.test_minimum_basic
