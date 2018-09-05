@@ -19,20 +19,30 @@
   connection: local
   gather_facts: false
   tasks:
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
     - name: Clone RPC-MaaS
       git:
         repo: "https://github.com/rcbops/rpc-maas"
         dest: "/opt/rpc-maas"
-        version: "{{ maas_release }}"
+        version: "{{ ansible_local['rpc_openstack']['maas_release'] }}"
+
     - name: Stat /etc/openstack_deploy
       stat:
         path: "/etc/openstack_deploy"
       register: stat_openstack_deploy
+
     - name: Fail when /etc/openstack_deploy doesn't exist
       fail:
         msg: "/etc/openstack_deploy is required but doesn't exist"
       when:
         - not stat_openstack_deploy.stat.exists
+
     - name: Copy over base maas vars
       copy:
         src: "/opt/rpc-maas/tests/user_master_vars.yml"

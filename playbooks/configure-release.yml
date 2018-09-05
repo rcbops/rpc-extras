@@ -208,6 +208,14 @@
         - { option: "rpc_product_release", value: "{{ rpc_product_release }}" }
         - { option: "rpc_product_bootstrapped", value: "{{ rpc_product_new_bootstrap }}" }
 
+    - name: Set the product release local facts
+      ini_file:
+        dest: "/etc/ansible/facts.d/rpc_openstack.fact"
+        section: "rpc_product"
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ rpc_product_releases[rpc_product_release] }}"
+
   vars:
     ansible_python_interpreter: "/usr/bin/python"
     rpc_product_release: "{{ lookup('env', 'RPC_PRODUCT_RELEASE') | default('undefined', true) }}"

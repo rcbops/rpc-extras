@@ -100,5 +100,10 @@ repo_build_os_distro_version: "{{ (ansible_distribution | lower) | replace(' ', 
 # RI-357 Tempest Overrides
 # TODO(d34dh0r53): Once the test_minimum_basic_scenario is working we can remove
 # this
-tempest_test_blacklist:
-  - tempest.scenario.test_minimum_basic
+tempest_test_whitelist:
+  - "{{ (tempest_service_available_ceilometer | bool) | ternary('tempest.api.telemetry', '') }}"
+  - "{{ (tempest_service_available_heat | bool) | ternary('tempest.api.orchestration.stacks.test_non_empty_stack', '') }}"
+  - "{{ (tempest_service_available_nova | bool) | ternary('tempest.scenario.test_server_basic_ops', '') }}"
+  - "{{ (tempest_service_available_swift | bool) | ternary('tempest.scenario.test_object_storage_basic_ops', '') }}"
+  - "{{ (tempest_volume_backup_enabled | bool) | ternary('tempest.api.volume.admin.test_volumes_backup', '') }}"
+  - "{{ (tempest_volume_multi_backend_enabled | bool) | ternary('tempest.api.volume.admin.test_multi_backend', '') }}"
