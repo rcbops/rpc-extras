@@ -123,7 +123,7 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
     sed -i 's/osa_enable_elk_metrics: false/osa_enable_elk_metrics: true/' playbooks/group_vars/all.yml
     sed -i 's/osa_enable_os_profiler: false/osa_enable_os_profiler: true/' playbooks/group_vars/all.yml
     sed -i 's/osa_enable_uwsgi_stats: false/osa_enable_uwsgi_stats: true/' playbooks/group_vars/all.yml
-    echo 'os_profiler_hmac_token: SuperSecrete' >> playbooks/group_vars/all.yml
+    echo 'os_profiler_hmac_token: SuperSecrete' >> playbooks/osa/user_mnaio_variables.yml
   fi
 popd
 
