@@ -1,0 +1,126 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Clone openstack-ansible-ops
+  hosts: localhost
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Refresh local facts
+      setup:
+        filter: ansible_local
+        gather_subset: "!all"
+      tags:
+        - always
+
+    - name: Clone RPC-MaaS
+      git:
+        repo: "https://github.com/openstack/openstack-ansible-ops"
+        dest: "/opt/openstack-ansible-ops"
+        version: "{{ ansible_local['rpc_openstack']['rpc_product']['openstack_ansible_ops'] }}"
+  tags:
+    - elk
+    - elk-get
+
+
+- name: Bootstrap embedded ansible
+  hosts: localhost
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Run bootstrap process
+      command: "/opt/openstack-ansible-ops/elk_metrics_6x/bootstrap-embedded-ansible.sh"
+      changed_when: false
+
+    - name: Create elk groups
+      copy:
+        content: |
+          ---
+          # Kibana hosts
+          kibana_hosts:
+          {% for item in groups['log_hosts'] %}
+            {{ item }}:
+              ip: {{ hostvars[item]['ansible_host'] }}
+          # Elastic hosts
+          elastic-logstash_hosts:
+            {{ item }}:
+              ip: {{ hostvars[item]['ansible_host'] }}
+          {% endfor %}
+          # APM hosts
+          apm-server_hosts: {}
+        dest: "/etc/openstack_deploy/conf.d/elk.yml"
+
+    - name: Reload inventory
+      command: "ansible -m ping localhost"
+      changed_when: false
+      args:
+        chdir: "/opt/openstack-ansible/playbooks"
+  tags:
+    - elk
+    - elk-bootstrap
+
+
+- name: Run elk deployment
+  hosts: localhost
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Create elk container(s)
+      become: yes
+      become_user: root
+      command: >-
+        openstack-ansible containers-nspawn-create.yml containers-lxc-create.yml --limit lxc_hosts:elk_all
+      args:
+        chdir: "/opt/openstack-ansible/playbooks"
+      tags:
+        - skip_ansible_lint
+
+    - name: Find secrets files
+      find:
+        paths: "/etc/openstack_deploy"
+        patterns: 'user*secret*.yml'
+      register: secrets_files
+
+    - name: Run elk+beat(s) deployment
+      become: yes
+      become_user: root
+      command: >-
+        {{ ansible_env.HOME }}/ansible25/bin/ansible-playbook
+        {{ secrets_files.files | map(attribute='path') | list | map('regex_replace', '(.*)' ,'-e @' ~ '\1') | list | join(' ') }}
+        -e elk_package_state=latest
+        {{ item }}
+      with_items:
+        - site-elka.yml
+        - installFilebeat.yml
+        - installJournalbeat.yml
+        - installHeartbeat.yml
+        - installAuditbeat.yml
+      tags:
+        - skip_ansible_lint
+      environment:
+        ANSIBLE_LOG_PATH: "/var/log/ansible-elk-beats-deployment.log"
+        ANSIBLE_INVENTORY: "{{ ansible_env.HOME }}/ansible25/inventory/openstack_inventory.sh"
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_ROLES_PATH: "{{ ansible_env.HOME }}/ansible25/repositories/roles"
+        ANSIBLE_ACTION_PLUGINS: "{{ ansible_env.HOME }}/ansible25/repositories/ansible-config_template/action"
+        ANSIBLE_CONNECTION_PLUGINS: "{{ ansible_env.HOME }}/ansible25/repositories/openstack-ansible-plugins/connection/"
+      args:
+        chdir: "/opt/openstack-ansible-ops/elk_metrics_6x"
+  tags:
+    - elk
+    - elk-deployment
