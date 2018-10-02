@@ -28,35 +28,6 @@ source /opt/rpc-openstack/scripts/functions.sh
 
 source "$(readlink -f $(dirname ${0}))/../mnaio_vars.sh"
 
-# If there are images available, and this is not the 'deploy' action,
-# then we need to run the OSA deploy playbook for some pre-configuration
-# before doing the RPC-O bits. The conditional was already evaluated in
-# mnaio_vars, so we key off DEPLOY_VMS here.
-if [[ "${DEPLOY_VMS}" == "true" ]]; then
-  # apply various modifications for mnaio
-  pushd /opt/openstack-ansible-ops/multi-node-aio
-    # By default the MNAIO deploys metering services, so we override
-    # osa_enable_meter to prevent those services from being deployed.
-    # TODO(odyssey4me):
-    # Remove this once https://review.openstack.org/604034 has merged.
-    sed -i 's/osa_enable_meter: true/osa_enable_meter: false/' playbooks/group_vars/all.yml
-
-    export DEPLOY_OSA="true"
-    export PRE_CONFIG_OSA="true"
-
-    # Run the initial deployment configuration
-    run_mnaio_playbook playbooks/deploy-osa.yml
-  popd
-else
-  # If this is not a deploy test, and the images were used in
-  # the 'pre' stage to setup the VM's, then we do not need to
-  # execute any more of this script.
-  # We implement a simple 5 minute wait to give time for the
-  # containers to start in the VM's.
-  echo "MNAIO RPC-O deploy completed using images... waiting 5 mins for system startup."
-  sleep 300
-  exit 0
-fi
 ## OSA MNAIO Vars
 export PARTITION_HOST="true"
 export NETWORK_BASE="172.29"
@@ -110,6 +81,36 @@ else
   pushd /opt/openstack-ansible-ops
     git fetch --all
   popd
+fi
+
+# If there are images available, and this is not the 'deploy' action,
+# then we need to run the OSA deploy playbook for some pre-configuration
+# before doing the RPC-O bits. The conditional was already evaluated in
+# mnaio_vars, so we key off DEPLOY_VMS here.
+if [[ "${DEPLOY_VMS}" == "true" ]]; then
+  # apply various modifications for mnaio
+  pushd /opt/openstack-ansible-ops/multi-node-aio
+    # By default the MNAIO deploys metering services, so we override
+    # osa_enable_meter to prevent those services from being deployed.
+    # TODO(odyssey4me):
+    # Remove this once https://review.openstack.org/604034 has merged.
+    sed -i 's/osa_enable_meter: true/osa_enable_meter: false/' playbooks/group_vars/all.yml
+
+    export DEPLOY_OSA="true"
+    export PRE_CONFIG_OSA="true"
+
+    # Run the initial deployment configuration
+    run_mnaio_playbook playbooks/deploy-osa.yml
+  popd
+else
+  # If this is not a deploy test, and the images were used in
+  # the 'pre' stage to setup the VM's, then we do not need to
+  # execute any more of this script.
+  # We implement a simple 5 minute wait to give time for the
+  # containers to start in the VM's.
+  echo "MNAIO RPC-O deploy completed using images... waiting 5 mins for system startup."
+  sleep 300
+  exit 0
 fi
 
 # apply various modifications for mnaio
