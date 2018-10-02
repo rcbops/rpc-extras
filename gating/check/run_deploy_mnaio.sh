@@ -84,8 +84,8 @@ export INFRA_VM_SERVER_RAM=16384
 export MNAIO_ANSIBLE_PARAMETERS="-e default_vm_disk_mode=file"
 export DEPLOY_MAAS="false"
 export GATE_ELK="true"
-export DEPLOY_ELK=$(GATE_ELK:-true)
-export RUN_ELK=$(GATE_ELK:-true)
+export DEPLOY_ELK=${GATE_ELK}
+export RUN_ELK=${GATE_ELK}
 # ssh command used to execute tests on infra1
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
 # place variable in file to be sourced by parent calling script 'run'
@@ -119,7 +119,7 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
   sed -i 's/osa_enable_meter: true/osa_enable_meter: false/' playbooks/group_vars/all.yml
   # RI-263 Deploy ELK in the MNAIO gates
   # Enables ELK, OS Profiler and UWSGI Stats
-  if [[ $GATE_ELK == "true" ]]; then
+  if [[ ${GATE_ELK} == "true" ]]; then
     sed -i 's/osa_enable_elk_metrics: false/osa_enable_elk_metrics: true/' playbooks/group_vars/all.yml
     sed -i 's/osa_enable_uwsgi_stats: false/osa_enable_uwsgi_stats: true/' playbooks/group_vars/all.yml
   fi
