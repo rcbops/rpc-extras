@@ -84,7 +84,7 @@
       become: yes
       become_user: root
       command: >-
-        openstack-ansible containers-nspawn-create.yml containers-lxc-create.yml --limit lxc_hosts:elk_all
+        openstack-ansible containers-lxc-create.yml --limit lxc_hosts:elk_all
       args:
         chdir: "/opt/openstack-ansible/playbooks"
       tags:
