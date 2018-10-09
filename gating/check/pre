@@ -30,11 +30,11 @@ source "$(readlink -f $(dirname ${0}))/../gating_prerequisites.sh"
 distro_pkgs_to_install=""
 py_pkgs_to_install=""
 
-if [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+if [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]]; then
   dpkg-query --list | grep curl &>/dev/null || distro_pkgs_to_install+="curl "
 fi
 
-if [[ $RE_JOB_ACTION == "tox-test" ]]; then
+if [[ ${RE_JOB_ACTION} == "tox-test" ]]; then
   dpkg-query --list | grep wget &>/dev/null || distro_pkgs_to_install+="wget "
   pip freeze | grep tox &>/dev/null || py_pkgs_to_install+="tox "
 fi
@@ -47,6 +47,6 @@ if [ "${py_pkgs_to_install}" != "" ]; then
   pip install --disable-pip-version-check --upgrade --upgrade-strategy only-if-needed ${py_pkgs_to_install} -c upper-constraints.txt
 fi
 
-if [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+if [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]]; then
   source "$(readlink -f $(dirname ${0})/pre_deploy_mnaio.sh)"
 fi
