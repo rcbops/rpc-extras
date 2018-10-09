@@ -123,7 +123,7 @@ EOC
 # start the rpc-o install from infra1
 ${MNAIO_SSH} "/opt/rpc-openstack/deploy-infra1.sh"
 
-if [[ "${GATE_ELK}" == "true" ]]; then
+if [[ ${GATE_ELK} == "true" ]]; then
   ${MNAIO_SSH} <<EOS
     cd /opt/rpc-openstack
     openstack-ansible playbooks/elk-deployment.yml

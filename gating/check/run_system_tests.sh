@@ -20,7 +20,7 @@ SYS_TEST_BRANCH="${RE_JOB_BRANCH:-master}"
 
 # Switch system test branch to `dev` on the experimental-asc job.
 # This job is specifically for running system tests under development.
-if [[ $RE_JOB_NAME == experimental-asc* ]] ; then
+if [[ ${RE_JOB_NAME} == experimental-asc* ]] ; then
     SYS_TEST_BRANCH=dev
 fi
 

@@ -20,22 +20,22 @@ source "$(readlink -f $(dirname ${0}))/../gating_vars.sh"
 
 echo "rpc-openstack at SHA $(git rev-parse HEAD)"
 
-if [[ $RE_JOB_ACTION == "tox-test" ]]; then
+if [[ ${RE_JOB_ACTION} == "tox-test" ]]; then
 
   tmp_tox_dir=$(mktemp -d)
-  tox -e $RE_JOB_SCENARIO --workdir $tmp_tox_dir
+  tox -e ${RE_JOB_SCENARIO} --workdir $tmp_tox_dir
 
-elif [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+elif [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]]; then
   bash -c "$(readlink -f $(dirname ${0})/run_deploy_mnaio.sh)"
 else
   bash -c "$(readlink -f $(dirname ${0})/../../scripts/deploy.sh)"
 fi
 
-if [[ $RE_JOB_ACTION == system* ]]; then
+if [[ ${RE_JOB_ACTION} == system* ]]; then
   bash -c "$(readlink -f $(dirname ${0})/run_system_tests.sh)"
 fi
 
-if [[ $RE_JOB_ACTION == "sdqc" ]]; then
+if [[ ${RE_JOB_ACTION} == "sdqc" ]]; then
   export RE_JOB_BRANCH="openstack-ops-only"
   bash -c "$(readlink -f $(dirname ${0})/run_system_tests.sh)"
 fi

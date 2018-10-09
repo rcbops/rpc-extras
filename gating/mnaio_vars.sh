@@ -16,9 +16,9 @@ fi
 #
 # Environment settings
 #
-if [[ "${RE_JOB_IMAGE}" =~ .*xenial.* ]]; then
+if [[ ${RE_JOB_IMAGE} =~ .*xenial.* ]]; then
   export DEFAULT_IMAGE="ubuntu-16.04-amd64"
-elif [[ "${RE_JOB_IMAGE}" =~ .*bionic.* ]]; then
+elif [[ ${RE_JOB_IMAGE} =~ .*bionic.* ]]; then
   export DEFAULT_IMAGE="ubuntu-18.04-amd64"
 fi
 export DEFAULT_MIRROR_HOSTNAME=mirror.rackspace.com

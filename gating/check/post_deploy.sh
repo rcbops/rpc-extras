@@ -19,7 +19,7 @@ source $(dirname ${0})/../../scripts/functions.sh
 ## Main ----------------------------------------------------------------------
 
 echo "Killing dstat process to ensure the data file is flushed for log collection."
-if [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+if [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]]; then
   ansible -m shell -a 'kill $(pgrep -f dstat) || true' pxe_servers || true
 else
   kill $(pgrep -f dstat) || true
@@ -32,7 +32,7 @@ collect_logs_cmd+=" --ssh-common-args='-o StrictHostKeyChecking=no'"
 collect_logs_cmd+=" --extra-vars='artifacts_dir=${RE_HOOK_ARTIFACT_DIR}'"
 collect_logs_cmd+=" --extra-vars='result_dir=${RE_HOOK_RESULT_DIR}'"
 
-if [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+if [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]]; then
   collect_logs_cmd+=" --extra-vars='target_hosts=pxe_servers:localhost'"
   collect_logs_cmd+=" --inventory='/opt/openstack-ansible-ops/multi-node-aio/playbooks/inventory/hosts'"
 else
