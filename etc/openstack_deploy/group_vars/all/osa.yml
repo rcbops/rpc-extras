@@ -137,3 +137,8 @@ haproxy_extra_services:
 repo_build_os_distro_version: "{{ (ansible_distribution | lower) | replace(' ', '_') }}-{{ ansible_distribution_version.split('.')[:2] | join('.') }}-{{ ansible_architecture | lower }}"
 
 lxc_container_backing_store: machinectl
+
+# NOTE(cloudnull): Ensure that the ceph client is always present and not "latest".
+#                  This is being done to ensure that the VMs created using RBD 
+#                  are not terminated on client upgrades.
+ceph_client_package_state: "present"
