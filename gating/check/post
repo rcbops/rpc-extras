@@ -2,8 +2,12 @@
 
 ## Shell Opts ----------------------------------------------------------------
 
-set -euv
+set -eux
 set -o pipefail
+
+## Vars ----------------------------------------------------------------------
+
+source "$(readlink -f $(dirname ${0}))/../gating_vars.sh"
 
 ## Main ----------------------------------------------------------------------
 
@@ -11,6 +15,6 @@ if [ $RE_JOB_ACTION != "tox-test" ]; then
   bash -c "$(readlink -f $(dirname ${0})/post_deploy.sh)"
 fi
 
-if [ $RE_JOB_ACTION == "system" ]; then
+if [ $RE_JOB_ACTION == system* ]; then
   bash -c "$(readlink -f $(dirname ${0})/post_send_junit_to_qtest.sh)"
 fi

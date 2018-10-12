@@ -10,7 +10,7 @@ export REPO_URL=${RE_HOOK_REPO_HTTP_URL}
 
 apt-get install -y pandoc
 
-pip install osa_differ==0.3.9 rpc_differ==0.3.9 reno==2.5.1
+pip install osa_differ==0.3.9 rpc_differ==0.3.9 reno==2.11.2
 
 gating/generate_release_notes/generate_release_notes.sh
 

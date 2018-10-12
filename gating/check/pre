@@ -2,10 +2,12 @@
 
 ## Shell Opts ----------------------------------------------------------------
 
-set -euv
+set -eux
 set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
+
+source "$(readlink -f $(dirname ${0}))/../gating_vars.sh"
 
 ## Main ----------------------------------------------------------------------
 
@@ -24,3 +26,27 @@ fi
 # yaml library are present for ansible to work.
 source "$(readlink -f $(dirname ${0}))/../gating_prerequisites.sh"
 
+# Install pre-requisites for the different types of tests
+distro_pkgs_to_install=""
+py_pkgs_to_install=""
+
+if [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+  dpkg-query --list | grep curl &>/dev/null || distro_pkgs_to_install+="curl "
+fi
+
+if [[ $RE_JOB_ACTION == "tox-test" ]]; then
+  dpkg-query --list | grep wget &>/dev/null || distro_pkgs_to_install+="wget "
+  pip freeze | grep tox &>/dev/null || py_pkgs_to_install+="tox==3.3.0 "
+fi
+
+if [ "${distro_pkgs_to_install}" != "" ]; then
+  apt-get install -y ${distro_pkgs_to_install}
+fi
+
+if [ "${py_pkgs_to_install}" != "" ]; then
+  pip install --disable-pip-version-check --upgrade --upgrade-strategy only-if-needed ${py_pkgs_to_install}
+fi
+
+if [[ $RE_JOB_IMAGE =~ .*mnaio.* ]]; then
+  source "$(readlink -f $(dirname ${0})/pre_deploy_mnaio.sh)"
+fi

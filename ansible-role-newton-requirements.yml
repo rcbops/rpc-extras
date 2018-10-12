@@ -1,3 +1,4 @@
+---
 # Copyright 2014-2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,26 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# NOTE(cloudnull): Logging Specific roles
-- name: logstash
-  scm: git
-  src: https://github.com/rcbops/rpc-role-logstash.git
-  version: f42bd2ccdc9c4608e2a357a9f088e3873a6ecad4
-- name: filebeat
-  scm: git
-  src: https://github.com/rcbops/rpc-role-filebeat.git
-  version: ce4c1b16e9bfd7b27a874b95218cde2bc1293bec
-- name: kibana
-  scm: git
-  src: https://github.com/rcbops/rpc-role-kibana.git
-  version: 6c54eb443b579553db6fcbe55bcdbc740bab1a8f
-- name: elasticsearch
-  scm: git
-  src: https://github.com/d34dh0r53/ansible-elasticsearch
-  version: 757d875cceb5912939af8f7712ea247a0cdc8284
-
 # RPC-Support specific role
 - name: rcbops_openstack-ops
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
-  version: dfc2180e9bf28c8f59baca2a233db2a726b97bcb
+  version: 86c8e3c6327b5958b5eb3124455e3c12cd280e75

@@ -43,4 +43,3 @@ dpkg-query --list | grep python-yaml &>/dev/null || pkgs_to_install+="python-yam
 if [ "${pkgs_to_install}" != "" ]; then
   apt-get install -y ${pkgs_to_install}
 fi
-

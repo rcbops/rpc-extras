@@ -4,7 +4,7 @@
 
 ## Shell Opts ----------------------------------------------------------------
 
-set -ev
+set -ex
 set -o pipefail
 
 ## Variables -----------------------------------------------------------------
@@ -17,14 +17,13 @@ SYS_TEST_SOURCE_BASE="${SYS_TEST_SOURCE_BASE:-https://github.com/rcbops}"
 SYS_TEST_SOURCE="${SYS_TEST_SOURCE:-rpc-openstack-system-tests}"
 SYS_TEST_SOURCE_REPO="${SYS_TEST_SOURCE_BASE}/${SYS_TEST_SOURCE}"
 SYS_TEST_BRANCH="${RE_JOB_BRANCH:-master}"
-export SYS_INVENTORY="/opt/openstack-ansible/playbooks/inventory"
 
 ## Main ----------------------------------------------------------------------
 
 # 1. Clone test repository into working directory.
 pushd "${SYS_WORKING_DIR}"
 git clone "${SYS_TEST_SOURCE_REPO}"
-pushd "${SYS_TEST_SOURCE}"
+cd "${SYS_TEST_SOURCE}"
 
 # Checkout defined branch
 git checkout "${SYS_TEST_BRANCH}"
@@ -41,18 +40,17 @@ set +e
 ./execute_tests.sh
 [[ $? -ne 0 ]] && RC=$?  # record non-zero exit code
 
-# 3. Collect results from script
+# 3. Collect results from script, if they exist
 mkdir -p "${RE_HOOK_RESULT_DIR}" || true  # ensure that result directory exists
-tar -xf test_results.tar -C "${RE_HOOK_RESULT_DIR}"
-# record non-zero exit code if not already recorded
-[[ $? -ne 0 ]] && [[ ! -z ${RC+x} ]] && RC=$?
+if [[ -e test_results.tar ]]; then
+  tar -xf test_results.tar -C "${RE_HOOK_RESULT_DIR}"
+fi
 
-# 4. Collect logs from script
+# 4. Collect logs from script, if they exist
 mkdir -p "${RE_HOOK_ARTIFACT_DIR}" || true  # ensure that artifact directory exists
-cp test_results.tar "${RE_HOOK_ARTIFACT_DIR}/molecule_test_results.tar"
-# Molecule does not produce logs outside of STDOUT
-# record non-zero exit code if not already recorded
-[[ $? -ne 0 ]] && [[ ! -z ${RC+x} ]] && RC=$?
+if [[ -e test_results.tar ]]; then
+  cp test_results.tar "${RE_HOOK_ARTIFACT_DIR}/molecule_test_results.tar"
+fi
 popd
 
 # if exit code is recorded, use it, otherwise let it exit naturally

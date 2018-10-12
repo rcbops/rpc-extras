@@ -72,27 +72,28 @@ elasticsearch_tcp_port: 9300
 haproxy_extra_services:
   - service:
       haproxy_service_name: elasticsearch
-      haproxy_backend_nodes: "{{ groups['elasticsearch_all'] | default([]) }}"
-      haproxy_ssl: False
-      haproxy_port: "{{ elasticsearch_http_port }}"
+      haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+      haproxy_ssl: True
+      haproxy_port: 9201
+      haproxy_backend_port: 9200
       haproxy_balance_type: http
       haproxy_backend_options:
-        - "forwardfor"
-        - "httpchk /healthcheck"
-        - "httplog"
-  - service:
-      haproxy_service_name: elasticsearch-tcp
-      haproxy_backend_nodes: "{{ groups['elasticsearch_all'] | default([]) }}"
-      haproxy_port: "{{ elasticsearch_tcp_port }}"
-      haproxy_balance_type: tcp
+        - "httpchk"
   - service:
       haproxy_service_name: kibana_ssl
-      haproxy_ssl: False
-      haproxy_backend_nodes: "{{ groups['kibana_all'] | default([]) }}"
+      haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
+      haproxy_ssl: True
       haproxy_port: 8443
+      haproxy_backend_port: 81
       haproxy_balance_type: tcp
+  - service:
+      haproxy_service_name: appformix
+      haproxy_backend_nodes: "{{ groups['log_hosts'] }}"
+      haproxy_ssl: True
+      haproxy_port: 9000
+      haproxy_balance_type: http
       haproxy_backend_options:
-        - "ssl-hello-chk"
+        - "httpchk"
 
 # Define the distro version globally
 repo_build_os_distro_version: "{{ (ansible_distribution | lower) | replace(' ', '_') }}-{{ ansible_distribution_version.split('.')[:2] | join('.') }}-{{ ansible_architecture | lower }}"
