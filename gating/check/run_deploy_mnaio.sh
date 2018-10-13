@@ -61,13 +61,6 @@ fi
 
 ## Main --------------------------------------------------------------------
 
-# capture all RE_ variables
-> /opt/rpc-openstack/RE_ENV
-env | grep RE_ | while read -r match; do
-  varName=$(echo ${match} | cut -d= -f1)
-  echo "export ${varName}='${!varName}'" >> /opt/rpc-openstack/RE_ENV
-done
-
 echo "Multi Node AIO setup completed..."
 
 # capture all RE_ variables for push to infra1
@@ -135,9 +128,16 @@ EOC
 # start the rpc-o install from infra1
 ${MNAIO_SSH} "/opt/rpc-openstack/deploy-infra1.sh"
 
+if [[ "${GATE_ELK}" == "true" ]]; then
+  ${MNAIO_SSH} <<EOS
+    cd /opt/rpc-openstack
+    openstack-ansible playbooks/elk-deployment.yml
+EOS
+fi
+
 echo "MNAIO RPC-O deploy completed..."
 
-if [[ $RE_JOB_ACTION == "deploy" ]]; then
+if [[ ${RE_JOB_ACTION} == "deploy" ]]; then
   # run tempest tests on MNAIO for deploy action
   ${MNAIO_SSH} <<EOS
     cd /opt/openstack-ansible
