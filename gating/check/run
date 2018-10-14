@@ -39,3 +39,7 @@ if [[ ${RE_JOB_ACTION} == "sdqc" ]]; then
   export RE_JOB_BRANCH="openstack-ops-only"
   bash -c "$(readlink -f $(dirname ${0})/run_system_tests.sh)"
 fi
+
+if [[ ${RE_JOB_ACTION} == "elk" ]]; then
+  bash -c "$(readlink -f $(dirname ${0})/run_elk_tests.sh)"
+fi
