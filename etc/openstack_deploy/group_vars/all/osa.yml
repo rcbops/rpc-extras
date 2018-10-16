@@ -122,7 +122,9 @@ haproxy_extra_services:
       haproxy_ssl: True
       haproxy_port: 8443
       haproxy_backend_port: 81
-      haproxy_balance_type: tcp
+      haproxy_balance_type: http
+      haproxy_backend_options:
+        - "httpchk"
   - service:
       haproxy_service_name: appformix
       haproxy_backend_nodes: "{{ groups['log_hosts'] }}"
@@ -131,6 +133,14 @@ haproxy_extra_services:
       haproxy_balance_type: http
       haproxy_backend_options:
         - "httpchk"
+  - service:
+      haproxy_service_name: kolide-fleet
+      haproxy_ssl: False
+      haproxy_backend_nodes: "{{ groups['fleet_all'] | default([]) }}"
+      haproxy_port: 6443
+      haproxy_check_port: 443
+      haproxy_backend_port: 443
+      haproxy_balance_type: tcp
 
 
 # Define the distro version globally

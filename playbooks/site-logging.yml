@@ -13,4 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: elk-deployment.yml
+- include: openstack-ansible-ops-get.yml
+- include: deployment-osquery.yml
+- include: deployment-elk.yml

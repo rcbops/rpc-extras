@@ -1,0 +1,130 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Bootstrap embedded ansible
+  hosts: localhost
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Run bootstrap process
+      command: "/opt/openstack-ansible-ops/elk_metrics_6x/bootstrap-embedded-ansible.sh"
+      changed_when: false
+
+    - name: Create kolide-fleet groups
+      copy:
+        content: |
+          ---
+          # Fleet hosts
+          kolide_hosts:
+          {% for item in groups['log_hosts'] %}
+            {{ item }}:
+              ip: {{ hostvars[item]['ansible_host'] }}
+          {% endfor %}
+        dest: "/etc/openstack_deploy/conf.d/fleet.yml"
+
+    - name: Reload inventory
+      command: "ansible -m ping localhost"
+      changed_when: false
+      args:
+        chdir: "/opt/openstack-ansible/playbooks"
+  tags:
+    - fleet
+    - fleet-bootstrap
+
+
+- name: Run kolide-fleet deployment
+  hosts: localhost
+  environment: "{{ deployment_environment_variables | default({}) }}"
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Create kolide-fleet container(s)
+      become: yes
+      become_user: root
+      command: >-
+        openstack-ansible containers-nspawn-create.yml containers-lxc-create.yml --limit lxc_hosts:fleet_all
+      args:
+        chdir: "/opt/openstack-ansible/playbooks"
+      tags:
+        - skip_ansible_lint
+      environment:
+        ANSIBLE_LOG_PATH: "/var/log/ansible-kolide-fleet-deployment.log"
+
+    - name: Set kolide-fleet secrets
+      lineinfile:
+        dest: /etc/openstack_deploy/user_secrets.yml
+        state: present
+        regexp: "^{{ item.key }}"
+        line: '{{ item.key }}: "{{ item.value }}"'
+      no_log: True
+      with_items:
+        - key: kolide_fleet_db_password
+          value: "{{ lookup('password', '/dev/null length=24 chars=ascii_letters') }}"
+        - key: kolide_fleet_jwt_key
+          value: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters') }}"
+        - key: kolide_fleet_admin_password
+          value: "{{ lookup('password', '/dev/null length=8 chars=ascii_letters') }}"
+
+    - name: Get osquery roles
+      become: yes
+      become_user: root
+      command: >-
+        {{ ansible_env.HOME }}/ansible25/bin/ansible-galaxy install -r ansible-role-requirements.yml
+        --roles-path={{ ansible_env.HOME }}/ansible25/repositories/roles
+        --ignore-errors
+      tags:
+        - skip_ansible_lint
+      environment:
+        ANSIBLE_LOG_PATH: "/var/log/ansible-kolide-fleet-deployment.log"
+        ANSIBLE_INVENTORY: "{{ ansible_env.HOME }}/ansible25/inventory/openstack_inventory.sh"
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_ROLES_PATH: "{{ ansible_env.HOME }}/ansible25/repositories/roles"
+        ANSIBLE_ACTION_PLUGINS: "{{ ansible_env.HOME }}/ansible25/repositories/ansible-config_template/action"
+        ANSIBLE_CONNECTION_PLUGINS: "{{ ansible_env.HOME }}/ansible25/repositories/openstack-ansible-plugins/connection/"
+      args:
+        chdir: "/opt/openstack-ansible-ops/osquery"
+
+    - name: Find secrets files
+      find:
+        paths: "/etc/openstack_deploy"
+        patterns: 'user_.*(secret|kolide|fleet|aio).*.(yml|yaml)$'
+        use_regex: yes
+      register: secrets_files
+
+    - name: Run osquery deployment
+      become: yes
+      become_user: root
+      command: >-
+        {{ ansible_env.HOME }}/ansible25/bin/ansible-playbook
+        {{ secrets_files.files | map(attribute='path') | list | map('regex_replace', '(.*)' ,'-e @' ~ '\1') | list | join(' ') }}
+        {{ item }}
+      with_items:
+        - site-fleet.yml
+        - site-osquery.yml
+      tags:
+        - skip_ansible_lint
+      environment:
+        ANSIBLE_LOG_PATH: "/var/log/ansible-kolide-fleet-deployment.log"
+        ANSIBLE_INVENTORY: "{{ ansible_env.HOME }}/ansible25/inventory/openstack_inventory.sh"
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_ROLES_PATH: "{{ ansible_env.HOME }}/ansible25/repositories/roles"
+        ANSIBLE_ACTION_PLUGINS: "{{ ansible_env.HOME }}/ansible25/repositories/ansible-config_template/action"
+        ANSIBLE_CONNECTION_PLUGINS: "{{ ansible_env.HOME }}/ansible25/repositories/openstack-ansible-plugins/connection/"
+      args:
+        chdir: "/opt/openstack-ansible-ops/osquery"
+  tags:
+    - fleet
+    - fleet-deployment

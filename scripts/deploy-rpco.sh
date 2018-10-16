@@ -38,17 +38,20 @@ for file_name in user_secrets.yml user_rpco_secrets.yml; do
   fi
 done
 
+if [ "${DEPLOY_AIO:-false}" != false ]; then
+  cp "${SCRIPT_PATH}/user_aio_variables.yml" /etc/openstack_deploy/user_aio_variables.yml
+fi
+
 # Begin the RPC installation by uploading images and creating flavors.
 pushd "${SCRIPT_PATH}/../playbooks"
   # Create default VM images and flavors
-  if [ "${DEPLOY_AIO:-false}" != false ]; then
-    openstack-ansible site-openstack.yml -e 'openstack_images=[]'
-  else
-    openstack-ansible site-openstack.yml
-  fi
+  openstack-ansible site-openstack.yml
 
   # Deploy RPC operational modifications
   openstack-ansible site-ops.yml
+
+  # Deploy logging tools
+  openstack-ansible site-logging.yml
 popd
 
 if [ "${DEPLOY_MAAS}" != false ]; then

@@ -13,29 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Clone openstack-ansible-ops
-  hosts: localhost
-  environment: "{{ deployment_environment_variables | default({}) }}"
-  connection: local
-  gather_facts: false
-  tasks:
-    - name: Refresh local facts
-      setup:
-        filter: ansible_local
-        gather_subset: "!all"
-      tags:
-        - always
-
-    - name: Clone RPC-MaaS
-      git:
-        repo: "https://github.com/openstack/openstack-ansible-ops"
-        dest: "/opt/openstack-ansible-ops"
-        version: "{{ ansible_local['rpc_openstack']['rpc_product']['openstack_ansible_ops'] }}"
-  tags:
-    - elk
-    - elk-get
-
-
 - name: Bootstrap embedded ansible
   hosts: localhost
   environment: "{{ deployment_environment_variables | default({}) }}"
@@ -89,11 +66,14 @@
         chdir: "/opt/openstack-ansible/playbooks"
       tags:
         - skip_ansible_lint
+      environment:
+        ANSIBLE_LOG_PATH: "/var/log/ansible-elk-beats-deployment.log"
 
     - name: Find secrets files
       find:
         paths: "/etc/openstack_deploy"
-        patterns: 'user*secret*.yml'
+        patterns: 'user_.*(secret|elk|aio).*.(yml|yaml)$'
+        use_regex: yes
       register: secrets_files
 
     - name: Run elk+beat(s) deployment
