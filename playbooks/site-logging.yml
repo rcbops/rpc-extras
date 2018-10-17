@@ -13,4 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: elk-deployment.yml
+- include: openstack-ansible-ops-get.yml
+- include: deployment-osquery.yml
+  when: groups['log_hosts'] is defined and (groups['log_hosts'] | length>0)
+- include: deployment-elk.yml
+  when: groups['log_hosts'] is defined and (groups['log_hosts'] | length>0)

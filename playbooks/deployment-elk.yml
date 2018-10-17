@@ -36,7 +36,7 @@
     - elk-get
 
 
-- name: Bootstrap embedded ansible and the inventory configuration
+- name: Bootstrap embedded ansible
   hosts: localhost
   environment: "{{ deployment_environment_variables | default({}) }}"
   connection: local
@@ -103,11 +103,14 @@
         chdir: "/opt/openstack-ansible/playbooks"
       tags:
         - skip_ansible_lint
+      environment:
+        ANSIBLE_LOG_PATH: "/var/log/ansible-elk-beats-deployment.log"
 
     - name: Find secrets files
       find:
         paths: "/etc/openstack_deploy"
-        patterns: 'user*secret*.yml'
+        patterns: 'user_.*(secret|elk|aio).*.(yml|yaml)$'
+        use_regex: yes
       register: secrets_files
 
     - name: Run elk+beat(s) deployment
