@@ -216,13 +216,6 @@ openstack-ansible lxc-containers-create.yml --limit 'log_hosts:elk_all'
 * Switch to directory with ELK 6.x playbooks and bootstrap embedded ansible and
   run the ELK 6x deployment.
 
-**NOTICE:*** *Older RPC releases require `ANSIBLE_INVENTORY` to be set in order to
-make the OSA inventory availably to the embedded Ansible environment.
-In such case you may set:*
- ``` shell
-export ANSIBLE_INVENTORY=/opt/rpc-openstack/openstack-ansible/playbooks/inventory
-```
-
 ``` shell
 cd /opt/openstack-ansible-ops/elk_metrics_6x
 source bootstrap-embedded-ansible.sh
