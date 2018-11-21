@@ -18,3 +18,7 @@
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
   version: dfc2180e9bf28c8f59baca2a233db2a726b97bcb
+- name: sshd
+  scm: git
+  src: https://github.com/willshersystems/ansible-sshd
+  version: v0.4.5
