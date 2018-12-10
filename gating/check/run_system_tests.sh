@@ -22,7 +22,15 @@ export SYS_VENV_NAME="${SYS_VENV_NAME:-venv-molecule}"
 SYS_TEST_SOURCE_BASE="${SYS_TEST_SOURCE_BASE:-https://github.com/rcbops}"
 SYS_TEST_SOURCE="${SYS_TEST_SOURCE:-rpc-openstack-system-tests}"
 SYS_TEST_SOURCE_REPO="${SYS_TEST_SOURCE_BASE}/${SYS_TEST_SOURCE}"
-SYS_TEST_BRANCH="${RE_JOB_BRANCH:-master}"
+# Set SYS_TEST_BRANCH to either RE_JOB_BRANCH or RPC_GATING_BRANCH depending
+# on what was defined by the job.
+if [ -n "${RE_JOB_BRANCH}" ] ; then
+    SYS_TEST_BRANCH="${RE_JOB_BRANCH}"
+elif [ -n "${RPC_GATING_BRANCH}" ] ; then
+    SYS_TEST_BRANCH="${RPC_GATING_BRANCH}"
+else
+    SYS_TEST_BRANCH="master"
+fi
 
 # Switch system test branch to `dev` or `maas` on the experimental-asc job.
 # This job is specifically for running system tests under development.
