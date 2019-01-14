@@ -486,13 +486,13 @@ aptly_mirrors:
     do_update: "{{ aptly_mirror_do_updates }}"
 
   - name: grafana-jessie-ALL
-    archive_url: https://packagecloud.io/grafana/stable/debian
-    distribution: jessie
+    archive_url: https://packages.grafana.com/oss/deb
+    distribution: stable
     component1:
       - main
     state: "present"
     gpg:
-      key: "D59097AB"
+      key: "8c8c34c524098cb6"
       server: "hkp://keyserver.ubuntu.com:80"
       keyring: "trustedkeys.gpg"
     create_flags:
