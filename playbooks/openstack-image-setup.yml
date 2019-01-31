@@ -14,36 +14,42 @@
 # limitations under the License.
 
 - name: OpenStack image setup
-  hosts: localhost
+  hosts: utility_all[0]
   environment: "{{ deployment_environment_variables | default({}) }}"
   user: root
+  vars:
+    image_virt_type: "kvm"
   tasks:
-    - name: Create OpenStack client configuration
-      include_role:
-        name: "openstack_openrc"
-
     - name: Download system image file
       get_url:
         url: "{{ item.url }}"
-        dest: "/var/tmp/os_image_{{ item.name }}"
+        dest: "/var/backup/os_image_{{ item.name }}"
         timeout: 1200
+      when:
+        - image_virt_type == item.properties.hypervisor_type
       with_items: "{{ openstack_images }}"
 
-    - name: Install system image
-      os_image:
-        endpoint_type: internal
-        cloud: default
-        state: present
-        is_public: true
-        name: "{{ item.name }}"
-        filename: "/var/tmp/os_image_{{ item.name }}"
-        disk_format: "{{ item.format }}"
-        properties: "{{ item.properties | default(omit) }}"
-      with_items: "{{ openstack_images }}"
+    - name: Create system images
+      vars:
+        ansible_python_interpreter: "/opt/rcbops-tools/bin/python"
+      block:
+        - name: Install system image
+          os_image:
+            endpoint_type: internal
+            cloud: default
+            state: present
+            is_public: true
+            name: "{{ item.name }}"
+            filename: "/var/backup/os_image_{{ item.name }}"
+            disk_format: "{{ item.format }}"
+            properties: "{{ item.properties }}"
+          when:
+            - image_virt_type == item.properties.hypervisor_type
+          with_items: "{{ openstack_images }}"
 
     - name: Clean up temp file
       file:
-        dest: "/var/tmp/os_image_{{ item.name }}"
+        dest: "/var/backup/os_image_{{ item.name }}"
         state: absent
       with_items: "{{ openstack_images }}"
 

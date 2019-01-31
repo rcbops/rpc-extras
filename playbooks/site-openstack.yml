@@ -13,5 +13,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: openstack-image-setup.yml
-- include: openstack-flavor-setup.yml
+- name: Create venv
+  command: "virtualenv --no-site-packages --no-setuptools /opt/rcbops-tools"
+  args:
+    creates: "/opt/rcbops-tools/bin/python"
+
+- name: Create virtualenv
+  vars:
+    ansible_python_interpreter: "/opt/rcbops-tools/bin/python"
+  block:
+    - name: Setup venv
+      pip:
+        name:
+          - setuptools
+          - pip
+        extra_args: "-U"
+        virtualenv: "/opt/rcbops-tools"
+
+    - name: Install openstacksdk
+      pip:
+        name: "openstacksdk"
+        state: "present"
+        virtualenv: "/opt/rcbops-tools/bin/python"
+      register: install_packages
+      until: install_packages is success
+      retries: 5
+      delay: 2
+
+- include_tasks: openstack-image-setup.yml
+
+- include_tasks: openstack-flavor-setup.yml

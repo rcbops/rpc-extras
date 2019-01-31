@@ -19,7 +19,7 @@ set -eux
 set -o pipefail
 
 ## Vars ----------------------------------------------------------------------
-
+export DEPLOY_IMAGE_VIRT_TYPE=${DEPLOY_IMAGE_VIRT_TYPE:-kvm}
 export SCRIPT_PATH="$(readlink -f $(dirname ${0}))"
 
 ## Functions -----------------------------------------------------------------
@@ -45,7 +45,7 @@ fi
 # Begin the RPC installation by uploading images and creating flavors.
 pushd "${SCRIPT_PATH}/../playbooks"
   # Create default VM images and flavors
-  openstack-ansible site-openstack.yml
+  openstack-ansible site-openstack.yml -e "image_virt_type=${DEPLOY_IMAGE_VIRT_TYPE}"
 
   # Deploy RPC operational modifications
   openstack-ansible site-ops.yml

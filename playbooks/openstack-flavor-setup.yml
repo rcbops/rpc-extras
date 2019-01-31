@@ -22,18 +22,22 @@
       include_role:
         name: "openstack_openrc"
 
-    - name: Create flavors of nova VMs
-      os_nova_flavor:
-        endpoint_type: internal
-        cloud: default
-        state: present
-        name: "{{ item.name }}"
-        ram: "{{ item.ram }}"
-        vcpus: "{{ item.vcpus }}"
-        disk: "{{ item.disk }}"
-        swap: "{{ item.swap }}"
-        ephemeral: "{{ item.ephemeral }}"
-      with_items: "{{ openstack_vm_flavors }}"
+    - name: Create system images
+      vars:
+        ansible_python_interpreter: "/opt/rcbops-tools/bin/python"
+      block:
+        - name: Create flavors of nova VMs
+          os_nova_flavor:
+            endpoint_type: internal
+            cloud: default
+            state: present
+            name: "{{ item.name }}"
+            ram: "{{ item.ram }}"
+            vcpus: "{{ item.vcpus }}"
+            disk: "{{ item.disk }}"
+            swap: "{{ item.swap }}"
+            ephemeral: "{{ item.ephemeral }}"
+          with_items: "{{ openstack_vm_flavors }}"
 
   vars_files:
     - vars/openstack-service-config.yml
