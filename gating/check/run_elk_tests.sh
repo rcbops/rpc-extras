@@ -31,6 +31,9 @@ source "$(readlink -f $(dirname ${0}))/../mnaio_vars.sh"
 ## Main --------------------------------------------------------------------
 
 ${MNAIO_SSH} <<EOS
-  cd /opt/rpc-openstack
-  openstack-ansible playbooks/site-logging.yml
+  cd /opt
+  curl https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/master/scripts/setup.sh | bash
+  cd /opt/magnanimous-turbo-chainsaw
+  bash ./scripts/deploy-elk.sh
 EOS
+
