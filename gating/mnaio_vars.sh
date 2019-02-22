@@ -56,6 +56,7 @@ fi
 #
 export RPC_BRANCH="${RE_JOB_BRANCH}"
 export DEPLOY_MAAS=false
+export MTC_BRANCH="${MTC_BRANCH:-master}"
 
 # ssh command used to execute tests on infra1
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
