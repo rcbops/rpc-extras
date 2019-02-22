@@ -10,10 +10,6 @@ echo "+-------------------- ENV VARS --------------------+"
 env
 echo "+-------------------- ENV VARS --------------------+"
 
-## Vars ----------------------------------------------------------------------
-
-export DEPLOY_AIO="true"
-
 source "$(readlink -f $(dirname ${0}))/../gating_vars.sh"
 
 ## Main ----------------------------------------------------------------------
@@ -28,6 +24,7 @@ if [[ ${RE_JOB_ACTION} == "tox-test" ]]; then
 elif [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]]; then
   bash -c "$(readlink -f $(dirname ${0})/run_deploy_mnaio.sh)"
 else
+  export DEPLOY_AIO="true"
   bash -c "$(readlink -f $(dirname ${0})/../../scripts/deploy.sh)"
 
   # Enable the debug stdout callback to ensure that the console
