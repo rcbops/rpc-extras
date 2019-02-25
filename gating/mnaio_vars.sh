@@ -51,6 +51,11 @@ if [[ "${RPCO_IMAGES_AVAILABLE}" == "false" ]] || [[ "${RE_JOB_ACTION}" == "depl
   export DEPLOY_VMS="true"
 fi
 
+# Enable Ceph deployment if specified by the job scenario.
+if [[ "${RE_JOB_SCENARIO}" == "ceph" ]] ]]; then
+  export ENABLE_CEPH_STORAGE="true"
+fi
+
 #
 # Non-MNAIO RPC Specific settings
 #
@@ -95,6 +100,7 @@ function run_mnaio_playbook() {
                  -e container_tech=${CONTAINER_TECH:-"lxc"} \
                  -e ipxe_kernel_base_url=${IPXE_KERNEL_BASE_URL:-"http://boot.ipxe.org"} \
                  -e ipxe_path_url=${IPXE_PATH_URL:-""} ${MNAIO_ANSIBLE_PARAMETERS} \
+                 -e enable_ceph_storage=${ENABLE_CEPH_STORAGE:-"false"} \
                  --force-handlers \
                  --flush-cache \
                  $@
