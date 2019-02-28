@@ -34,7 +34,7 @@ export ANSIBLE_STDOUT_CALLBACK=debug
 # IP fact being up to date.
 export ANSIBLE_GATHERING=implicit
 openstack-ansible -v /opt/rpc-openstack/gating/thaw/thaw.yml
-openstack-ansible -t haproxy_server-config haproxy-install.yml
+openstack-ansible -t haproxy-server haproxy-install.yml
 
 lxc-autostart --all
 
