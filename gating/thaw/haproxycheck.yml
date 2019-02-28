@@ -3,14 +3,14 @@
   tasks:
   - name: Check state of haproxy backends
     shell: |
-      set -eu
+      set -u
 
       # There are two flavors of netcat on Ubuntu, but
       # only this one supports the -U parameter.
       if ! dpkg-query --status netcat-openbsd &>/dev/null; then
-        echo "netcat not installed - installing it now"
-        apt-get update
-        apt-get install netcat-openbsd
+      echo "netcat not installed - installing it now"
+      apt-get update
+      apt-get install netcat-openbsd
       fi
 
       # Check haproxy backends excluding elasticsearch
@@ -25,19 +25,26 @@
 
       for i in {1..30}
       do
-        echo "show servers state" |nc -U /var/run/haproxy.stat > haproxy.stat
-        awk '$2 !~ "elastic" && $0 != "1" && $1 != "#" && $6 != "2" {print $0}' \
+      echo "show servers state" |nc -U /var/run/haproxy.stat > haproxy.stat
+      awk '$2 !~ "elastic" && $0 != "1" && $1 != "#" && $6 != "2" {print $0}' \
           < haproxy.stat  \
           |tee haproxy.down
-        if [[ $(wc -l < haproxy.down) == 1 ]]
-        then
+      if [[ $(wc -l < haproxy.down) == 1 ]]
+      then
           echo "HAProxy healthchecks passing."
           exit 0
-        else
+      else
+          echo "Attempting to restart failing containers"
+          for container in $(cat haproxy.down | awk '$0 != "^$/" {print $4|"sort -u"}'); do
+              echo "Stopping container $container"
+              lxc-stop -n $container
+              echo "Starting container $container"
+              lxc-start -n $container
+          done
           echo "At least one HAProxy backend is down, sleeping for 60s before"
           echo "rechecking."
           sleep 60
-        fi
+      fi
       done
       print "HAProxy backends failed to come up in time"
       exit 1
