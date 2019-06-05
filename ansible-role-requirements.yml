@@ -5,7 +5,7 @@
 - name: openstack_hosts
   scm: git
   src: https://github.com/rcbops/openstack-ansible-openstack_hosts
-  version: 93366865089906c9223e76e2a6ed279e7c1a82b3
+  version: stable/newton
 # Note (odyssey4me) - RO-4147:
 # PBR released a new version after newton went EOL,
 # causing various builds to break. We therefore use
