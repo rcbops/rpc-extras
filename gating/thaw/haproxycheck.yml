@@ -5,7 +5,7 @@
     shell: |
       set -eu
 
-      # There are two flavors of netcat on Ubuntu, but
+      # There are two flavors of netcat in the Ubuntu operating system, but
       # only this one supports the -U parameter.
       if ! dpkg-query --status netcat-openbsd &>/dev/null; then
         echo "netcat not installed - installing it now"
