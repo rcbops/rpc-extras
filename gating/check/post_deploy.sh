@@ -37,9 +37,10 @@ extract_rpc_release(){
   awk '/rpc_release/{print $2}' | tr -d '"'
 }
 
-# Only enable snapshot when triggered by a commit push.
-# This is to enable image updates whenever a PR is merged, but not before
-if [[ "${RE_JOB_TRIGGER:-USER}" == "PUSH" ]] && [[ ${RE_JOB_STATUS:-SUCCESS} == "SUCCESS" ]]; then
+# Only enable snapshot when triggered by a commit push or a periodic job,
+# and only when the job succeeded. This is to enable snapshot image updates
+# based on committed code that works.
+if [[ "${RE_JOB_STATUS:-UNKNOWN}" == "SUCCESS" && ( "${RE_JOB_TRIGGER:-USER}" == "PUSH" || "${RE_JOB_TRIGGER:-USER}" == "TIMER" ) ]]; then
   echo "### BEGIN SNAPSHOT PREP ###"
   mkdir -p /gating/thaw
 
