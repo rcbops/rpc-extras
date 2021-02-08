@@ -4,6 +4,7 @@
 This project is retired with Rocky and releases forward are using native openstack-ansible.
 Do not file any issues in this project
 
+**This project is EOL, so we will not migrate it to the new docs.rackspace.com publishing infrastructure.**
 
 # Rackspace Private Cloud - OpenStack
 
