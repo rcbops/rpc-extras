@@ -50,3 +50,7 @@ fi
 if [[ ${RE_JOB_ACTION} == "elk" ]]; then
   bash -c "$(readlink -f $(dirname ${0})/run_elk_tests.sh)"
 fi
+
+if [[ ${RE_JOB_ACTION} == "health_check" ]]; then
+  bash -c "$(readlink -f $(dirname ${0})/run_health_check_tests.sh)"
+fi
